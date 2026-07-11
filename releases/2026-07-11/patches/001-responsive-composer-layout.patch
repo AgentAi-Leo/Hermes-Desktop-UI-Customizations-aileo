@@ -1,0 +1,37 @@
+diff --git a/apps/desktop/src/styles.css b/apps/desktop/src/styles.css
+index e5477bb6..ee42b997 100644
+--- a/apps/desktop/src/styles.css
++++ b/apps/desktop/src/styles.css
+@@ -360,7 +360,7 @@
+     --sticky-human-top: 0.23rem;
+     --file-tree-row-height: 1.375rem;
+ 
+-    --composer-width: 48.75rem;
++    --composer-width: 65rem;
+     --composer-control-size: 1.5rem;
+     --composer-control-primary-size: 1.625rem;
+     --composer-control-gap: 0.25rem;
+@@ -1827,3 +1827,23 @@ text-* variant utilities. */ .btn-arc {
+     opacity: 0.4;
+   }
+ }
++
++/* Fixed/floating composer <form> has max-width but no intrinsic width, so it can
++   shrink to content. Keep it anchored inside the chat pane instead of the whole
++   viewport, target --composer-width when space allows, shrink responsively when
++   a right-side pane/window reduces chat width, and sit as low as safely possible. */
++form[class~='group/composer'] {
++  position: absolute !important;
++  left: 50% !important;
++  right: auto !important;
++  bottom: 0 !important;
++  transform: translateX(-50%) !important;
++  width: min(var(--composer-width), calc(100% - 2rem)) !important;
++  max-width: calc(100% - 2rem) !important;
++  min-width: 0 !important;
++}
++
++/* Reserve scroll room so the final chat content can clear the composer/pill. */
++[data-slot='aui_thread-content'] {
++  padding-bottom: 210px !important;
++}

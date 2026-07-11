@@ -1,0 +1,24 @@
+diff --git a/apps/desktop/src/i18n/en.ts b/apps/desktop/src/i18n/en.ts
+index b4520ec1..96b1a45a 100644
+--- a/apps/desktop/src/i18n/en.ts
++++ b/apps/desktop/src/i18n/en.ts
+@@ -1725,6 +1725,7 @@ export const en: Translations = {
+     preparingAudio: 'Preparing audio',
+     speakingResponse: 'Speaking response',
+     readingAloud: 'Reading aloud',
++    pausedAudio: 'Paused',
+     themeSuggestions: 'Desktop theme suggestions',
+     noMatchingThemes: 'No matching themes.',
+     themeTryPre: 'Try ',
+diff --git a/apps/desktop/src/i18n/types.ts b/apps/desktop/src/i18n/types.ts
+index 031f5c78..c5b93681 100644
+--- a/apps/desktop/src/i18n/types.ts
++++ b/apps/desktop/src/i18n/types.ts
+@@ -1419,6 +1419,7 @@ export interface Translations {
+     preparingAudio: string
+     speakingResponse: string
+     readingAloud: string
++    pausedAudio: string
+     themeSuggestions: string
+     noMatchingThemes: string
+     themeTryPre: string
