@@ -12,6 +12,12 @@ releases/2026-07-11/
 
 ---
 
+## Preview
+
+![Hermes Desktop UI customizations preview](https://raw.githubusercontent.com/AgentAi-Leo/hermes-screenshots/main/playback-pill-screenshot.png)
+
+---
+
 ## Features
 
 - **Responsive composer and playback pill layout**
