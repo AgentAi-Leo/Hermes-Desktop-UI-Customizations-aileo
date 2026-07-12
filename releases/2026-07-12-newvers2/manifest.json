@@ -1,0 +1,56 @@
+{
+  "kind": "hermes-desktop-ui-customizations-public-package",
+  "generated_at": "2026-07-12T10:15:21",
+  "version": "2026-07-12-newvers2",
+  "source_snapshot_name": "2026-07-12-newvers2-current-working-ui",
+  "source_snapshot_created_at": "2026-07-12T10:14:15",
+  "source_git": {
+    "head": "7b5ba2054721dde998ed47fd4a0f031955278e99",
+    "branch": "main"
+  },
+  "files": {
+    "src/styles.css": {
+      "sha256": "0c60fa91874729da079a5164dc5c561f4a836e9ad47502f44a65d98f5ba6ccc2",
+      "bytes": 62141
+    },
+    "src/store/voice-playback.ts": {
+      "sha256": "67da18b12ea0b034b59f7596816bbda49f9ba25975c0edb3d2bfc1ee7e26bc02",
+      "bytes": 1760
+    },
+    "src/lib/voice-playback.ts": {
+      "sha256": "74cf59bb5f000109dd21a9de7c5ab3db9d5782fb6d5f5b5608dd2da02a1a3ac7",
+      "bytes": 5773
+    },
+    "src/lib/storage.ts": {
+      "sha256": "ecb22d8691d3682216d423838cdd16b64f6ea29b0aaec99877718835a503447f",
+      "bytes": 4083
+    },
+    "src/app/chat/composer/voice-activity.tsx": {
+      "sha256": "a8c071827594858ab6800def04e1ca63823b5d44993182152d4a276d46fc9c4a",
+      "bytes": 10487
+    },
+    "src/app/chat/composer/controls.tsx": {
+      "sha256": "1822a52f86e6c9152cf66ecb671ff60765958bfbd62ac0882e980da2fbf9a82f",
+      "bytes": 11735
+    },
+    "src/components/assistant-ui/thread/user-message.tsx": {
+      "sha256": "4c0efa98d0aaac2a76d9aba1e6504c7af3a05e55b0bee22be421543669b4aea3",
+      "bytes": 17623
+    },
+    "src/i18n/types.ts": {
+      "sha256": "c50d5c0ede4e4ef0e89c01c58a0481d1494c8430072963038e03a37659179e3a",
+      "bytes": 57087
+    },
+    "src/i18n/en.ts": {
+      "sha256": "1db38e2cb901bc4e0d2699f67f1a77de4e10e49c3c3a6708b8d574c1ed810c07",
+      "bytes": 107386
+    }
+  },
+  "customizations": [
+    "responsive composer/playback-pill width",
+    "voice playback controls",
+    "Esc stops playback",
+    "prompt copy button if included in snapshot"
+  ],
+  "notes": "Generated locally for review. Publishing to GitHub requires explicit approval. Complete private source files are not included in the public package by default."
+}
