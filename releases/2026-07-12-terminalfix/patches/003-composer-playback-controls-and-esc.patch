@@ -1,0 +1,263 @@
+diff --git a/apps/desktop/src/app/chat/composer/controls.tsx b/apps/desktop/src/app/chat/composer/controls.tsx
+index 8bc7abc4..4386ebd9 100644
+--- a/apps/desktop/src/app/chat/composer/controls.tsx
++++ b/apps/desktop/src/app/chat/composer/controls.tsx
+@@ -1,12 +1,15 @@
+ import { Button } from '@/components/ui/button'
+ import { Codicon } from '@/components/ui/codicon'
+ import { KbdCombo } from '@/components/ui/kbd'
++import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+ import { Tip } from '@/components/ui/tooltip'
+ import { useI18n } from '@/i18n'
+ import { triggerHaptic } from '@/lib/haptics'
+ import { AudioLines, iconSize, Layers3, Loader2, Square, SteeringWheel, Volume2, VolumeX } from '@/lib/icons'
+ import { formatCombo } from '@/lib/keybinds/combo'
+ import { cn } from '@/lib/utils'
++import { $voiceVolume, setVoiceVolume } from '@/store/voice-playback'
++import { useStore } from '@nanostores/react'
+ 
+ import type { ConversationStatus } from './hooks/use-voice-conversation'
+ import { ModelPill } from './model-pill'
+@@ -260,35 +263,63 @@ function ConversationIndicator({
+ }
+ 
+ // Pure-TTS toggle: type normally, but have every assistant reply read aloud —
+-// no dictation, no full conversation loop. Filled/accent when on, mirroring the
++// no dictation, no full conversation loops. Filled/accent when on, mirroring the
+ // muted-mic pressed state above. Driven by (and persisted to) `voice.auto_tts`.
++// Long-press / popover on the button opens a volume slider for TTS playback.
+ function AutoSpeakButton({ active, disabled, onToggle }: { active: boolean; disabled: boolean; onToggle: () => void }) {
+   const { t } = useI18n()
+   const c = t.composer
+   const label = active ? c.stopSpeakingReplies : c.speakReplies
++  const volume = useStore($voiceVolume)
+ 
+   return (
+-    <Tip label={label}>
+-      <Button
+-        aria-label={label}
+-        aria-pressed={active}
+-        className={cn(
+-          GHOST_ICON_BTN,
+-          'p-0',
+-          active && 'bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary'
+-        )}
+-        disabled={disabled}
+-        onClick={() => {
+-          triggerHaptic(active ? 'close' : 'open')
+-          onToggle()
+-        }}
+-        size="icon"
+-        type="button"
+-        variant="ghost"
+-      >
+-        {active ? <Volume2 className={iconSize.sm} /> : <VolumeX className={iconSize.sm} />}
+-      </Button>
+-    </Tip>
++    <Popover>
++      <Tip label={label}>
++        <PopoverTrigger asChild>
++          <Button
++            aria-label={label}
++            aria-pressed={active}
++            className={cn(
++              GHOST_ICON_BTN,
++              'p-0',
++              active && 'bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary'
++            )}
++            disabled={disabled}
++            onClick={() => {
++              triggerHaptic(active ? 'close' : 'open')
++              onToggle()
++            }}
++            onContextMenu={e => {
++              // Right-click opens the volume popover without toggling.
++              e.preventDefault()
++            }}
++            size="icon"
++            type="button"
++            variant="ghost"
++          >
++            {active ? <Volume2 className={iconSize.sm} /> : <VolumeX className={iconSize.sm} />}
++          </Button>
++        </PopoverTrigger>
++      </Tip>
++      <PopoverContent align="end" side="top" className="w-48 p-3">
++        <div className="flex flex-col gap-2">
++          <div className="flex items-center justify-between text-xs text-(--ui-text-secondary)">
++            <span>Volume</span>
++            <span className="tabular-nums">{Math.round(volume * 100)}%</span>
++          </div>
++          <input
++            aria-label="TTS volume"
++            className="w-full accent-primary"
++            max={1}
++            min={0}
++            onChange={e => setVoiceVolume(Number.parseFloat(e.target.value))}
++            step={0.05}
++            type="range"
++            value={volume}
++          />
++        </div>
++      </PopoverContent>
++    </Popover>
+   )
+ }
+ 
+diff --git a/apps/desktop/src/app/chat/composer/voice-activity.tsx b/apps/desktop/src/app/chat/composer/voice-activity.tsx
+index bd1f3303..6e3f2bd9 100644
+--- a/apps/desktop/src/app/chat/composer/voice-activity.tsx
++++ b/apps/desktop/src/app/chat/composer/voice-activity.tsx
+@@ -3,10 +3,10 @@ import { useEffect, useRef } from 'react'
+ 
+ import { Button } from '@/components/ui/button'
+ import { useI18n } from '@/i18n'
+-import { iconSize, Loader2, Mic, Volume2, VolumeX } from '@/lib/icons'
++import { iconSize, Loader2, Mic, Pause, Play, Volume2, X } from '@/lib/icons'
+ import { cn } from '@/lib/utils'
+-import { stopVoicePlayback } from '@/lib/voice-playback'
+-import { $voicePlayback } from '@/store/voice-playback'
++import { pauseVoicePlayback, resumeVoicePlayback, stopVoicePlayback } from '@/lib/voice-playback'
++import { $voicePlayback, $voiceSpeed, $voiceVolume, setVoiceVolume, toggleVoiceSpeed } from '@/store/voice-playback'
+ 
+ import type { VoiceActivityState } from './types'
+ 
+@@ -206,18 +206,58 @@ export function VoiceActivity({ state }: { state: VoiceActivityState }) {
+ export function VoicePlaybackActivity() {
+   const { t } = useI18n()
+   const playback = useStore($voicePlayback)
++  const volume = useStore($voiceVolume)
++  const speed = useStore($voiceSpeed)
++
++  useEffect(() => {
++    if (playback.audioElement) {
++      playback.audioElement.volume = volume
++    }
++  }, [playback.audioElement, volume])
++
++  // Live-update playback rate when speed changes (affects active audio immediately)
++  useEffect(() => {
++    if (playback.audioElement) {
++      playback.audioElement.playbackRate = speed
++    }
++  }, [playback.audioElement, speed])
++
++  // Esc stops active assistant audio, exactly like the red X/Stop button below.
++  // The listener only exists while this pill is mounted (i.e. while audio is
++  // active, since the component returns null when idle), so Escape keeps its
++  // normal behavior at every other time. `capture: true` lets it run before
++  // other Escape handlers, and stopImmediatePropagation prevents a second
++  // Escape action from firing on the same keypress.
++  useEffect(() => {
++    const onKeyDown = (event: KeyboardEvent) => {
++      if (event.key !== 'Escape') {
++        return
++      }
++
++      event.preventDefault()
++      event.stopImmediatePropagation()
++      stopVoicePlayback()
++    }
++
++    window.addEventListener('keydown', onKeyDown, { capture: true })
++
++    return () => window.removeEventListener('keydown', onKeyDown, { capture: true })
++  }, [])
+ 
+   if (playback.status === 'idle') {
+     return null
+   }
+ 
+   const preparing = playback.status === 'preparing'
++  const paused = playback.status === 'paused'
+ 
+   const title = preparing
+     ? t.composer.preparingAudio
+-    : playback.source === 'voice-conversation'
+-      ? t.composer.speakingResponse
+-      : t.composer.readingAloud
++    : paused
++      ? t.composer.pausedAudio
++      : playback.source === 'voice-conversation'
++        ? t.composer.speakingResponse
++        : t.composer.readingAloud
+ 
+   return (
+     <div
+@@ -234,19 +274,69 @@ export function VoicePlaybackActivity() {
+ 
+       <div className="flex min-w-0 flex-1 items-center gap-2">
+         <span className="truncate font-medium text-foreground/85">{title}</span>
+-        {!preparing && <PlaybackWaveform audioElement={playback.audioElement} />}
++        {!preparing && !paused && <PlaybackWaveform audioElement={playback.audioElement} />}
+       </div>
+ 
++      {!preparing && (
++        <div className="flex shrink-0 items-center" title="TTS volume">
++          <input
++            aria-label="TTS volume"
++            className="h-2 w-[60px] accent-primary"
++            max={1}
++            min={0}
++            onChange={event => setVoiceVolume(Number.parseFloat(event.target.value))}
++            step={0.05}
++            type="range"
++            value={volume}
++          />
++        </div>
++      )}
++
++      {!preparing && (
++        <Button
++          aria-label={`Playback speed: ${speed}×`}
++          className="h-6 shrink-0 rounded-full px-1.5 text-[0.6875rem] font-medium tabular-nums"
++          onClick={toggleVoiceSpeed}
++          size="sm"
++          title="Cycle playback speed"
++          type="button"
++          variant="ghost"
++        >
++          {`${speed}×`}
++        </Button>
++      )}
++
++      {!preparing && (
++        <Button
++          aria-label={paused ? 'Resume voice playback' : 'Pause voice playback'}
++          className="h-6 shrink-0 gap-1 rounded-full px-1.5 text-[0.6875rem]"
++          onClick={() => {
++            if (paused) {
++              void resumeVoicePlayback().catch(() => pauseVoicePlayback())
++            } else {
++              pauseVoicePlayback()
++            }
++          }}
++          size="sm"
++          type="button"
++          variant="ghost"
++        >
++          {paused ? <Play className={iconSize.xs} /> : <Pause className={iconSize.xs} />}
++          {paused ? 'Resume' : 'Pause'}
++        </Button>
++      )}
++
+       <Button
+-        className="h-6 shrink-0 gap-1 rounded-full px-2 text-[0.6875rem]"
++        aria-label="Cancel voice playback"
++        className="size-6 shrink-0 rounded-full p-0 text-red-500 hover:text-red-400"
+         onClick={stopVoicePlayback}
+-        size="sm"
++        size="icon"
++        title="Cancel voice playback"
+         type="button"
+         variant="ghost"
+       >
+-        <VolumeX className={iconSize.xs} />
+-        Stop
++        <X className={iconSize.xs} />
+       </Button>
+     </div>
+   )
+-}
++}
+\ No newline at end of file

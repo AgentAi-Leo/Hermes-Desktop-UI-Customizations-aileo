@@ -1,6 +1,6 @@
 # Changelog
 
-## 2026-07-12-newvers2
+## 2026-07-12-terminalfix
 
 - Fixes composer width / left-cutoff layout issue.
 - Removes the failed fixed/viewport/sidebar positioning strategy.
