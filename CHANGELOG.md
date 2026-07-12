@@ -1,6 +1,6 @@
 # Changelog
 
-## 2026-07-12
+## 2026-07-12-newvers
 
 - Fixes composer width / left-cutoff layout issue.
 - Removes the failed fixed/viewport/sidebar positioning strategy.

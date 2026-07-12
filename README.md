@@ -7,7 +7,7 @@ This package adds a wider responsive composer/playback pill, improved voice play
 Current release:
 
 ```txt
-releases/2026-07-12/
+releases/2026-07-12-newvers/
 ```
 
 ## Preview
@@ -68,13 +68,13 @@ git clone https://github.com/AgentAi-Leo/Hermes-Desktop-UI-Customizations-aileo.
 Run a dry-run first:
 
 ```bash
-bash /path/to/Hermes-Desktop-UI-Customizations-aileo/releases/2026-07-12/scripts/apply-customizations.sh --dry-run
+bash /path/to/Hermes-Desktop-UI-Customizations-aileo/releases/2026-07-12-newvers/scripts/apply-customizations.sh --dry-run
 ```
 
 If dry-run succeeds, apply:
 
 ```bash
-bash /path/to/Hermes-Desktop-UI-Customizations-aileo/releases/2026-07-12/scripts/apply-customizations.sh --apply
+bash /path/to/Hermes-Desktop-UI-Customizations-aileo/releases/2026-07-12-newvers/scripts/apply-customizations.sh --apply
 ```
 
 Then rebuild Hermes Desktop:
@@ -90,7 +90,7 @@ npm run build && npm run builder -- --dir
 After applying, run:
 
 ```bash
-bash /path/to/Hermes-Desktop-UI-Customizations-aileo/releases/2026-07-12/scripts/verify-customizations.sh
+bash /path/to/Hermes-Desktop-UI-Customizations-aileo/releases/2026-07-12-newvers/scripts/verify-customizations.sh
 ```
 
 Then manually verify in Hermes Desktop:
@@ -134,11 +134,11 @@ src/i18n/en.ts
 Patch files:
 
 ```txt
-releases/2026-07-12/patches/001-responsive-composer-layout.patch
-releases/2026-07-12/patches/002-voice-playback-state-and-library.patch
-releases/2026-07-12/patches/003-composer-playback-controls-and-esc.patch
-releases/2026-07-12/patches/004-prompt-copy-button.patch
-releases/2026-07-12/patches/005-i18n-labels.patch
+releases/2026-07-12-newvers/patches/001-responsive-composer-layout.patch
+releases/2026-07-12-newvers/patches/002-voice-playback-state-and-library.patch
+releases/2026-07-12-newvers/patches/003-composer-playback-controls-and-esc.patch
+releases/2026-07-12-newvers/patches/004-prompt-copy-button.patch
+releases/2026-07-12-newvers/patches/005-i18n-labels.patch
 ```
 
 ---
@@ -148,7 +148,7 @@ releases/2026-07-12/patches/005-i18n-labels.patch
 Known tested baseline:
 
 ```txt
-Hermes Desktop commit b9b463f3bd6517b76687d9b3c9dea1e62f01f9e1
+Hermes Desktop commit 7b5ba2054721dde998ed47fd4a0f031955278e99
 ```
 
 This package may apply to newer Hermes Desktop versions, but upstream file changes can cause patches to fail.
@@ -168,7 +168,7 @@ releases/YYYY-MM-DD/
 Current version:
 
 ```txt
-2026-07-12
+2026-07-12-newvers
 ```
 
 Stable versions may also be tagged as:
@@ -189,7 +189,7 @@ COMPATIBILITY.md
 CHANGELOG.md
 LICENSE
 releases/
-  2026-07-12/
+  2026-07-12-newvers/
     manifest.json
     patches/
     scripts/
@@ -214,6 +214,6 @@ releases/
 Package provenance, patch-generation details, and validation workflow are documented in:
 
 ```txt
-releases/2026-07-12/docs/maintainer-notes.md
-releases/2026-07-12/manifest.json
+releases/2026-07-12-newvers/docs/maintainer-notes.md
+releases/2026-07-12-newvers/manifest.json
 ```

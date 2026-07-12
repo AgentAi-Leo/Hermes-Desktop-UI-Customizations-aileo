@@ -1,0 +1,83 @@
+diff --git a/apps/desktop/src/components/assistant-ui/thread/user-message.tsx b/apps/desktop/src/components/assistant-ui/thread/user-message.tsx
+index 6b0a6248..3e0318f5 100644
+--- a/apps/desktop/src/components/assistant-ui/thread/user-message.tsx
++++ b/apps/desktop/src/components/assistant-ui/thread/user-message.tsx
+@@ -1,5 +1,5 @@
+ import { ActionBarPrimitive, BranchPickerPrimitive, MessagePrimitive, useAuiState } from '@assistant-ui/react'
+-import { type FC, type ReactNode, useCallback, useRef, useState } from 'react'
++import { type FC, type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+ 
+ import { DirectiveContent } from '@/components/assistant-ui/directive-text'
+ import { messageAttachmentRefs, messageContentText } from '@/components/assistant-ui/thread/content'
+@@ -193,6 +193,33 @@ export const UserMessage: FC<{
+     setBodyClamped(fullHeight > lineHeightRef.current * 2 + 1)
+   }, [])
+ 
++  const [copied, setCopied] = useState(false)
++  const copiedTimeoutRef = useRef<number | null>(null)
++
++  useEffect(() => {
++    return () => {
++      if (copiedTimeoutRef.current !== null) {
++        window.clearTimeout(copiedTimeoutRef.current)
++      }
++    }
++  }, [])
++
++  const copySubmittedPrompt = useCallback(() => {
++    void navigator.clipboard.writeText(messageText).then(() => {
++      triggerHaptic('selection')
++      setCopied(true)
++
++      if (copiedTimeoutRef.current !== null) {
++        window.clearTimeout(copiedTimeoutRef.current)
++      }
++
++      copiedTimeoutRef.current = window.setTimeout(() => {
++        setCopied(false)
++        copiedTimeoutRef.current = null
++      }, 1200)
++    })
++  }, [messageText])
++
+   useResizeObserver(measureClamp, clampInnerRef)
+ 
+   // Injected background-process notification, not a human prompt — render the
+@@ -212,6 +239,7 @@ export const UserMessage: FC<{
+   const hasBody = messageText.trim().length > 0
+   const isLatestUser = messageId === latestUserId
+   const showStop = !readOnly && isLatestUser && threadRunning && Boolean(onCancel)
++  const showCopy = !readOnly && hasBody && attachmentRefs.length === 0
+   // Restore (re-run this exact prompt) is available everywhere the Stop button
+   // isn't — including mid-stream on older prompts, since the action interrupts
+   // the live turn before rewinding.
+@@ -293,8 +321,27 @@ export const UserMessage: FC<{
+                   </button>
+                 </ActionBarPrimitive.Edit>
+               )}
+-              {(showStop || showRestore) && (
+-                <div className="pointer-events-none absolute right-2 bottom-2 z-10 flex items-center justify-center opacity-0 transition-opacity group-hover/user-message:opacity-100 group-focus-within/user-message:opacity-100">
++              {(showCopy || showStop || showRestore) && (
++                <div className="pointer-events-none absolute right-2 bottom-2 z-10 flex items-center justify-center gap-0.5 opacity-0 transition-opacity group-hover/user-message:opacity-100 group-focus-within/user-message:opacity-100">
++                  {showCopy && (
++                    <button
++                      aria-label={copied ? t.common.copied : t.common.copy}
++                      className={cn('pointer-events-auto size-6', USER_ACTION_ICON_BUTTON_CLASS)}
++                      onClick={event => {
++                        event.preventDefault()
++                        event.stopPropagation()
++                        copySubmittedPrompt()
++                      }}
++                      onPointerDown={event => {
++                        event.preventDefault()
++                        event.stopPropagation()
++                      }}
++                      title={copied ? t.common.copied : t.common.copy}
++                      type="button"
++                    >
++                      <Codicon name={copied ? 'check' : 'copy'} size="0.8125rem" />
++                    </button>
++                  )}
+                   {showStop ? (
+                     <button
+                       aria-label={copy.stop}

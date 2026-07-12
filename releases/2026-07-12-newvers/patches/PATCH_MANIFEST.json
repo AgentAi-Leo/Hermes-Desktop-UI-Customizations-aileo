@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-07-12T10:05:55",
+  "method": "option-b-clean-baseline-same-commit",
+  "baseline_head": "7b5ba2054721dde998ed47fd4a0f031955278e99",
+  "source_snapshot_name": "2026-07-12-newvers-current-working-ui",
+  "patches": [
+    "001-responsive-composer-layout.patch",
+    "002-voice-playback-state-and-library.patch",
+    "003-composer-playback-controls-and-esc.patch",
+    "004-prompt-copy-button.patch",
+    "005-i18n-labels.patch"
+  ],
+  "note": "Patches are relative to apps/desktop and intended for git apply from apps/desktop."
+}

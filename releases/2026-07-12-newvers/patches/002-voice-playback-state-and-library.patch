@@ -1,0 +1,198 @@
+diff --git a/apps/desktop/src/lib/voice-playback.ts b/apps/desktop/src/lib/voice-playback.ts
+index eea1b5b6..81df50d3 100644
+--- a/apps/desktop/src/lib/voice-playback.ts
++++ b/apps/desktop/src/lib/voice-playback.ts
+@@ -1,6 +1,8 @@
+ import { speakText } from '@/hermes'
+ import {
+   $voicePlayback,
++  $voiceSpeed,
++  $voiceVolume,
+   setVoicePlaybackState,
+   type VoicePlaybackSource,
+   type VoicePlaybackState
+@@ -58,6 +60,50 @@ export function stopVoicePlayback() {
+   })
+ }
+ 
++/**
++ * Global Escape behavior for assistant audio. Deliberately ignores
++ * `defaultPrevented`: while playback is active, Escape must behave exactly like
++ * the visible stop/X control even if another UI handler saw the key first.
++ *
++ * Returns `true` when it handled the event (audio was active and has been
++ * stopped), so the caller can short-circuit any other Escape action. Returns
++ * `false` when there is no active playback, leaving Escape's normal behavior
++ * (closing overlays, exiting capture mode, blurring the composer) untouched.
++ */
++export function stopVoicePlaybackOnEscape(event: KeyboardEvent): boolean {
++  if (event.key !== 'Escape' || !isVoicePlaybackActive()) {
++    return false
++  }
++
++  event.preventDefault()
++  event.stopImmediatePropagation()
++  stopVoicePlayback()
++
++  return true
++}
++
++export function pauseVoicePlayback() {
++  const playback = $voicePlayback.get()
++
++  if (playback.status !== 'speaking' || !playback.audioElement) {
++    return
++  }
++
++  playback.audioElement.pause()
++  setVoicePlaybackState({ ...playback, status: 'paused' })
++}
++
++export async function resumeVoicePlayback(): Promise<void> {
++  const playback = $voicePlayback.get()
++
++  if (playback.status !== 'paused' || !playback.audioElement) {
++    return
++  }
++
++  setVoicePlaybackState({ ...playback, status: 'speaking' })
++  await playback.audioElement.play()
++}
++
+ export async function playSpeechText(text: string, options: VoicePlaybackOptions): Promise<boolean> {
+   stopVoicePlayback()
+ 
+@@ -80,6 +126,8 @@ export async function playSpeechText(text: string, options: VoicePlaybackOptions
+     }
+ 
+     const audio = new Audio(response.data_url)
++    audio.volume = $voiceVolume.get()
++    audio.playbackRate = $voiceSpeed.get()
+     currentAudio = audio
+     setVoicePlaybackState(currentState('speaking', options, audio))
+ 
+@@ -94,6 +142,8 @@ export async function playSpeechText(text: string, options: VoicePlaybackOptions
+ 
+         audio.removeEventListener('ended', onEnded)
+         audio.removeEventListener('error', onError)
++        audio.removeEventListener('pause', onPause)
++        audio.removeEventListener('playing', onPlaying)
+         audio.removeEventListener('timeupdate', armStall)
+         currentStop = null
+       }
+@@ -109,6 +159,13 @@ export async function playSpeechText(text: string, options: VoicePlaybackOptions
+         }, PLAYBACK_STALL_MS)
+       }
+ 
++      const clearStall = () => {
++        if (stall !== null) {
++          window.clearTimeout(stall)
++          stall = null
++        }
++      }
++
+       const onEnded = () => {
+         cleanup()
+         resolve()
+@@ -119,6 +176,22 @@ export async function playSpeechText(text: string, options: VoicePlaybackOptions
+         reject(new Error('Playback failed'))
+       }
+ 
++      const onPause = () => {
++        clearStall()
++
++        if (isCurrent()) {
++          setVoicePlaybackState(currentState('paused', options, audio))
++        }
++      }
++
++      const onPlaying = () => {
++        armStall()
++
++        if (isCurrent()) {
++          setVoicePlaybackState(currentState('speaking', options, audio))
++        }
++      }
++
+       currentStop = () => {
+         cleanup()
+         resolve()
+@@ -126,6 +199,8 @@ export async function playSpeechText(text: string, options: VoicePlaybackOptions
+ 
+       audio.addEventListener('ended', onEnded, { once: true })
+       audio.addEventListener('error', onError, { once: true })
++      audio.addEventListener('pause', onPause)
++      audio.addEventListener('playing', onPlaying)
+       audio.addEventListener('timeupdate', armStall)
+       armStall()
+       void audio.play().catch(onError)
+@@ -152,4 +227,4 @@ export async function playSpeechText(text: string, options: VoicePlaybackOptions
+ 
+ export function isVoicePlaybackActive() {
+   return $voicePlayback.get().status !== 'idle'
+-}
++}
+\ No newline at end of file
+diff --git a/apps/desktop/src/store/voice-playback.ts b/apps/desktop/src/store/voice-playback.ts
+index 257b1009..3328486d 100644
+--- a/apps/desktop/src/store/voice-playback.ts
++++ b/apps/desktop/src/store/voice-playback.ts
+@@ -1,7 +1,9 @@
+ import { atom } from 'nanostores'
+ 
++import { persistNumber, storedNumber } from '@/lib/storage'
++
+ export type VoicePlaybackSource = 'read-aloud' | 'voice-conversation'
+-export type VoicePlaybackStatus = 'idle' | 'preparing' | 'speaking'
++export type VoicePlaybackStatus = 'idle' | 'preparing' | 'speaking' | 'paused'
+ 
+ export interface VoicePlaybackState {
+   audioElement: HTMLAudioElement | null
+@@ -11,6 +13,47 @@ export interface VoicePlaybackState {
+   status: VoicePlaybackStatus
+ }
+ 
++const VOLUME_KEY = 'hermes.desktop.voice.volume'
++const SPEED_KEY = 'hermes.desktop.voice.speed'
++
++export const $voiceVolume = atom(storedNumber(VOLUME_KEY, 1))
++
++$voiceVolume.subscribe(value => {
++  persistNumber(VOLUME_KEY, value)
++})
++
++/** Clamp 0–1 and persist; returns the clamped value. */
++export function setVoiceVolume(value: number): number {
++  const clamped = Math.min(1, Math.max(0, value))
++
++  $voiceVolume.set(clamped)
++
++  return clamped
++}
++
++/**
++ * TTS playback speed. Defaults to 1×, toggled to 2× via the playback pill.
++ * Persisted across sessions like volume.
++ */
++export const $voiceSpeed = atom(storedNumber(SPEED_KEY, 1))
++
++$voiceSpeed.subscribe(value => {
++  persistNumber(SPEED_KEY, value)
++})
++
++const SPEED_STEPS = [1, 1.5, 2]
++
++/** Cycle through 1× → 1.5× → 2× → 1×; returns the new value. */
++export function toggleVoiceSpeed(): number {
++  const current = $voiceSpeed.get()
++  const idx = SPEED_STEPS.findIndex(s => Math.abs(s - current) < 0.01)
++  const next = SPEED_STEPS[(idx + 1) % SPEED_STEPS.length] ?? 1
++
++  $voiceSpeed.set(next)
++
++  return next
++}
++
+ export const $voicePlayback = atom<VoicePlaybackState>({
+   audioElement: null,
+   messageId: null,
