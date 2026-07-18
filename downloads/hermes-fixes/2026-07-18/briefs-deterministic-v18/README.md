@@ -1,6 +1,6 @@
-# Hermes Briefs deterministic templates v17
+# Hermes Briefs deterministic templates v18
 
-> **WITHDRAWN:** Use V18. V17's final live-bundle check expected a whitespace-free narration assignment and could roll back a valid build. The rollback was safe, but V17 should not be rerun.
+V18 replaces withdrawn V17. It keeps the same verified Briefs implementation and corrects the final live-bundle narration-rate verifier so normal production whitespace/minification cannot cause a false rollback.
 
 This package replaces model-authored Brief presentation with strict versioned JSON data contracts and deterministic AI/Stock renderers.
 
@@ -33,8 +33,8 @@ After installation and preview verification, update the two generator jobs to th
 Run from this extracted directory:
 
 ```bash
-chmod +x INSTALL_BRIEFS_DETERMINISTIC_V17.command
-./INSTALL_BRIEFS_DETERMINISTIC_V17.command
+chmod +x INSTALL_BRIEFS_DETERMINISTIC_V18.command
+./INSTALL_BRIEFS_DETERMINISTIC_V18.command
 ```
 
 Useful overrides:
@@ -43,14 +43,14 @@ Useful overrides:
 HERMES_PREVIEW_ROOT="$HOME/.hermes/zDownloads/_BRIEFS-DASHBOARD-V3-PREVIEW" \
 HERMES_PROFILE=local-ai-assist1 \
 HERMES_PREVIEW_PORT=9120 \
-./INSTALL_BRIEFS_DETERMINISTIC_V17.command
+./INSTALL_BRIEFS_DETERMINISTIC_V18.command
 ```
 
 The installer prints an exact backup and rollback path. It runs frontend typecheck/tests/build, Python contract/materializer tests, installed checksums, preview readiness, and live-bundle marker verification before reporting success.
 
 ## Rollback
 
-Use the backup-specific rollback path printed by the installer. `ROLLBACK_LATEST_BRIEFS_DETERMINISTIC_V17.command` is also provided for convenience.
+Use the backup-specific rollback path printed by the installer. `ROLLBACK_LATEST_BRIEFS_DETERMINISTIC_V18.command` is also provided for convenience.
 
 ## Verification suites
 
