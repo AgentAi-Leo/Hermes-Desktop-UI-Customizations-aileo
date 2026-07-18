@@ -1,0 +1,12 @@
+[
+  {"label":"APPLE-1","ticker":"AAPL","purchased":"5/29/24","shares":146,"purchase_price":191.0},
+  {"label":"APPLE-2","ticker":"AAPL","purchased":"4/28/26","shares":57,"purchase_price":266.0},
+  {"label":"AMAZON-1","ticker":"AMZN","purchased":"5/29/24","shares":138,"purchase_price":181.0},
+  {"label":"AMAZON-2","ticker":"AMZN","purchased":"4/29/26","shares":65,"purchase_price":268.0},
+  {"label":"NVIDIA","ticker":"NVDA","purchased":"5/29/24","shares":204,"purchase_price":123.0},
+  {"label":"SNAP","ticker":"SNAP","purchased":"2/3/26","shares":1786,"purchase_price":6.18},
+  {"label":"ALPHABET-1","ticker":"GOOGL","purchased":"4/21/26","shares":101,"purchase_price":336.0},
+  {"label":"ALPHABET-2","ticker":"GOOGL","purchased":"4/28/26","shares":106,"purchase_price":349.0},
+  {"label":"DISNEY","ticker":"DIS","purchased":"8/05/66","shares":268,"purchase_price":25.0},
+  {"label":"MICROSOFT","ticker":"MSFT","purchased":"4/21/26","shares":83,"purchase_price":419.0}
+]
