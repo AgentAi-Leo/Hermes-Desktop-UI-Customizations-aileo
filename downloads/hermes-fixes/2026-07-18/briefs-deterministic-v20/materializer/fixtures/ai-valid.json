@@ -1,0 +1,130 @@
+{
+  "contract_version": "ai-brief-data-v1",
+  "kind": "ai",
+  "date": "2026-07-18",
+  "timezone": "America/Los_Angeles",
+  "generated_at": "2026-07-18T06:00:00-07:00",
+  "founder_takeaways": [
+    {
+      "headline": "Founder signal 1",
+      "detail": "Validated operating detail 1."
+    },
+    {
+      "headline": "Founder signal 2",
+      "detail": "Validated operating detail 2."
+    },
+    {
+      "headline": "Founder signal 3",
+      "detail": "Validated operating detail 3."
+    },
+    {
+      "headline": "Founder signal 4",
+      "detail": "Validated operating detail 4."
+    },
+    {
+      "headline": "Founder signal 5",
+      "detail": "Validated operating detail 5."
+    },
+    {
+      "headline": "Founder signal 6",
+      "detail": "Validated operating detail 6."
+    },
+    {
+      "headline": "Founder signal 7",
+      "detail": "Validated operating detail 7."
+    }
+  ],
+  "topics": [
+    {
+      "number": 1,
+      "headline": "AI topic 1",
+      "summary": "Verified summary 1.",
+      "why_it_matters": "Founder relevance 1.",
+      "actionable_implication": "Action 1.",
+      "sources": [
+        {
+          "label": "Source 1",
+          "url": "https://example.com/topic-1"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "headline": "AI topic 2",
+      "summary": "Verified summary 2.",
+      "why_it_matters": "Founder relevance 2.",
+      "actionable_implication": "Action 2.",
+      "sources": [
+        {
+          "label": "Source 2",
+          "url": "https://example.com/topic-2"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "headline": "AI topic 3",
+      "summary": "Verified summary 3.",
+      "why_it_matters": "Founder relevance 3.",
+      "actionable_implication": "Action 3.",
+      "sources": [
+        {
+          "label": "Source 3",
+          "url": "https://example.com/topic-3"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "headline": "AI topic 4",
+      "summary": "Verified summary 4.",
+      "why_it_matters": "Founder relevance 4.",
+      "actionable_implication": "Action 4.",
+      "sources": [
+        {
+          "label": "Source 4",
+          "url": "https://example.com/topic-4"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "headline": "AI topic 5",
+      "summary": "Verified summary 5.",
+      "why_it_matters": "Founder relevance 5.",
+      "actionable_implication": "Action 5.",
+      "sources": [
+        {
+          "label": "Source 5",
+          "url": "https://example.com/topic-5"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "headline": "AI topic 6",
+      "summary": "Verified summary 6.",
+      "why_it_matters": "Founder relevance 6.",
+      "actionable_implication": "Action 6.",
+      "sources": [
+        {
+          "label": "Source 6",
+          "url": "https://example.com/topic-6"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "headline": "AI topic 7",
+      "summary": "Verified summary 7.",
+      "why_it_matters": "Founder relevance 7.",
+      "actionable_implication": "Action 7.",
+      "sources": [
+        {
+          "label": "Source 7",
+          "url": "https://example.com/topic-7"
+        }
+      ]
+    }
+  ]
+}
