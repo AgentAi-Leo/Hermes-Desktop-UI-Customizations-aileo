@@ -200,7 +200,7 @@ main.grid { display: flex !important; flex-direction: column !important; gap: 12
 .hermes-stock-ticker { color: #ffe08a !important; font-size: 1.55rem !important; font-weight: 850 !important; letter-spacing: .02em !important; }
 .hermes-stock-company { min-width: 0 !important; color: var(--text, #f4f7fb) !important; font-size: 1.35rem !important; font-weight: 750 !important; line-height: 1.2 !important; letter-spacing: .025em !important; text-transform: uppercase !important; overflow-wrap: anywhere !important; }
 .hermes-stock-change { display: block !important; margin-top: 12px !important; font-size: 1.22rem !important; font-weight: 800 !important; line-height: 1.2 !important; white-space: nowrap !important; }
-.hermes-stock-price { display: block !important; margin-top: 8px !important; color: #ffe08a !important; font-size: 1.84rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums !important; }
+.hermes-stock-price { display: block !important; margin-top: 8px !important; color: #ffe08a !important; font-size: 2.3rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums !important; }
 .hermes-stock-metrics { grid-column: 2 !important; display: grid !important; min-width: 0 !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 12px !important; align-items: center !important; margin: 0 !important; }
 .hermes-stock-metrics > div { min-width: 0 !important; }
 .hermes-stock-metrics dt { max-width: 100% !important; color: var(--muted, #aab8ca) !important; font-size: clamp(.82rem, 1vw, 1.15rem) !important; font-weight: 700 !important; letter-spacing: .055em !important; line-height: 1.2 !important; text-transform: uppercase !important; overflow-wrap: anywhere !important; }
@@ -294,10 +294,12 @@ body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { margin:
 .hermes-stock-title-row { display: flex !important; min-width: 0 !important; align-items: center !important; flex-wrap: wrap !important; gap: 16px !important; margin: 0 0 10px !important; }
 .hermes-stock-title-row h1 { margin: 0 !important; }
 .hermes-stock-hero-left { display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; }
-.hermes-stock-hero-left > #hermes-stock-date-pill { margin: 22px 0 0 !important; }
+.hermes-stock-meta-stack { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; margin-top: 28px !important; }
+.hermes-stock-meta-stack > #hermes-stock-date-pill, .hermes-stock-meta-stack > .date, .hermes-stock-meta-stack > .sub { margin: 0 !important; }
+.hermes-stock-meta-stack > .sub { line-height: 1.4 !important; }
 .hermes-stock-heading-row { display: flex !important; min-width: 0 !important; align-items: flex-start !important; justify-content: space-between !important; gap: clamp(18px, 3vw, 48px) !important; }
 .hermes-stock-heading-row .hermes-stock-title-row { min-width: 0 !important; }
-.hermes-stock-summary-stack { display: flex !important; flex: 0 0 auto !important; flex-direction: column !important; align-items: flex-end !important; gap: 12px !important; margin-left: auto !important; }
+.hermes-stock-summary-stack { display: flex !important; flex: 0 0 auto !important; flex-direction: column !important; align-items: flex-end !important; gap: 12px !important; margin-left: auto !important; transform: translateY(25%) !important; }
 .hermes-stock-portfolio-summary { margin: 0 !important; text-align: right !important; font-variant-numeric: tabular-nums !important; }
 .hermes-stock-summary-label { display: block !important; margin: 0 0 5px !important; color: #ffd166 !important; font-size: clamp(18px, 1.72vw, 22px) !important; line-height: 1.1 !important; font-weight: 850 !important; letter-spacing: .08em !important; }
 .hermes-stock-summary-value { display: block !important; font-size: clamp(36px, 4.45vw, 56.96px) !important; line-height: 1.05 !important; font-weight: 400 !important; white-space: nowrap !important; }
@@ -311,7 +313,7 @@ body > header .date, body > main > header .date, .wrap > header .date, .hero .da
   body > main { padding: 20px !important; }
   body > header, body > main > header, .wrap > header, .hero { padding: 22px !important; }
   .hermes-stock-heading-row { flex-direction: column !important; }
-  .hermes-stock-summary-stack { width: 100% !important; align-items: flex-start !important; margin-left: 0 !important; }
+  .hermes-stock-summary-stack { width: 100% !important; align-items: flex-start !important; margin-left: 0 !important; transform: none !important; }
   .hermes-stock-portfolio-summary { text-align: left !important; }
 }
 @media (max-width: 560px) {
@@ -319,7 +321,7 @@ body > header .date, body > main > header .date, .wrap > header .date, .hero .da
   body > main { padding: 14px !important; }
   body > header, body > main > header, .wrap > header, .hero { padding: 18px !important; border-radius: 16px !important; }
   .hermes-stock-title-row { gap: 10px !important; }
-  .hermes-stock-hero-left > #hermes-stock-date-pill { margin-top: 14px !important; }
+  .hermes-stock-meta-stack { gap: 10px !important; margin-top: 18px !important; }
   #hermes-stock-fullscreen-button { width: 40px !important; height: 40px !important; flex-basis: 40px !important; }
   html body .hero .pill, html body header .pill { padding: 8px 16px !important; font-size: 18px !important; }
 }
@@ -328,7 +330,7 @@ body > header .date, body > main > header .date, .wrap > header .date, .hero .da
   body > header, body > main > header, .wrap > header, .hero { margin-bottom: 16px !important; padding: 20px 24px !important; }
   .hermes-stock-heading-row { align-items: center !important; }
   .hermes-stock-summary-stack { gap: 8px !important; }
-  .hermes-stock-hero-left > #hermes-stock-date-pill { margin-top: 12px !important; }
+  .hermes-stock-meta-stack { gap: 10px !important; margin-top: 18px !important; }
   html body .hero .pill, html body header .pill { padding: 8px 18px !important; font-size: 18px !important; }
   body > header .date, body > main > header .date, .wrap > header .date, .hero .date { font-size: 21px !important; }
 }
@@ -1147,11 +1149,15 @@ const STOCK_SECTION_NAVIGATION_CONTROLLER = `<script id="hermes-stock-section-na
       (target instanceof Element && Boolean(target.closest('[contenteditable="true"]')));
   }
   function navigateToSection(key) {
-    const target = key === "ArrowUp"
-      ? document.getElementById("hermes-portfolio-comparison")
-      : key === "ArrowDown"
-        ? document.getElementById("hermes-stock-canonical-quotes")
-        : null;
+    if (key === "ArrowUp") {
+      const documentTop = document.getElementById("hermes-stock-canonical");
+      if (!documentTop) return false;
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      return true;
+    }
+    const target = key === "ArrowDown"
+      ? document.getElementById("hermes-stock-canonical-quotes")
+      : null;
     if (!target) return false;
     target.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
     return true;
@@ -1842,7 +1848,8 @@ function canonicalStockDocument(html: string, selectedDate?: string): string {
   const summary = stockPortfolioSummary(html);
   const fullscreenButton = `<button id="hermes-stock-fullscreen-button" type="button" aria-label="Enter Stock Brief fullscreen" title="Enter fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg></button>`;
   const pill = date ? `<span id="hermes-stock-date-pill" data-hermes-stock-date-pill="true" class="pill" role="status" aria-label="Stock brief date: ${escape(date)}">${escape(date)}</span>` : "";
-  const header = `<header class="hero" data-hermes-date-normalized="true"><div class="hermes-stock-heading-row"><div class="hermes-stock-hero-left"><div class="hermes-stock-title-row"><h1>Stock Brief</h1>${fullscreenButton}</div>${pill}</div><div class="hermes-stock-summary-stack">${summary}</div></div>${metadata ? `<p class="date">${escape(metadata)}</p>` : ""}<div class="sub">Yahoo Finance snapshot generated at end-of-day after U.S. close · $USD</div></header>`;
+  const metadataStack = `<div class="hermes-stock-meta-stack">${pill}${metadata ? `<p class="date">${escape(metadata)}</p>` : ""}<div class="sub">Yahoo Finance snapshot generated at end-of-day after U.S. close · $USD</div></div>`;
+  const header = `<header class="hero" data-hermes-date-normalized="true"><div class="hermes-stock-heading-row"><div class="hermes-stock-hero-left"><div class="hermes-stock-title-row"><h1>Stock Brief</h1>${fullscreenButton}</div>${metadataStack}</div><div class="hermes-stock-summary-stack">${summary}</div></div></header>`;
   const comparison = html.match(/<section\b(?=[^>]*\bid\s*=\s*["']hermes-portfolio-comparison["'])[^>]*>[\s\S]*?<\/section\s*>/i)?.[0] ?? "";
   const rows = Array.from(html.matchAll(/<section\b(?=[^>]*\bclass\s*=\s*["'][^"']*\bhermes-stock-row\b[^"']*["'])[^>]*>[\s\S]*?<\/section\s*>/gi), (match) => match[0]).join("");
   const quotes = rows ? `<main id="hermes-stock-canonical-quotes" class="grid" aria-label="Canonical tracked stock prices"><h2 id="hermes-stock-today-date-pill" class="hermes-stock-today-date-pill" aria-label="Daily stock prices for ${escape(date)}">${escape(date)}</h2>${rows}</main>` : "";

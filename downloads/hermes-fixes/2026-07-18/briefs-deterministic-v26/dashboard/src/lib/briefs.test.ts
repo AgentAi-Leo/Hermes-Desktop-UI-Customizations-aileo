@@ -595,7 +595,8 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     expect(result).toContain('<strong class="hermes-stock-price">$95.87</strong>');
     expect(result).not.toContain('<article class="card"><h2>AAPL');
     expect(result).not.toContain("<strong>$312.59</strong>");
-    expect(result).toContain(".hermes-stock-price { display: block !important; margin-top: 8px !important; color: #ffe08a !important; font-size: 1.84rem !important;");
+    expect(result).toContain(".hermes-stock-price { display: block !important; margin-top: 8px !important; color: #ffe08a !important; font-size: 2.3rem !important;");
+    expect(result).not.toContain(".hermes-stock-price { display: block !important; margin-top: 8px !important; color: #ffe08a !important; font-size: 1.84rem !important;");
     expect(result).toContain(".hermes-stock-metrics dd { max-width: 100% !important; margin: 7px 0 0 !important; color: var(--text, #f4f7fb) !important; font-size: clamp(1.05rem, 1.55vw, 1.9rem) !important;");
 
     const missingSnapHtml = stockHtml.replace(
@@ -1509,36 +1510,48 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     expect(style("body > main.grid").gap).toBe("12px");
   });
 
-  it("places the yellow Stock date pill in the marked left hero slot and replaces TODAY'S PRICE with a white section date pill", () => {
+  it("spaces the Stock hero metadata evenly, lowers Summary by 25%, and keeps the white daily-date pill", () => {
     const source = `<!doctype html><html><body><header><h1>Stock Brief — 2026-07-18</h1><p class="date">2:11pm - America/Los_Angeles</p></header><main class="grid"><article class="stock-row"><h2>AAPL — Apple Inc.</h2><div class="price">$333.74</div><div class="change">+$0.48</div><dl><div><dt>Day High</dt><dd>$334.00</dd></div><div><dt>Day Low</dt><dd>$330.00</dd></div><div><dt>52w High</dt><dd>$340.00</dd></div><div><dt>52w Low</dt><dd>$200.00</dd></div><div><dt>Volume</dt><dd>10M</dd></div></dl></article></main></body></html>`;
     const result = prepareBriefPreviewHtml(source, "stock", 1_784_400_000, "2026-07-18");
     const document = new JSDOM(result).window.document;
     const heroLeft = document.querySelector(".hermes-stock-hero-left");
+    const metadataStack = heroLeft?.querySelector(".hermes-stock-meta-stack");
     const summaryStack = document.querySelector(".hermes-stock-summary-stack");
     const summary = summaryStack?.querySelector("#hermes-stock-portfolio-summary");
-    const heroPill = heroLeft?.querySelector("#hermes-stock-date-pill");
+    const heroPill = metadataStack?.querySelector("#hermes-stock-date-pill");
     const sectionPill = document.querySelector("#hermes-stock-today-date-pill");
 
     expect(summary).not.toBeNull();
     expect(heroPill?.textContent).toBe("July 18, 2026");
-    expect(heroLeft?.querySelector(".hermes-stock-title-row + #hermes-stock-date-pill")).toBe(heroPill);
+    expect(heroLeft?.querySelector(".hermes-stock-title-row + .hermes-stock-meta-stack")).toBe(metadataStack);
+    expect(Array.from(metadataStack?.children ?? []).map((node) => (node as Element).className || (node as Element).id)).toEqual([
+      "pill",
+      "date",
+      "sub",
+    ]);
     expect(summaryStack?.querySelector("#hermes-stock-date-pill")).toBeNull();
     expect(document.querySelectorAll("#hermes-stock-date-pill")).toHaveLength(1);
     expect(sectionPill?.textContent).toBe("July 18, 2026");
     expect(sectionPill?.classList.contains("hermes-stock-today-date-pill")).toBe(true);
     expect(document.querySelector(".hermes-stock-today-title")).toBeNull();
+    expect(result).toContain(".hermes-stock-meta-stack { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; margin-top: 28px !important;");
+    expect(result).toContain(".hermes-stock-summary-stack { display: flex !important; flex: 0 0 auto !important; flex-direction: column !important; align-items: flex-end !important; gap: 12px !important; margin-left: auto !important; transform: translateY(25%) !important;");
+    expect(result).toContain(".hermes-stock-summary-stack { width: 100% !important; align-items: flex-start !important; margin-left: 0 !important; transform: none !important;");
     expect(result).toContain("background: #ffffff !important; color: #0b1020 !important;");
     expect(result).toContain("font-size: clamp(42px, 5vw, 64px) !important");
     expect(result).toContain("font-size: clamp(36px, 4.45vw, 56.96px) !important");
-    expect(result).toContain("@media (max-width: 900px)");
     expect(result).toContain("@media (max-height: 900px) and (min-width: 1100px)");
   });
 
-  it("maps Stock Up and Down arrows to the Position and daily-price section anchors", () => {
+  it("maps Stock ArrowUp to the complete Stock Brief top and ArrowDown to daily prices", () => {
     const source = `<!doctype html><html><body><header><h1>Stock Brief — 2026-07-18</h1></header><main><article class="stock-row"><h2>AAPL — Apple Inc.</h2><strong class="price">$333.74</strong><span class="movement">+$0.48 (+0.14%)</span><dl><dt>Day High</dt><dd>$334.98</dd><dt>Day Low</dt><dd>$329.00</dd><dt>52-week High</dt><dd>$334.99</dd><dt>52-week Low</dt><dd>$201.50</dd><dt>Volume</dt><dd>63,325,386</dd></dl></article></main></body></html>`;
     const result = prepareBriefPreviewHtml(source, "stock", 1_784_400_000, "2026-07-18");
     const dom = new JSDOM(result, { runScripts: "outside-only" });
     const visited: string[] = [];
+    Object.defineProperty(dom.window, "scrollTo", {
+      configurable: true,
+      value(options: ScrollToOptions) { visited.push(options.top === 0 ? "hermes-stock-canonical" : "wrong-window-position"); },
+    });
     Object.defineProperty(dom.window.Element.prototype, "scrollIntoView", {
       configurable: true,
       value(this: Element) { visited.push(this.id); },
@@ -1546,6 +1559,7 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     const controller = dom.window.document.querySelector("#hermes-stock-section-navigation-controller")?.textContent ?? "";
     expect(controller).toContain('key === "ArrowUp"');
     expect(controller).toContain('key === "ArrowDown"');
+    expect(controller).toContain('document.getElementById("hermes-stock-canonical")');
     dom.window.eval(controller);
 
     const up = new dom.window.KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true, cancelable: true });
@@ -1553,7 +1567,7 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     const down = new dom.window.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, cancelable: true });
     dom.window.document.body.dispatchEvent(down);
 
-    expect(visited).toEqual(["hermes-portfolio-comparison", "hermes-stock-canonical-quotes"]);
+    expect(visited).toEqual(["hermes-stock-canonical", "hermes-stock-canonical-quotes"]);
     expect(up.defaultPrevented).toBe(true);
     expect(down.defaultPrevented).toBe(true);
   });

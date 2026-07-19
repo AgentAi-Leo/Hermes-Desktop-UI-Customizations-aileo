@@ -171,13 +171,17 @@ PY
 import re, sys
 from pathlib import Path
 data=Path(sys.argv[1]).read_bytes()
-for marker in (b'v61-date-load-keyboard-focus',b'v74-ticker-above-company',b'data-hermes-canonical-ai',b'data-hermes-canonical-stock',b'hermes-ai-canonical',b'hermes-stock-canonical',b'hermes-v25-ai-base-style',b'hermes-v25-stock-base-style',b'hermes-stock-portfolio-summary',b'hermes-stock-summary-stack',b'hermes-stock-hero-left',b'hermes-stock-today-date-pill',b'hermes-stock-section-navigation-controller',b'SUMMARY',b'v26-responsive-canonical-stock-hero',b'data-hermes-brief-preview-toolbar',b'data-hermes-date-rail',b'TOTAL +/-',b'DAY +/-',b'hermes-portfolio-day'):
+for marker in (b'v61-date-load-keyboard-focus',b'v74-ticker-above-company',b'data-hermes-canonical-ai',b'data-hermes-canonical-stock',b'hermes-ai-canonical',b'hermes-stock-canonical',b'hermes-v25-ai-base-style',b'hermes-v25-stock-base-style',b'hermes-stock-portfolio-summary',b'hermes-stock-summary-stack',b'hermes-stock-hero-left',b'hermes-stock-meta-stack',b'hermes-stock-today-date-pill',b'hermes-stock-section-navigation-controller',b'SUMMARY',b'v26-responsive-canonical-stock-hero',b'data-hermes-brief-preview-toolbar',b'data-hermes-date-rail',b'TOTAL +/-',b'DAY +/-',b'hermes-portfolio-day'):
     if marker not in data:
         raise SystemExit(f'Live bundle missing marker: {marker.decode()}')
 if not re.search(rb'utterance\.rate\s*=\s*1\.15(?:0+)?\s*;', data):
     raise SystemExit('Live bundle missing narration rate assignment: utterance.rate = 1.15')
 if not re.search(rb'\.hermes-stock-summary-value\s*\{[^}]*font-size:\s*clamp\(36px,\s*4\.45vw,\s*56\.96px\)\s*!important[^}]*font-weight:\s*400\s*!important', data):
     raise SystemExit('Live bundle missing fluid Stock SUMMARY style: clamp(36px, 4.45vw, 56.96px) / weight 400')
+if not re.search(rb'\.hermes-stock-summary-stack\s*\{[^}]*transform:\s*translateY\(25%\)\s*!important', data):
+    raise SystemExit('Live bundle missing 25-percent-lower Stock Summary placement')
+if not re.search(rb'\.hermes-stock-meta-stack\s*\{[^}]*gap:\s*14px\s*!important[^}]*margin-top:\s*28px\s*!important', data):
+    raise SystemExit('Live bundle missing evenly spaced Stock hero metadata stack')
 if not re.search(rb'@media\s*\(max-height:\s*900px\)\s*and\s*\(min-width:\s*1100px\)', data):
     raise SystemExit('Live bundle missing compact-height Brief hero rule')
 if not re.search(rb'\.hermes-portfolio-table\s*\{[^}]*min-width:\s*1480px', data):
@@ -190,10 +194,12 @@ if b'hermes-stock-row-date' in data:
     raise SystemExit('Live bundle contains forbidden repeated Stock row-date pill')
 if not re.search(rb'\.hermes-stock-metrics\s*\{[^}]*min-width:\s*0\s*!important[^}]*grid-template-columns:\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)', data):
     raise SystemExit('Live bundle missing fluid five-statistics group')
+if not re.search(rb'\.hermes-stock-price\s*\{[^}]*font-size:\s*2\.3rem\s*!important', data):
+    raise SystemExit('Live bundle missing 25-percent-larger primary Stock price')
 if not re.search(rb'\.hermes-stock-today-date-pill\s*\{[^}]*background:\s*#ffffff\s*!important[^}]*color:\s*#0b1020\s*!important', data):
     raise SystemExit('Live bundle missing white Stock section-date pill with dark text')
-if not re.search(rb'key\s*===\s*["\']ArrowUp["\'][\s\S]{0,500}hermes-portfolio-comparison', data):
-    raise SystemExit('Live bundle missing ArrowUp Portfolio section navigation')
+if not re.search(rb'key\s*===\s*["\']ArrowUp["\'][\s\S]{0,500}hermes-stock-canonical[\s\S]{0,300}scrollTo', data):
+    raise SystemExit('Live bundle missing ArrowUp complete-document-top navigation')
 if not re.search(rb'key\s*===\s*["\']ArrowDown["\'][\s\S]{0,500}hermes-stock-canonical-quotes', data):
     raise SystemExit('Live bundle missing ArrowDown daily-price section navigation')
 if b'hermes-stock-today-title' in data:
@@ -230,7 +236,10 @@ echo "VISUAL_PARITY=V25_AI_AND_STOCK_COMPUTED_CONTRACTS"
 echo "FUNCTIONAL_PARITY=V25_AI_AND_STOCK_CONTROLLERS_BYTE_LOCKED"
 echo "STOCK_HERO_DATE_PILL=EXACTLY_ONE_LEFT_SLOT"
 echo "STOCK_SECTION_DATE_PILL=WHITE_WITH_DARK_TEXT"
-echo "STOCK_SECTION_NAVIGATION=UP_POSITIONS_DOWN_DAILY_PRICES"
+echo "STOCK_SUMMARY_VERTICAL_OFFSET=25_PERCENT"
+echo "STOCK_HERO_METADATA=EVENLY_SPACED"
+echo "STOCK_SECTION_NAVIGATION=UP_DOCUMENT_TOP_DOWN_DAILY_PRICES"
+echo "STOCK_PRIMARY_PRICE=25_PERCENT_LARGER"
 echo "STOCK_CURRENT_HISTORICAL_ROWS=FIVE_METRICS_CANONICAL"
 echo "RESPONSIVE_LAYOUT=AI_AND_STOCK_16_OF_16_RENDER_GATES"
 echo "MATERIALIZER_TESTS=15/15"

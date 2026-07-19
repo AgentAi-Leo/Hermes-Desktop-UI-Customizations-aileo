@@ -22,7 +22,7 @@ The canonical AI and Stock documents now own exact copies of the accepted V25 pr
 
 Dashboard V61/V74 overrides remain layered after those bases exactly as in V25. Permanent computed-style tests enforce high-risk AI and Stock properties, including typography, spacing, colors, Takeaway hierarchy, topic paragraphs and labels, Stock body/header geometry, and quote-grid layout.
 
-Stock preserves V25's direct body/header/comparison/grid geometry while retaining exactly one yellow hero date pill in the marked left slot below the title/fullscreen control. The lower daily-price section begins with a separate white date badge with dark text; the legacy `TODAY'S PRICE` heading is absent. Quote rows contain no repeated yellow date pills, and the installer rejects any bundle that reintroduces `.hermes-stock-row-date`.
+Stock preserves V25's direct body/header/comparison/grid geometry while retaining exactly one yellow hero date pill below the title/fullscreen control. The pill, time, and Yahoo metadata are grouped into one evenly spaced stack; Summary is lowered by 25% of its own height on desktop and resets on narrow layouts. The lower daily-price section begins with a separate white date badge with dark text; the legacy `TODAY'S PRICE` heading is absent. Primary current-price values are 25% larger (`1.84rem` → `2.3rem`) while all five metrics remain unchanged. Quote rows contain no repeated yellow date pills, and the installer rejects any bundle that reintroduces `.hermes-stock-row-date`.
 
 The canonical Stock parser accepts the current deterministic producer's `.metric` blocks as well as historical definition-list, span/bold, and stat shapes. Every retained date renders the same identity-plus-five-metric quote rows: Day High, Day Low, 52-week High, 52-week Low, and Volume.
 
@@ -35,7 +35,7 @@ The accepted V25 controllers are byte-locked:
 - AI `PLAYER_CONTROLLER` SHA-256: `3c416c8a58ee4010ac99aaa4851b0f4c51397454df9141d2109012621ec8e8c1`
 - Stock `STOCK_INTERACTION_CONTROLLER` SHA-256: `dabab60fd4af3187720ff090e940ba3de768b842638b4afdecc89ed13b51e7b0`
 
-This protects narration, female-voice selection policy, `1.15×` rate, play/pause, topic selection, keyboard navigation, active-card styling, fullscreen, links, exports, viewport restoration, and Stock date navigation. A separate dashboard-owned Stock section-navigation controller adds Up → Portfolio Position Comparison and Down → daily-price rows without modifying the byte-locked V25 Stock controller.
+This protects narration, female-voice selection policy, `1.15×` rate, play/pause, topic selection, keyboard navigation, active-card styling, fullscreen, links, exports, viewport restoration, and Stock date navigation. A separate dashboard-owned Stock section-navigation controller adds Up → complete Stock Brief document top and Down → daily-price rows without modifying the byte-locked V25 Stock controller.
 
 Export button behavior and dashboard export controls are intentionally unchanged in this revision and remain the final follow-up step after visual acceptance.
 
