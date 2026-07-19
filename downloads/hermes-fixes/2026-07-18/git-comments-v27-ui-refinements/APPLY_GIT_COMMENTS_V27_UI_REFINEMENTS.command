@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=285" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=286" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -178,6 +178,10 @@ required = [
     'COMMENTS (${received.length})',
     '.git-comments-comment-label{display:inline-flex;align-items:center;padding:6.25px 12.5px;',
     'font-size:15px;font-weight:850',
+    '.git-comments-comment-label.open{border-color:#4ade80;background:#123c2b;color:#fff}',
+    '.git-comments-comment-label.closed{border-color:#a78bfa;background:#2e2452;color:#fff}',
+    '.git-comments-current-state.open{border-color:#4ade80;color:#fff;background:#123c2b}',
+    '.git-comments-current-state.closed{border-color:#a78bfa;color:#fff;background:#2e2452}',
     '.git-comments-button.add-toggle{border-color:#FFE6CB;background:#35291f;color:#FFE6CB}',
     '.git-comments-button.submit-add{border-color:#4ade80;background:#123c2b;color:#b7f7cc}',
     '.git-comments-button.cancel-add{border-color:#ef4444;background:#4a151b;color:#fecaca}',
@@ -228,9 +232,12 @@ assert 'className: "git-comments-current-label"' not in source, "duplicated curr
 assert 'className: "git-comments-issue-meta"' not in source, "old separate comments row remains"
 repo_line = source.index('className: "git-comments-repo-line"')
 watch_state = source.index('className: `git-comments-watch-state ${String(issue.state || "").toLowerCase()}`', repo_line)
-comment_pill = source.index('className: "git-comments-comment-label"', watch_state)
-issue_title = source.index('className: "git-comments-issue-title"', comment_pill)
-assert repo_line < watch_state < comment_pill < issue_title, "comments pill must follow WATCHING in the repository line"
+issue_title = source.index('className: "git-comments-issue-title"', watch_state)
+context_row = source.index('className: "git-comments-issue-context-meta"', issue_title)
+current_state = source.index('className: `git-comments-current-state ${String(issue.state || "").toLowerCase()}`', context_row)
+updated = source.index('`Updated ${fmt(issue.updated_at)}`', current_state)
+comment_pill = source.index('className: `git-comments-comment-label ${String(issue.state || "").toLowerCase()}`', updated)
+assert repo_line < watch_state < issue_title < context_row < current_state < updated < comment_pill, "comments pill must end the OPEN/CLOSED metadata row"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 watched_start = source.index('e("section", { className: "git-comments-panel" }', health_start)
 add_button = source.index('className: "git-comments-button add-toggle"')
@@ -250,4 +257,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=285"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=286"
