@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 9
+# Git Comments V27 UI Refinements — Revision 10
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -22,6 +22,8 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Makes the opened form's `ADD URL` action green and `CANCEL` action red.
 - Adds `Escape` to clear and close the add form without clicking Cancel.
 - Adds explicit `Enter` submission from the URL input through the same validation and duplicate-protection path as the green Add URL button.
+- Adds dashboard-level `Enter` launch: while the form is closed and the dashboard background is active, Enter opens and autofocuses the URL input.
+- Guards the launch shortcut from links, buttons, inputs, textareas, selects, editable content, modifier-key combinations, loading, and busy actions.
 - Increases the comment pill 25%, from 12px to 15px with proportional padding, and simplifies it to `COMMENTS (n)`.
 - Uses normal weight for the watch summary while retaining green `COMMENTED (n)` and cyan `ARCHIVED (n)`.
 - Increases `WATCHER HEALTHY` 25%, from 18px to 22.5px.

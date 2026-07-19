@@ -117,6 +117,11 @@ assert(source.includes('.git-comments-button.cancel-add{border-color:#ef4444;bac
 assert(source.includes('if (event.key === "Escape")') && source.includes('closeAddForm();'), "Escape must clear and close the add form");
 assert(source.includes('if (event.key === "Enter" && String(event.target?.tagName || "").toUpperCase() === "INPUT")') && source.includes('event.currentTarget.requestSubmit();'), "Enter in the URL input must explicitly submit the add form");
 assert(source.includes('className: "git-comments-add-form", onSubmit: addUrl, onKeyDown: addFormKeyDown'), "add form must wire both submit and keyboard handlers");
+assert(source.includes('window.addEventListener("keydown", launchAddOnEnter)') && source.includes('window.removeEventListener("keydown", launchAddOnEnter)'), "dashboard must register and clean up the Enter-to-launch shortcut");
+assert(source.includes('if (event.key !== "Enter" || addOpen || busy || state.loading || event.defaultPrevented'), "Enter-to-launch must run only while the form is closed and idle");
+assert(source.includes('event.metaKey || event.ctrlKey || event.altKey || event.shiftKey'), "modified Enter shortcuts must not launch Add URL");
+assert(source.includes('target.closest("a,button,input,textarea,select,[contenteditable=true]")'), "Enter-to-launch must not hijack interactive or editable controls");
+assert(source.includes('setActionError(""); setAddOpen(true);'), "eligible Enter must open the Add URL form");
 const summary = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-summary")[0];
 assert(summary && summary.props?.style?.fontWeight === 400, "watch summary must use normal weight");
 assert(nodes(summary, (node) => String(node.props?.className || "") === "git-comments-summary-commented" && text(node).includes("COMMENTED (1)") && node.props?.style?.color === "#4ade80").length === 1, "COMMENTED summary must be green");
