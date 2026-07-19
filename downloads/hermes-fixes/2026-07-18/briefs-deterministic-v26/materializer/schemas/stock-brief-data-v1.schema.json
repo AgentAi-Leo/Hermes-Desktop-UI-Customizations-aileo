@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AgentAi-Leo/Hermes-Desktop-UI-Customizations-aileo/briefs/schemas/stock-brief-data-v1.schema.json",
+  "title": "Stock Brief data v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "kind", "date", "timezone", "generated_at", "quotes"],
+  "properties": {
+    "contract_version": {"const": "stock-brief-data-v1"},
+    "kind": {"const": "stock"},
+    "date": {"type": "string", "format": "date"},
+    "timezone": {"const": "America/Los_Angeles"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "quotes": {
+      "type": "array", "minItems": 7, "maxItems": 7,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["ticker", "company", "current_price", "daily_change", "daily_change_percent", "day_high", "day_low", "fifty_two_week_high", "fifty_two_week_low", "volume", "source_label", "source_url"],
+        "properties": {
+          "ticker": {"enum": ["AAPL", "AMZN", "NVDA", "SNAP", "GOOGL", "MSFT", "DIS"]},
+          "company": {"type": "string", "minLength": 1},
+          "current_price": {"type": "string", "pattern": "^\\$[0-9][0-9,]*\\.[0-9]{2}$"},
+          "daily_change": {"type": "string", "pattern": "^[+-]\\$[0-9][0-9,]*\\.[0-9]{2}$"},
+          "daily_change_percent": {"type": "string", "pattern": "^[+-][0-9][0-9,]*\\.[0-9]{2}%$"},
+          "day_high": {"type": "string", "pattern": "^\\$[0-9][0-9,]*\\.[0-9]{2}$"},
+          "day_low": {"type": "string", "pattern": "^\\$[0-9][0-9,]*\\.[0-9]{2}$"},
+          "fifty_two_week_high": {"type": "string", "pattern": "^\\$[0-9][0-9,]*\\.[0-9]{2}$"},
+          "fifty_two_week_low": {"type": "string", "pattern": "^\\$[0-9][0-9,]*\\.[0-9]{2}$"},
+          "volume": {"type": "string", "pattern": "^[0-9][0-9,]*$"},
+          "source_label": {"const": "Yahoo Finance"},
+          "source_url": {"type": "string", "pattern": "^https://finance\\.yahoo\\.com/quote/"}
+        }
+      }
+    }
+  }
+}
