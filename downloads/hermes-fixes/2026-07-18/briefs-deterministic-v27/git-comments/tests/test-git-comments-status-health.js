@@ -113,7 +113,8 @@ assert(source.includes('health.status === "healthy"'), "green health requires an
 const issue58510 = nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-issue") && text(node).includes("#58510"))[0];
 const importantTimelineIndex = issue58510.children.findIndex((node) => String(node?.props?.className || "") === "git-comments-events");
 const commentsIndex = issue58510.children.findIndex((node) => String(node?.props?.className || "") === "git-comments-comments");
-assert(importantTimelineIndex > 0 && importantTimelineIndex < commentsIndex, "important close/reopen timeline must be visible immediately below the issue header");
+assert(importantTimelineIndex > commentsIndex, "lifecycle/tag timeline must render at the end of the issue card after comments");
+assert(source.includes('.git-comments-repo-primary{font-size:20.8px;color:#fff;font-weight:900}'), "repository name must be exactly 30% larger than 16px and extra bold");
 
 fixture = { ...fixture, watcher_health: { ok: false, stale: false, status: "failed", error: "network" } };
 tree = registered();

@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 4
+# Git Comments V27 UI Refinements — Revision 5
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -6,13 +6,15 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
 - Displays `WATCHER HEALTHY` followed by a green circle only when the watcher reports `ok=true`, `stale=false`, and status `healthy`.
 - Displays `BROKEN` followed by a red circle for failed, missing, unknown, or stale health.
-- Restores important GitHub lifecycle history—opened, closed, and reopened—immediately below each issue header.
+- Retains important GitHub lifecycle history—opened, closed, and reopened.
 - Restores GitHub label/tag history such as `sweeper:cannot-reproduce`, rendered as a colored timeline pill.
+- Places the complete opened/closed/reopened and label/tag timeline at the end of each issue card, after comments.
 - Synthesizes the opening event from the GitHub issue creator/time because GitHub’s timeline endpoint does not return that row.
 - Moves `COMMENTS (n)` and `n RECEIVED` onto a second row beneath the issue identity.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Restores issue/PR numbers to their original 20px size while retaining canonical GitHub hyperlinks.
 - Places `WATCHING` inline to the right of the bold white repository name.
+- Increases the repository name exactly 30%, from 16px to 20.8px, and uses 900 font weight.
 - Keeps the plain `ARCHIVE` action and omits redundant `View on GitHub →` text.
 
 ## Apply

@@ -159,7 +159,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=274" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=275" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -167,6 +167,7 @@ source = Path(sys.argv[1]).read_text(encoding="utf-8")
 required = [
     '.git-comments-health-dot.broken{background:#ef4444',
     '.git-comments-repo-line{display:flex',
+    '.git-comments-repo-primary{font-size:20.8px;color:#fff;font-weight:900}',
     '.git-comments-number-link{font-size:20px',
     'health.status === "healthy"',
     '"WATCHER HEALTHY" : "BROKEN"',
@@ -179,6 +180,7 @@ required = [
 ]
 for marker in required:
     assert marker in source, marker
+assert source.index('comments.length ? e("div"') < source.index('visibleStatusEvents.length ? e("div"'), "timeline must follow comments"
 for forbidden in ['View on GitHub', '✓ ARCHIVE']:
     assert forbidden not in source, forbidden
 for path in map(Path, sys.argv[2:4]):
@@ -196,4 +198,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=274"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=275"
