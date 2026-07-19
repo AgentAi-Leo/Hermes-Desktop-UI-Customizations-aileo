@@ -25,6 +25,8 @@ LAUNCH_CHECKER="$HOME/.hermes/scripts/github-comments-checker-v27-review.sh"
 PROFILE_CHECKER="$HOME/.hermes/profiles/$PROFILE/scripts/github-comments-checker-v27-review.sh"
 PROD_LAUNCH="$HOME/.hermes/plugins/git-comments/dashboard/dist/index.js"
 PROD_PROFILE="$HOME/.hermes/profiles/$PROFILE/plugins/git-comments/dashboard/dist/index.js"
+PROD_LAUNCH_MANIFEST="$HOME/.hermes/plugins/git-comments/dashboard/manifest.json"
+PROD_PROFILE_MANIFEST="$HOME/.hermes/profiles/$PROFILE/plugins/git-comments/dashboard/manifest.json"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP="$HOME/.hermes/backups/git-comments-v27-ui-refinements-$STAMP"
 TOUCHED=0
@@ -32,6 +34,27 @@ GLOBAL_CHECKER_EXISTED=0
 
 sha256_file() { shasum -a 256 "$1" | cut -d ' ' -f 1; }
 file_hash_or_missing() { [[ -f "$1" ]] && sha256_file "$1" || printf '%s' MISSING; }
+set_manifest_label() {
+  "$PY" - "$1" "$2" <<'PY'
+import json, os, stat, sys, tempfile
+from pathlib import Path
+path = Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+data["label"] = sys.argv[2]
+fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+try:
+    os.fchmod(fd, stat.S_IMODE(path.stat().st_mode))
+    with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        json.dump(data, handle, indent=2)
+        handle.write("\n")
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(temporary, path)
+finally:
+    if os.path.exists(temporary):
+        os.unlink(temporary)
+PY
+}
 
 start_preview() {
   mkdir -p "$(dirname "$LOG")"
@@ -74,6 +97,8 @@ restore() {
     cp "$BACKUP/profile-plugin-api.py" "$PROFILE_API"
     cp "$BACKUP/launch-manifest.json" "$LAUNCH_MANIFEST"
     cp "$BACKUP/profile-manifest.json" "$PROFILE_MANIFEST"
+    if [[ -f "$BACKUP/prod-launch-manifest.json" ]]; then cp "$BACKUP/prod-launch-manifest.json" "$PROD_LAUNCH_MANIFEST"; fi
+    if [[ -f "$BACKUP/prod-profile-manifest.json" ]]; then cp "$BACKUP/prod-profile-manifest.json" "$PROD_PROFILE_MANIFEST"; fi
     cp "$BACKUP/profile-checker.sh" "$PROFILE_CHECKER"
     if [[ "$GLOBAL_CHECKER_EXISTED" == "1" ]]; then cp "$BACKUP/launch-checker.sh" "$LAUNCH_CHECKER"; else rm -f "$LAUNCH_CHECKER"; fi
     rm -rf "$PROFILE_DATA"
@@ -92,6 +117,7 @@ for required in "$PY" "$SOURCE" "$CHECKER_SOURCE" "$API_SOURCE" "$MANIFEST_SOURC
   [[ -e "$required" ]] || { echo "Missing required path: $required" >&2; exit 1; }
 done
 [[ -x "$PY" ]] || { echo "Hermes Python is not executable: $PY" >&2; exit 1; }
+[[ -f "$PROD_LAUNCH_MANIFEST" || -f "$PROD_PROFILE_MANIFEST" ]] || { echo "Missing production git-comments manifest that owns the visible sidebar label" >&2; exit 1; }
 (cd "$PACKAGE_DIR" && shasum -a 256 -c CHECKSUMS.sha256)
 
 PROD_LAUNCH_BEFORE="$(file_hash_or_missing "$PROD_LAUNCH")"
@@ -104,6 +130,8 @@ cp "$LAUNCH_API" "$BACKUP/launch-plugin-api.py"
 cp "$PROFILE_API" "$BACKUP/profile-plugin-api.py"
 cp "$LAUNCH_MANIFEST" "$BACKUP/launch-manifest.json"
 cp "$PROFILE_MANIFEST" "$BACKUP/profile-manifest.json"
+if [[ -f "$PROD_LAUNCH_MANIFEST" ]]; then cp "$PROD_LAUNCH_MANIFEST" "$BACKUP/prod-launch-manifest.json"; fi
+if [[ -f "$PROD_PROFILE_MANIFEST" ]]; then cp "$PROD_PROFILE_MANIFEST" "$BACKUP/prod-profile-manifest.json"; fi
 cp "$PROFILE_CHECKER" "$BACKUP/profile-checker.sh"
 if [[ -f "$LAUNCH_CHECKER" ]]; then GLOBAL_CHECKER_EXISTED=1; cp "$LAUNCH_CHECKER" "$BACKUP/launch-checker.sh"; fi
 cp -R "$PROFILE_DATA" "$BACKUP/profile-data"
@@ -134,6 +162,9 @@ for destination in "$PROFILE_CHECKER" "$LAUNCH_CHECKER"; do
   mv -f "$temporary" "$destination"
 done
 TOUCHED=1
+for destination in "$PROD_LAUNCH_MANIFEST" "$PROD_PROFILE_MANIFEST"; do
+  [[ -f "$destination" ]] && set_manifest_label "$destination" "GIT WATCH"
+done
 
 rm -rf "$LAUNCH_DATA"
 ln -s "$PROFILE_DATA" "$LAUNCH_DATA"
@@ -149,7 +180,8 @@ curl -fsS "http://127.0.0.1:$PORT/api/dashboard/plugins" |
 "$PY" -c 'import json,sys
 plugins=json.load(sys.stdin)
 assert any(p.get("name")=="git-comments-v27-review" and p.get("label")=="GIT WATCH" and p.get("tab",{}).get("path")=="/git-comments-v27-review" for p in plugins), plugins
-print("V27_MANIFEST_DISCOVERED=PASS")'
+assert any(p.get("name")=="git-comments" and p.get("label")=="GIT WATCH" for p in plugins), plugins
+print("V27_CANDIDATE_AND_VISIBLE_PRODUCTION_MANIFESTS_DISCOVERED=PASS")'
 
 "$PY" - "$PROFILE_DATA/git-comments.json" "$PROFILE_DATA/watcher-health.json" <<'PY'
 from datetime import datetime, timedelta, timezone
@@ -175,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=304" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=305" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -280,6 +312,12 @@ required = [
     'window.removeEventListener("keydown", closeArchiveViewOnEscape, true)',
     'fetchJSON(`${API}/watchlist/view-archived`',
     'snapshot: issue',
+    'function archivedSummary(entry)',
+    'title.split(" ").slice(0, 11)',
+    'if (candidate.length > 65) break',
+    '.git-comments-archived-summary{margin-top:7px;color:#22d3ee;font-size:15.6px;',
+    'className: "git-comments-archived-content"',
+    'className: "git-comments-archived-summary"',
 ]
 for marker in required:
     assert marker in source, marker
@@ -305,6 +343,14 @@ status_text = source.index('className: "git-comments-status-text"', current_stat
 updated = source.index('`Updated ${fmt(issue.updated_at)}`', status_text)
 assert issue_main < issue_number < issue_author < repo_line < watch_state < issue_title < context_row < comment_pill < status_cluster < current_state < status_text < updated, "number/author first line, repository/WATCHING second line, then title; COMMENTS must sit left of one inline STATUS and metadata cluster"
 assert 'alt: `${issueAuthor} profile picture` }) : null),\n          e("div", { className: "git-comments-repo-line" }' in source, "repository and WATCHING must be a separate line below issue number, author, and profile picture"
+archived_map = source.index('archived.map((entry) =>')
+archived_view = source.index('className: "git-comments-button view-archived"', archived_map)
+archived_content = source.index('className: "git-comments-archived-content"', archived_view)
+archived_primary = source.index('className: "git-comments-archived-primary"', archived_content)
+archived_summary = source.index('className: "git-comments-archived-summary"', archived_primary)
+archived_unarchive = source.index('className: "git-comments-button unarchive"', archived_summary)
+archived_delete = source.index('className: "git-comments-button delete"', archived_unarchive)
+assert archived_map < archived_view < archived_content < archived_primary < archived_summary < archived_unarchive < archived_delete, "VIEW must be far-left, followed by the two-line archive content, then UNARCHIVE and DELETE"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 health_top = source.index('className: "git-comments-health-top"', health_start)
@@ -335,9 +381,10 @@ rm -f "$LIVE_BUNDLE"
 [[ "$(file_hash_or_missing "$PROD_LAUNCH")" == "$PROD_LAUNCH_BEFORE" ]] || { echo "Production launch-home Git Comments bundle changed" >&2; exit 1; }
 [[ "$(file_hash_or_missing "$PROD_PROFILE")" == "$PROD_PROFILE_BEFORE" ]] || { echo "Production profile Git Comments bundle changed" >&2; exit 1; }
 
-echo "PRODUCTION_GIT_COMMENTS=UNTOUCHED"
+echo "PRODUCTION_GIT_COMMENTS_RUNTIME=UNTOUCHED"
+echo "PRODUCTION_GIT_COMMENTS_SIDEBAR_LABEL=GIT WATCH"
 echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=304"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=305"

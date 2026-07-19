@@ -18,6 +18,10 @@ assert(source.includes('API_SOURCE="$PACKAGE_DIR/plugin_api.py"'), "updater must
 assert(source.includes('MANIFEST_SOURCE="$PACKAGE_DIR/manifest.json"'), "updater must package the GIT WATCH dashboard manifest");
 assert(source.includes('for destination in "$LAUNCH_MANIFEST" "$PROFILE_MANIFEST"'), "updater must install the GIT WATCH manifest into both candidate roots");
 assert(source.includes('p.get("label")=="GIT WATCH"'), "live plugin discovery must verify the exact GIT WATCH tab label");
+assert(source.includes('PROD_LAUNCH_MANIFEST="$HOME/.hermes/plugins/git-comments/dashboard/manifest.json"') && source.includes('PROD_PROFILE_MANIFEST="$HOME/.hermes/profiles/$PROFILE/plugins/git-comments/dashboard/manifest.json"'), "updater must target the production manifests that own the visible sidebar label");
+assert(source.includes('set_manifest_label "$destination" "GIT WATCH"'), "updater must rename each existing production dashboard manifest without replacing its internal identity");
+assert(source.includes('cp "$BACKUP/prod-launch-manifest.json" "$PROD_LAUNCH_MANIFEST"') && source.includes('cp "$BACKUP/prod-profile-manifest.json" "$PROD_PROFILE_MANIFEST"'), "updater rollback must restore both production sidebar manifests when present");
+assert(source.includes('p.get("name")=="git-comments" and p.get("label")=="GIT WATCH"'), "live plugin discovery must verify the visible production sidebar label");
 assert(!source.includes('setActionSuccess("URL ADDED SUCCESSFULLY!")'), "updater must not retain the obsolete direct-success assertion");
 assert(!source.includes('className: "git-comments-success", role: "status"'), "updater must not retain the obsolete fixed success-class assertion");
 const requiredBlock = source.match(/required = (\[[\s\S]*?\])\nfor marker in required:/);
@@ -32,6 +36,7 @@ const verifierRun = spawnSync("python3", ["-", rendererPath, path.join(packageDi
 assert.strictEqual(verifierRun.status, 0, `embedded live verifier failed:\n${verifierRun.stdout}${verifierRun.stderr}`);
 assert(source.includes('for destination in "$LAUNCH_API" "$PROFILE_API"'), "updater must install the API into both candidate roots");
 assert(source.includes('allowed = {"opened", "closed", "reopened", "labeled", "unlabeled"}'), "updater must verify lifecycle and label/tag event data");
-assert(source.includes('ui=304'), "Revision 34 cache-busting marker missing");
+assert(source.includes('ui=305'), "Revision 35 cache-busting marker missing");
+assert(source.includes('PRODUCTION_GIT_COMMENTS_RUNTIME=UNTOUCHED') && source.includes('PRODUCTION_GIT_COMMENTS_SIDEBAR_LABEL=GIT WATCH') && source.includes('PRODUCTION_9119=NOT_RESTARTED'), "updater status must distinguish untouched production runtime from the intentional sidebar-label update");
 assert(source.indexOf('GIT_COMMENTS_V27_UI_REFINEMENTS=PASS') < source.indexOf('open -a "Brave Browser"'), "Brave must open only after every verification passes");
 console.log("GIT_COMMENTS_UI_UPDATER_AUTH_REGRESSION=PASS");

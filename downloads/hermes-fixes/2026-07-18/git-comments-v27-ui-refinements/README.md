@@ -1,6 +1,8 @@
-# GIT WATCH V27 UI Refinements — Revision 34
+# GIT WATCH V27 UI Refinements — Revision 35
 
-Candidate-only update for `git-comments-v27-review` on preview port 9120.
+Revision 35 updates the actual production `git-comments` manifest label that owns the visible dashboard sidebar while preserving its internal identity and adding rollback. Archived rows now place `VIEW` at the far-left edge and show an issue-only cyan summary below the identity/archive-time line, capped at 65 characters and 11 complete words, at 15.6px (20% larger than the 13px archive timestamp).
+
+Candidate UI/API/checker update for `git-comments-v27-review` on preview port 9120, plus an atomic display-label-only update to the existing production `git-comments` manifests.
 
 The dashboard-facing name is exactly `GIT WATCH`. Internal plugin IDs, routes, API paths, checker filenames, and stored data remain unchanged for compatibility.
 

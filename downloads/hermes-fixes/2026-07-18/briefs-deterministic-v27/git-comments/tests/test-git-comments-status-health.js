@@ -268,7 +268,7 @@ rendered = text(tree);
 assert(rendered.includes("BROKEN"), "stale watcher must read BROKEN even if its last execution succeeded");
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-health-dot broken")).length === 1, "stale watcher must render red broken dot");
 
-fixture = { ...fixture, watchlist: { ...fixture.watchlist, active: [], archived: [{ id: "nousresearch/hermes-agent/issues/58510", url: "https://github.com/NousResearch/hermes-agent/issues/58510", repo: "NousResearch/hermes-agent", number: 58510, archived_at: "2026-07-19T05:00:00Z" }] }, issues: [] };
+fixture = { ...fixture, watchlist: { ...fixture.watchlist, active: [], archived: [{ id: "nousresearch/hermes-agent/issues/58510", url: "https://github.com/NousResearch/hermes-agent/issues/58510", repo: "NousResearch/hermes-agent", number: 58510, kind: "issue", archived_at: "2026-07-19T05:00:00Z", snapshot: { title: "Add archived summaries beneath repository details without cutting partial words unexpectedly" } }] }, issues: [] };
 tree = registered();
 rendered = text(tree);
 assert(rendered.includes("UNARCHIVE"), "archived entry unarchive control missing");
@@ -276,6 +276,17 @@ const archivedRows = nodes(tree, (node) => String(node.props?.className || "") =
 assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button unarchive") && text(node).trim() === "UNARCHIVE").length === 1, "archived row must contain an UNARCHIVE button");
 assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button delete") && text(node).trim() === "DELETE").length === 1, "archived row must contain a permanent DELETE button");
 assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button view-archived") && text(node).trim() === "VIEW").length === 1, "archived row must contain a small VIEW button");
+assert(String(archivedRows[0].children[0]?.props?.className || "").includes("git-comments-button view-archived"), "archived VIEW button must be the far-left first child of the row");
+assert(String(archivedRows[0].children[1]?.props?.className || "") === "git-comments-archived-content", "archived identity and summary must follow VIEW in one content column");
+const archivedSummary = nodes(archivedRows[0], (node) => String(node.props?.className || "") === "git-comments-archived-summary")[0];
+assert(text(archivedSummary).trim() === "Add archived summaries beneath repository details without cutting", "issue archive summary must stop at the last complete word within 65 characters");
+assert(text(archivedSummary).trim().length === 65 && text(archivedSummary).trim().split(/\s+/).length <= 11, "issue archive summary must not exceed 65 characters or 11 words");
+assert(source.includes('.git-comments-archived-summary{margin-top:7px;color:#22d3ee;font-size:15.6px;'), "archived issue summary must be cyan and exactly 20% larger than the 13px archive timestamp");
+const archivedSummaryFunction = source.match(/function archivedSummary\(entry\) \{([\s\S]*?)\n  \}/);
+assert(archivedSummaryFunction, "archived summary helper missing");
+const summarizeArchive = vm.runInNewContext(`(function archivedSummary(entry) {${archivedSummaryFunction[1]}\n})`);
+assert(summarizeArchive({ kind: "issue", snapshot: { title: "one two three four five six seven eight nine ten eleven twelve" } }) === "one two three four five six seven eight nine ten eleven", "archived summary helper must stop at 11 complete words");
+assert(summarizeArchive({ kind: "pull", snapshot: { title: "Pull request summary should not render" } }) === "", "archived summary must render only for issues");
 assert(source.includes('role: "dialog", "aria-modal": "true"') && source.includes('className: "git-comments-archive-modal"'), "VIEW must open an accessible in-dashboard read-only modal");
 assert(source.includes('className: "git-comments-button close-archive-view"') && source.includes('"CLOSE"'), "archived-item modal must provide an explicit CLOSE button");
 assert(source.includes('window.addEventListener("keydown", closeArchiveViewOnEscape, true)') && source.includes('event.stopImmediatePropagation()') && source.includes('window.removeEventListener("keydown", closeArchiveViewOnEscape, true)'), "modal Escape handler must run in capture phase, stop conflicting keybinds, and clean up");
