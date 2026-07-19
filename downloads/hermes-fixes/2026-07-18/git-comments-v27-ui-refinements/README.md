@@ -1,4 +1,6 @@
-# GIT WATCH V27 UI Refinements — Revision 37
+# GIT WATCH V27 UI Refinements — Revision 38
+
+Revision 38 places archived `VIEW ISSUE` / `VIEW PR` directly inline after repository, number, and archive timestamp, while keeping the cyan summary below and `UNARCHIVE` / `DELETE` as right-side row actions. Completion notices are now compact content-width toasts centered in the viewport instead of full-width banners: archive appears bottom-center, while add/delete/unarchive appear top-center. Unarchive now uses the exact green text `SUCCESSFULLY UNARCHIVED!`.
 
 Revision 37 moves archived `VIEW ISSUE` / `VIEW PR` controls back into the right-side action group before `UNARCHIVE` and `DELETE`. Payload authors matching the configured watchlist profile owner receive an accessible gold star immediately after their avatar. Archive, both delete paths, and unarchive now publish viewport-fixed cyan success notices with the existing 3000 ms visible duration plus 500 ms fade: `URL SUCCESSFULLY ARCHIVED!`, `SUCCESSFULLY DELETED!`, and `SUCCESSFULLY UNARCHIVED!!`.
 

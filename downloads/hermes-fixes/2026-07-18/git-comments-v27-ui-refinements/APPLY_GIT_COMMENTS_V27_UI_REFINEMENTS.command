@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=307" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=308" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -282,7 +282,7 @@ required = [
     '.git-comments-card-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex:0 0 32px;line-height:1;font-size:22px}',
     'className: "git-comments-card-icon", "aria-hidden": "true"',
     'showSuccess("URL ADDED SUCCESSFULLY!", 5000)',
-    'className: `git-comments-success ${successTone}${successFading ? " fading" : ""}`, role: "status", "aria-live": "polite"',
+    'className: `git-comments-success ${successTone} ${successPlacement}${successFading ? " fading" : ""}`, role: "status", "aria-live": "polite"',
     '`STATUS: ${currentState}`',
     'function exportStandaloneHtml()',
     'snapshot.querySelectorAll("button,.git-comments-panel-add,.git-comments-success,.git-comments-error")',
@@ -297,15 +297,17 @@ required = [
     'issueAuthor.toLowerCase() === String(owner || "").toLowerCase()',
     'className: "git-comments-owner-star", role: "img", "aria-label": "Watchlist profile owner"',
     'showSuccess("URL ADDED SUCCESSFULLY!", 5000)',
-    'showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan")',
+    'showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan", "bottom")',
     'showSuccess("SUCCESSFULLY DELETED!", 3000, "cyan")',
-    'showSuccess("SUCCESSFULLY UNARCHIVED!!", 3000, "cyan")',
-    '.git-comments-success{position:fixed;top:18px;left:24px;right:24px;z-index:1100;',
+    'showSuccess("SUCCESSFULLY UNARCHIVED!", 3000, "green", "top")',
+    '.git-comments-success{position:fixed;left:50%;z-index:1100;width:max-content;max-width:calc(100vw - 48px);transform:translateX(-50%);',
+    '.git-comments-success.top{top:24px}',
+    '.git-comments-success.bottom{bottom:24px}',
     '.git-comments-success.cyan{border-color:#22d3ee;background:#083344;color:#cffafe}',
     'window.setTimeout(() => setSuccessFading(true), successDuration)',
     'window.setTimeout(() => setActionSuccess(""), successDuration + 500)',
     '.git-comments-success.fading{opacity:0;pointer-events:none}',
-    'className: `git-comments-success ${successTone}${successFading ? " fading" : ""}`',
+    'className: `git-comments-success ${successTone} ${successPlacement}${successFading ? " fading" : ""}`',
     'className: "git-comments-button export-html"',
     'function DownloadIcon()',
     '"aria-label": "Download HTML"',
@@ -361,11 +363,13 @@ assert issue_author < issue_avatar < owner_star < repo_line, "profile-owner star
 archived_map = source.index('archived.map((entry) =>')
 archived_content = source.index('className: "git-comments-archived-content"', archived_map)
 archived_primary = source.index('className: "git-comments-archived-primary"', archived_content)
-archived_summary = source.index('className: "git-comments-archived-summary"', archived_primary)
-archived_view = source.index('className: "git-comments-button view-archived"', archived_summary)
-archived_unarchive = source.index('className: "git-comments-button unarchive"', archived_view)
+archived_time = source.index('`Archived ${fmt(entry.archived_at)}`', archived_primary)
+archived_view = source.index('className: "git-comments-button view-archived"', archived_time)
+archived_summary = source.index('className: "git-comments-archived-summary"', archived_view)
+archived_unarchive = source.index('className: "git-comments-button unarchive"', archived_summary)
 archived_delete = source.index('className: "git-comments-button delete"', archived_unarchive)
-assert archived_map < archived_content < archived_primary < archived_summary < archived_view < archived_unarchive < archived_delete, "archive content must remain left while VIEW returns to the right-side action group before UNARCHIVE and DELETE"
+assert archived_map < archived_content < archived_primary < archived_time < archived_view < archived_summary < archived_unarchive < archived_delete, "VIEW must sit inline immediately after repository, number, and archive timestamp; summary follows below while UNARCHIVE and DELETE remain row actions"
+assert 'SUCCESSFULLY UNARCHIVED!!' not in source, "obsolete double-exclamation unarchive text remains"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 health_top = source.index('className: "git-comments-health-top"', health_start)
@@ -402,4 +406,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=307"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=308"
