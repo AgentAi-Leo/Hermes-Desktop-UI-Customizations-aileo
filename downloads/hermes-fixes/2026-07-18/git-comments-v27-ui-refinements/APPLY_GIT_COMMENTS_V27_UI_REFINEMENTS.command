@@ -159,7 +159,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=277" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=278" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -170,11 +170,16 @@ required = [
     '.git-comments-repo-primary{font-size:20.8px;color:#fff;font-weight:900}',
     '.git-comments-number-link{font-size:25px',
     '.git-comments-watch-state{font-size:18.75px;line-height:1.1;color:#4ade80;font-weight:800',
-    'COMMENTS RECEIVED (${received.length})',
+    'COMMENTS (${received.length})',
+    '.git-comments-comment-label{display:inline-flex;align-items:center;padding:6.25px 12.5px;',
+    'font-size:15px;font-weight:850',
+    '.git-comments-button.add-toggle{border-color:#FFE6CB;background:#35291f;color:#FFE6CB}',
+    'className: "git-comments-summary", style: { fontWeight: 400 }',
+    'className: "git-comments-kicker", style: { fontSize: "22.5px" }',
     'className: "git-comments-summary-commented", style: { color: "#4ade80" }',
     'className: "git-comments-summary-archived", style: { color: "#22d3ee" }',
     '.git-comments-button.archive{margin-left:auto;border-color:#22d3ee;background:#083344;color:#cffafe}',
-    'className: "git-comments-panel-title", style: { fontSize: "26.4px", color: "#fff" } }, "/// WATCHED GITHUB ISSUES & PULL REQUESTS ///"',
+    'className: "git-comments-panel-title", style: { fontSize: "26.4px", color: "#FFE6CB" } }, "/// WATCHED GITHUB ISSUES & PULL REQUESTS ///"',
     'className: "git-comments-panel-title", style: { color: "#22d3ee" }',
     'duplicateWatchId(url, active, archived)',
     'health.status === "healthy"',
@@ -192,6 +197,7 @@ assert source.index('comments.length ? e("div"') < source.index('visibleStatusEv
 for forbidden in ['View on GitHub', '✓ ARCHIVE', '💼 WATCHED GITHUB ISSUES & PULL REQUESTS']:
     assert forbidden not in source, forbidden
 assert '`${received.length} received`' not in source, "redundant received count remains"
+assert 'COMMENTS RECEIVED' not in source, "received text remains in comment pill"
 for path in map(Path, sys.argv[2:4]):
     api = path.read_text(encoding="utf-8")
     assert '@router.post("/watchlist/delete")' in api, path
@@ -207,4 +213,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=277"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=278"
