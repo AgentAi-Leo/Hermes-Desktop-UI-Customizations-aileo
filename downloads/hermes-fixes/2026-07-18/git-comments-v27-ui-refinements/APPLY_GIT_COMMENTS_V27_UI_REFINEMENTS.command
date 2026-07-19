@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=287" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=288" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -176,12 +176,12 @@ required = [
     '.git-comments-watch-state.open{color:#4ade80}',
     '.git-comments-watch-state.closed{color:#a78bfa}',
     'COMMENTS (${received.length})',
-    '.git-comments-comment-label{display:inline-flex;align-items:center;padding:6.25px 12.5px;',
-    'font-size:15px;font-weight:850',
-    '.git-comments-comment-label.open{border-color:#4ade80;background:#123c2b;color:#fff}',
-    '.git-comments-comment-label.closed{border-color:#a78bfa;background:#2e2452;color:#fff}',
+    '.git-comments-current-state,.git-comments-comment-label{display:inline-flex;align-items:center;justify-content:center;width:160px;min-height:44px;box-sizing:border-box;padding:6.25px 12.5px;border-radius:999px;font-size:15px;font-weight:850',
+    '.git-comments-comment-label.open{border-color:#4ade80;background:#16a34a;color:#fff}',
+    '.git-comments-comment-label.closed{border-color:#a78bfa;background:#7c3aed;color:#fff}',
     '.git-comments-current-state.open{border-color:#4ade80;color:#fff;background:#123c2b}',
     '.git-comments-current-state.closed{border-color:#a78bfa;color:#fff;background:#2e2452}',
+    '.git-comments-issue-context-meta{color:#9ca9bd;font-size:14.95px}',
     '.git-comments-button.add-toggle{border-color:#FFE6CB;background:#35291f;color:#FFE6CB}',
     '.git-comments-button.submit-add{border-color:#4ade80;background:#123c2b;color:#b7f7cc}',
     '.git-comments-button.cancel-add{border-color:#ef4444;background:#4a151b;color:#fecaca}',
@@ -257,4 +257,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=287"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=288"

@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 17
+# Git Comments V27 UI Refinements — Revision 18
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -19,6 +19,9 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Moves the linked `COMMENTS (n)` pill again to the arrow-indicated position at the end of the `OPEN/CLOSED`, author, created, and updated metadata row.
 - Makes both the state pill and comments pill green with white text for open items, or purple with white text for closed items.
 - Places the linked `COMMENTS (n)` pill immediately to the left of the matching `OPEN` or `CLOSED` pill.
+- Makes comments and state pills the same fixed 160×44px size with centered 15px text.
+- Distinguishes comments with fully opaque fills: solid green when open and solid purple when closed, while state pills retain their darker fills.
+- Increases the author, created, and updated metadata text exactly 15%, from 13px to 14.95px.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.
