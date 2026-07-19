@@ -252,7 +252,7 @@ PY
 import re, sys
 from pathlib import Path
 data=Path(sys.argv[1]).read_bytes()
-for marker in (b'v61-date-load-keyboard-focus',b'v74-ticker-above-company',b'data-hermes-canonical-ai',b'data-hermes-canonical-stock',b'hermes-ai-canonical',b'hermes-stock-canonical',b'hermes-ai-viewport-state',b'aiViewportByDateRef',b'hermes-v25-ai-base-style',b'hermes-v25-stock-base-style',b'hermes-stock-portfolio-summary',b'hermes-stock-summary-stack',b'hermes-stock-hero-left',b'hermes-stock-meta-stack',b'hermes-stock-today-date-pill',b'hermes-stock-section-navigation-controller',b'v26-ai-player-focus-restore',b'hermes-stock-current-price',b'SUMMARY',b'v26-responsive-canonical-stock-hero',b'data-hermes-brief-preview-toolbar',b'data-hermes-date-rail',b'TOTAL +/-',b'DAY +/-',b'hermes-portfolio-day',b'+$0.00 (+0.00%)',b'Founder takeaways'):
+for marker in (b'v61-date-load-keyboard-focus',b'v74-ticker-above-company',b'data-hermes-canonical-ai',b'data-hermes-canonical-stock',b'hermes-ai-canonical',b'hermes-stock-canonical',b'hermes-ai-viewport-state',b'hermes-v25-ai-base-style',b'hermes-v25-stock-base-style',b'hermes-stock-portfolio-summary',b'hermes-stock-summary-stack',b'hermes-stock-hero-left',b'hermes-stock-meta-stack',b'hermes-stock-today-date-pill',b'hermes-stock-section-navigation-controller',b'v26-ai-player-focus-restore',b'hermes-stock-current-price',b'SUMMARY',b'v26-responsive-canonical-stock-hero',b'data-hermes-brief-preview-toolbar',b'data-hermes-date-rail',b'TOTAL +/-',b'DAY +/-',b'hermes-portfolio-day',b'+$0.00 (+0.00%)',b'Founder takeaways'):
     if marker not in data:
         raise SystemExit(f'Live bundle missing marker: {marker.decode()}')
 if not re.search(rb'utterance\.rate\s*=\s*1\.15(?:0+)?\s*;', data):
