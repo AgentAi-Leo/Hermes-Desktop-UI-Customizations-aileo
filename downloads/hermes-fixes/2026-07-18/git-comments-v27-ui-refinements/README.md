@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 29
+# Git Comments V27 UI Refinements — Revision 30
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -43,6 +43,12 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Forces the complete `COMMENTS → STATUS → Opened by → Created → Updated` sequence onto one horizontal row; constrained cards scroll that row instead of splitting the status block underneath comments.
 - Changes the top-right export control to match the pictured Briefs control: download icon, `HTML` label, square cream outline, dark fill, and the canonical Briefs dimensions.
 - Adds the issue author immediately after the linked issue number and before the repository name using the live GitHub payload: `#58130 by author owner/repository WATCHING`.
+- Changes the watched heading exactly to `*** WATCHED GITHUB ISSUES & PULL REQUESTS ***`.
+- Moves `repository + WATCHING` to a dedicated second line below `#number + by author`.
+- Increases issue-title text by exactly 20%, from 20px to 24px.
+- Adds a small archived-row `VIEW` button that opens a focused, read-only in-dashboard modal with issue title, body, author, status, timestamps, labels, and comments.
+- Adds explicit `CLOSE`, backdrop close, and capture-phase Escape close. Modal Escape stops propagation before the existing Add URL Escape/Enter shortcuts and restores focus to the originating `VIEW` button.
+- Retains sanitized issue snapshots for newly archived items; already-archived items use a read-only live GitHub fallback.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.

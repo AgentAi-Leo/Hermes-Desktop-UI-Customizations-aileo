@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=299" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=300" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -174,6 +174,7 @@ required = [
     '.git-comments-number-link{font-size:25px',
     '.git-comments-issue-author{color:#9ca9bd;font-size:16px;font-weight:650;white-space:nowrap}',
     'className: "git-comments-issue-author" }, `by ${issueAuthor}`',
+    '.git-comments-issue-title{display:block;color:#FFE6CB;font-size:24px;',
     '.git-comments-watch-state{font-size:18.75px;line-height:1.1;font-weight:800',
     '.git-comments-watch-state.open{color:#4ade80}',
     '.git-comments-watch-state.closed{color:#ef4444}',
@@ -201,7 +202,7 @@ required = [
     'className: "git-comments-add-form", onSubmit: addUrl, onKeyDown: addFormKeyDown',
     'window.addEventListener("keydown", launchAddOnEnter)',
     'window.removeEventListener("keydown", launchAddOnEnter)',
-    'if (event.key !== "Enter" || addOpen || busy || state.loading || event.defaultPrevented',
+    'if (event.key !== "Enter" || addOpen || busy || state.loading || archiveView || event.defaultPrevented',
     'event.metaKey || event.ctrlKey || event.altKey || event.shiftKey',
     'target.closest("a,button,input,textarea,select,[contenteditable=true]")',
     'setActionError(""); setAddOpen(true);',
@@ -217,7 +218,7 @@ required = [
     'className: "git-comments-summary-commented", style: { color: "#4ade80" }',
     'className: "git-comments-summary-archived", style: { color: "#22d3ee" }',
     '.git-comments-button.archive{margin-left:auto;border-color:#22d3ee;background:#083344;color:#cffafe}',
-    'className: "git-comments-panel-title", style: { fontSize: "26.4px", color: "#FFE6CB" } }, "/// WATCHED GITHUB ISSUES & PULL REQUESTS ///"',
+    'className: "git-comments-panel-title", style: { fontSize: "26.4px", color: "#FFE6CB" } }, "*** WATCHED GITHUB ISSUES & PULL REQUESTS ***"',
     'className: "git-comments-panel-title", style: { color: "#22d3ee" }',
     'duplicateWatchId(url, active, archived)',
     'health.status === "healthy"',
@@ -246,6 +247,15 @@ required = [
     'function DownloadIcon()',
     '"aria-label": "Download HTML"',
     'e(DownloadIcon), "HTML"',
+    '.git-comments-button.view-archived{min-height:32px;padding:5px 11px;',
+    'className: "git-comments-button view-archived"',
+    'className: "git-comments-archive-modal", role: "dialog", "aria-modal": "true"',
+    'className: "git-comments-button close-archive-view"',
+    'window.addEventListener("keydown", closeArchiveViewOnEscape, true)',
+    'event.stopImmediatePropagation()',
+    'window.removeEventListener("keydown", closeArchiveViewOnEscape, true)',
+    'fetchJSON(`${API}/watchlist/view-archived`',
+    'snapshot: issue',
 ]
 for marker in required:
     assert marker in source, marker
@@ -269,7 +279,8 @@ status_cluster = source.index('className: "git-comments-status-cluster"', commen
 current_state = source.index('className: `git-comments-current-state ${status}`', status_cluster)
 status_text = source.index('className: "git-comments-status-text"', current_state)
 updated = source.index('`Updated ${fmt(issue.updated_at)}`', status_text)
-assert issue_main < issue_number < issue_author < repo_line < watch_state < issue_title < context_row < comment_pill < status_cluster < current_state < status_text < updated, "author must follow issue number; COMMENTS must sit left of one inline STATUS and metadata cluster"
+assert issue_main < issue_number < issue_author < repo_line < watch_state < issue_title < context_row < comment_pill < status_cluster < current_state < status_text < updated, "number/author first line, repository/WATCHING second line, then title; COMMENTS must sit left of one inline STATUS and metadata cluster"
+assert '}, `by ${issueAuthor}`)),\n          e("div", { className: "git-comments-repo-line" }' in source, "repository and WATCHING must be a separate line below issue number and author"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 health_top = source.index('className: "git-comments-health-top"', health_start)
@@ -285,6 +296,9 @@ for path in map(Path, sys.argv[2:4]):
     assert 'for collection in ("active", "archived")' in api, path
     assert 'result["deleted_from"] = deleted_from' in api, path
     assert 'watchlist["active"].insert(0, entry)' in api, path
+    assert '@router.post("/watchlist/view-archived")' in api, path
+    assert 'entry["snapshot"] = _sanitize_snapshot(snapshot)' in api, path
+    assert '"source": "github_live"' in api, path
 for path in map(Path, sys.argv[4:6]):
     checker = path.read_text(encoding="utf-8")
     assert 'merged_at = (issue.get("pull_request") or {}).get("merged_at")' in checker, path
@@ -302,4 +316,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=299"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=300"

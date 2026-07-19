@@ -6,6 +6,8 @@ import os
 import re
 import subprocess
 import tempfile
+import urllib.parse
+import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -111,6 +113,60 @@ def _requested_id(payload: dict[str, Any]) -> str:
     return identifier
 
 
+def _actor(value: object) -> dict:
+    source = value if isinstance(value, dict) else {}
+    return {"login": str(source.get("login") or "unknown"), "avatar_url": str(source.get("avatar_url") or "")}
+
+
+def _sanitize_snapshot(value: object) -> dict:
+    source = value if isinstance(value, dict) else {}
+    labels = [{"name": str(item.get("name") or ""), "color": str(item.get("color") or "")} for item in source.get("labels", []) if isinstance(item, dict)]
+    comments = [{
+        "id": item.get("id"),
+        "body": str(item.get("body") or ""),
+        "created_at": item.get("created_at"),
+        "updated_at": item.get("updated_at"),
+        "html_url": item.get("html_url"),
+        "author_association": str(item.get("author_association") or "NONE"),
+        "author": _actor(item.get("author") or item.get("user")),
+    } for item in source.get("comments", []) if isinstance(item, dict)]
+    return {
+        "watch_id": str(source.get("watch_id") or ""), "repo": str(source.get("repo") or ""),
+        "kind": str(source.get("kind") or "issue"), "number": int(source.get("number") or source.get("issue_number") or 0),
+        "title": str(source.get("title") or ""), "body": str(source.get("body") or ""),
+        "html_url": str(source.get("html_url") or source.get("url") or ""), "state": str(source.get("state") or "open"),
+        "state_reason": source.get("state_reason"), "merged_at": source.get("merged_at"),
+        "merged": source.get("merged") is True or bool(source.get("merged_at")), "author": _actor(source.get("author") or source.get("user")),
+        "created_at": source.get("created_at"), "updated_at": source.get("updated_at"), "labels": labels, "comments": comments,
+    }
+
+
+def _github_json(path: str) -> Any:
+    headers = {"Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "Hermes-Git-Comments-Archive-Viewer"}
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    request = urllib.request.Request(f"https://api.github.com{path}", headers=headers)
+    with urllib.request.urlopen(request, timeout=30) as response:
+        return json.load(response)
+
+
+def _live_archived_snapshot(entry: dict) -> dict:
+    owner, repository = str(entry["repo"]).split("/", 1)
+    base = f"/repos/{urllib.parse.quote(owner, safe='')}/{urllib.parse.quote(repository, safe='')}"
+    number = int(entry["number"])
+    issue = _github_json(f"{base}/issues/{number}")
+    comments = _github_json(f"{base}/issues/{number}/comments?per_page=100")
+    merged_at = (issue.get("pull_request") or {}).get("merged_at")
+    return _sanitize_snapshot({
+        "watch_id": entry["id"], "repo": entry["repo"], "kind": entry.get("kind"), "number": number,
+        "title": issue.get("title"), "body": issue.get("body"), "html_url": issue.get("html_url") or entry.get("url"),
+        "state": issue.get("state"), "state_reason": issue.get("state_reason"), "merged_at": merged_at,
+        "author": issue.get("user"), "created_at": issue.get("created_at"), "updated_at": issue.get("updated_at"),
+        "labels": issue.get("labels") or [], "comments": comments if isinstance(comments, list) else [],
+    })
+
+
 def _run_checker() -> dict:
     if not _CHECKER_PATH.is_file():
         return {"ok": False, "error": f"Review checker is missing: {_CHECKER_PATH}"}
@@ -164,6 +220,9 @@ def archive_watch_url(payload: dict[str, Any]) -> dict:
     if index is None:
         raise HTTPException(status_code=404, detail="Active watchlist entry not found")
     entry = watchlist["active"].pop(index)
+    snapshot = payload.get("snapshot")
+    if isinstance(snapshot, dict):
+        entry["snapshot"] = _sanitize_snapshot(snapshot)
     entry["archived_at"] = _now_iso()
     watchlist["archived"].append(entry)
     _atomic_write(_WATCHLIST_PATH, watchlist)
@@ -171,6 +230,23 @@ def archive_watch_url(payload: dict[str, Any]) -> dict:
     result = _payload()
     result["refresh"] = refresh
     return result
+
+
+@router.post("/watchlist/view-archived")
+def view_archived_watch_url(payload: dict[str, Any]) -> dict:
+    identifier = _requested_id(payload)
+    watchlist = _watchlist()
+    entry = next((item for item in watchlist["archived"] if str(item.get("id") or "").lower() == identifier), None)
+    if entry is None:
+        raise HTTPException(status_code=404, detail="Archived watchlist entry not found")
+    snapshot = entry.get("snapshot")
+    if isinstance(snapshot, dict):
+        return {"read_only": True, "source": "archive_snapshot", "archived_at": entry.get("archived_at"), "issue": _sanitize_snapshot(snapshot)}
+    try:
+        issue = _live_archived_snapshot(entry)
+    except Exception as reason:
+        raise HTTPException(status_code=502, detail=f"Unable to load archived GitHub item: {reason}") from reason
+    return {"read_only": True, "source": "github_live", "archived_at": entry.get("archived_at"), "issue": issue}
 
 
 @router.post("/watchlist/delete")
@@ -205,6 +281,7 @@ def restore_watch_url(payload: dict[str, Any]) -> dict:
         raise HTTPException(status_code=404, detail="Archived watchlist entry not found")
     entry = watchlist["archived"].pop(index)
     entry.pop("archived_at", None)
+    entry.pop("snapshot", None)
     entry["restored_at"] = _now_iso()
     watchlist["active"].append(entry)
     _atomic_write(_WATCHLIST_PATH, watchlist)

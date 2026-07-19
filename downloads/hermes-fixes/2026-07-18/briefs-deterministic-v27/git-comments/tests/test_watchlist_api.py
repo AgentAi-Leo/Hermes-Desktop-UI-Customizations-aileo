@@ -69,12 +69,35 @@ with tempfile.TemporaryDirectory() as temporary:
     removed_newest = module.delete_watch_url({"id": "owner/repo/pull/84"})
     assert removed_newest["deleted_from"] == "active"
 
-    archived = module.archive_watch_url({"id": "owner/repo/issues/42"})
+    snapshot = {
+        "watch_id": "owner/repo/issues/42",
+        "repo": "Owner/Repo",
+        "number": 42,
+        "title": "Archived issue title",
+        "body": "Archived issue body",
+        "html_url": "https://github.com/Owner/Repo/issues/42",
+        "state": "open",
+        "author": {"login": "issue-author", "avatar_url": "avatar"},
+        "created_at": "2026-07-18T18:00:00Z",
+        "updated_at": "2026-07-19T03:30:00Z",
+        "labels": [{"name": "type/feature", "color": "1f6feb"}],
+        "comments": [{"id": 7, "body": "Archived comment", "author": {"login": "reviewer", "avatar_url": ""}}],
+        "status_events": [],
+        "ignored_secret": "must-not-persist",
+    }
+    archived = module.archive_watch_url({"id": "owner/repo/issues/42", "snapshot": snapshot})
     assert archived["refresh"]["ok"] is True
     state = module._watchlist()
     assert state["active"] == []
     assert state["archived"][0]["id"] == "owner/repo/issues/42"
     assert state["archived"][0]["archived_at"]
+    assert state["archived"][0]["snapshot"]["title"] == "Archived issue title"
+    assert "ignored_secret" not in state["archived"][0]["snapshot"]
+    viewed = module.view_archived_watch_url({"id": "owner/repo/issues/42"})
+    assert viewed["read_only"] is True
+    assert viewed["source"] == "archive_snapshot"
+    assert viewed["issue"]["title"] == "Archived issue title"
+    assert viewed["issue"]["comments"][0]["body"] == "Archived comment"
     expect_http(404, module.archive_watch_url, {"id": "owner/repo/issues/42"})
     expect_http(409, module.add_watch_url, {"url": "https://github.com/Owner/Repo/issues/42"})
     expect_http(409, module.add_watch_url, {"url": "https://github.com/OWNER/REPO/issues/42/"})
@@ -89,6 +112,22 @@ with tempfile.TemporaryDirectory() as temporary:
 
     module.add_watch_url({"url": "https://github.com/Owner/Repo/issues/42"})
     module.archive_watch_url({"id": "owner/repo/issues/42"})
+
+    def github_fixture(path: str):
+        if path.endswith("/comments?per_page=100"):
+            return [{"id": 8, "body": "Live archived comment", "user": {"login": "live-reviewer", "avatar_url": ""}}]
+        return {
+            "title": "Live archived issue", "body": "Loaded from GitHub", "html_url": "https://github.com/Owner/Repo/issues/42",
+            "state": "closed", "state_reason": "completed", "user": {"login": "live-author", "avatar_url": ""},
+            "created_at": "2026-07-18T18:00:00Z", "updated_at": "2026-07-19T04:00:00Z", "labels": [],
+        }
+
+    module._github_json = github_fixture
+    live_view = module.view_archived_watch_url({"id": "owner/repo/issues/42"})
+    assert live_view["read_only"] is True
+    assert live_view["source"] == "github_live"
+    assert live_view["issue"]["title"] == "Live archived issue"
+    assert live_view["issue"]["comments"][0]["author"]["login"] == "live-reviewer"
 
     restored = module.restore_watch_url({"id": "owner/repo/issues/42"})
     assert restored["refresh"]["ok"] is True

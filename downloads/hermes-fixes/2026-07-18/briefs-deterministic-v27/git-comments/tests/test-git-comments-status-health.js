@@ -130,9 +130,12 @@ assert(nodes(tree, (node) => String(node.props?.className || "") === "git-commen
 const repoLines = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-repo-line");
 assert(repoLines.length === 2 && repoLines.every((line) => nodes(line, (node) => String(node.props?.className || "").startsWith("git-comments-comment-label")).length === 0), "comment pill must not remain in the repository line");
 const issueMainRows = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-main");
-assert(issueMainRows.length === 2 && issueMainRows.every((row) => String(row.children[0]?.props?.className || "") === "git-comments-number-link" && String(row.children[1]?.props?.className || "") === "git-comments-issue-author" && text(row.children[1]).startsWith("by ") && String(row.children[2]?.props?.className || "") === "git-comments-repo-line"), "issue author must render immediately after the issue number and before the repository");
+assert(issueMainRows.length === 2 && issueMainRows.every((row) => String(row.children[0]?.props?.className || "") === "git-comments-number-link" && String(row.children[1]?.props?.className || "") === "git-comments-issue-author" && text(row.children[1]).startsWith("by ") && row.children.length === 2), "issue number and author must occupy their own first line");
 assert(issueMainRows.some((row) => text(row.children[0]).includes("#58130") && text(row.children[1]).trim() === "by teknium1"), "#58130 must show its payload author beside the issue number");
+const identities = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-identity");
+assert(identities.length === 2 && identities.every((identity) => String(identity.children[0]?.props?.className || "") === "git-comments-issue-main" && String(identity.children[1]?.props?.className || "") === "git-comments-repo-line") && identities.some((identity) => String(identity.children[2]?.props?.className || "") === "git-comments-issue-title"), "repository and WATCHING must move to a dedicated second line below number and author, before any title");
 assert(source.includes('.git-comments-issue-author{color:#9ca9bd;font-size:16px;font-weight:650;white-space:nowrap}'), "issue-number author must use explicit readable styling");
+assert(source.includes('.git-comments-issue-title{display:block;color:#FFE6CB;font-size:24px;'), "issue title must increase exactly 20% from 20px to 24px");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-meta").length === 0, "old separate comment-pill row must be removed");
 const contextRows = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-context-meta");
 assert(contextRows.length === 2 && contextRows.every((row) => nodes(row, (node) => String(node.props?.className || "").startsWith("git-comments-comment-label ")).length === 1), "comment pill must render at the end of each OPEN/CLOSED metadata row");
@@ -184,7 +187,7 @@ assert(nodes(tree, (node) => String(node.props?.className || "") === "git-commen
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-button delete") && text(node).includes("DELETE")).length === 2, "every active watched item must have a red DELETE action");
 assert.strictEqual(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-status" || String(node.props?.className || "").startsWith("git-comments-status received")).length, 0, "separate received-count text must be removed");
 const panelTitle = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-panel-title")[0];
-assert(panelTitle && text(panelTitle).trim() === "/// WATCHED GITHUB ISSUES & PULL REQUESTS ///" && !text(panelTitle).includes("💼") && panelTitle.props?.style?.fontSize === "26.4px" && panelTitle.props?.style?.color === "#FFE6CB", "watched-items heading must use the Hermes Agent color");
+assert(panelTitle && text(panelTitle).trim() === "*** WATCHED GITHUB ISSUES & PULL REQUESTS ***" && !text(panelTitle).includes("💼") && panelTitle.props?.style?.fontSize === "26.4px" && panelTitle.props?.style?.color === "#FFE6CB", "watched-items heading must use the exact asterisk-delimited text and Hermes Agent color");
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-button add-toggle") && text(node).trim() === "+ ADD URL TO WATCH").length === 1, "add-watch control must have its dedicated Hermes-color class");
 const watchedPanel = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-panel")[0];
 const healthPanel = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-health")[0];
@@ -198,7 +201,7 @@ assert(source.includes('if (event.key === "Escape")') && source.includes('closeA
 assert(source.includes('if (event.key === "Enter" && String(event.target?.tagName || "").toUpperCase() === "INPUT")') && source.includes('event.currentTarget.requestSubmit();'), "Enter in the URL input must explicitly submit the add form");
 assert(source.includes('className: "git-comments-add-form", onSubmit: addUrl, onKeyDown: addFormKeyDown'), "add form must wire both submit and keyboard handlers");
 assert(source.includes('window.addEventListener("keydown", launchAddOnEnter)') && source.includes('window.removeEventListener("keydown", launchAddOnEnter)'), "dashboard must register and clean up the Enter-to-launch shortcut");
-assert(source.includes('if (event.key !== "Enter" || addOpen || busy || state.loading || event.defaultPrevented'), "Enter-to-launch must run only while the form is closed and idle");
+assert(source.includes('if (event.key !== "Enter" || addOpen || busy || state.loading || archiveView || event.defaultPrevented'), "Enter-to-launch must run only while the form and archive modal are closed and the view is idle");
 assert(source.includes('event.metaKey || event.ctrlKey || event.altKey || event.shiftKey'), "modified Enter shortcuts must not launch Add URL");
 assert(source.includes('target.closest("a,button,input,textarea,select,[contenteditable=true]")'), "Enter-to-launch must not hijack interactive or editable controls");
 assert(source.includes('setActionError(""); setAddOpen(true);'), "eligible Enter must open the Add URL form");
@@ -263,6 +266,13 @@ assert(rendered.includes("UNARCHIVE"), "archived entry unarchive control missing
 const archivedRows = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-archived-row");
 assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button unarchive") && text(node).trim() === "UNARCHIVE").length === 1, "archived row must contain an UNARCHIVE button");
 assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button delete") && text(node).trim() === "DELETE").length === 1, "archived row must contain a permanent DELETE button");
+assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button view-archived") && text(node).trim() === "VIEW").length === 1, "archived row must contain a small VIEW button");
+assert(source.includes('role: "dialog", "aria-modal": "true"') && source.includes('className: "git-comments-archive-modal"'), "VIEW must open an accessible in-dashboard read-only modal");
+assert(source.includes('className: "git-comments-button close-archive-view"') && source.includes('"CLOSE"'), "archived-item modal must provide an explicit CLOSE button");
+assert(source.includes('window.addEventListener("keydown", closeArchiveViewOnEscape, true)') && source.includes('event.stopImmediatePropagation()') && source.includes('window.removeEventListener("keydown", closeArchiveViewOnEscape, true)'), "modal Escape handler must run in capture phase, stop conflicting keybinds, and clean up");
+assert(source.includes('fetchJSON(`${API}/watchlist/view-archived`') && source.includes('method: "POST"'), "VIEW must use the read-only archived-item API");
+assert(source.includes('.git-comments-button.view-archived{min-height:32px;padding:5px 11px;'), "archived VIEW control must remain small");
+assert(source.includes('.git-comments-archive-backdrop{position:fixed;inset:0;z-index:1000;') && source.includes('.git-comments-archive-modal{'), "archived item must render as a focused overlay rather than expanding the archive row");
 
 assert(source.includes('new Set(["opened", "closed", "reopened", "labeled", "unlabeled"])'), "timeline must retain lifecycle and label/tag events");
 assert(source.includes("labelColor") && source.includes("item.label"), "label/tag data must be rendered as a visible timeline pill");
@@ -285,6 +295,8 @@ assert(checker.includes('GIT_COMMENTS_WATCHLIST_FILE'), "watcher must read the p
 assert(!checker.includes('watched = ['), "watcher must not contain a hardcoded issue list");
 assert(!checker.includes('58130') && !checker.includes('58510'), "migrated issue numbers must not remain in checker source");
 assert(api.includes('@router.post("/watchlist/add")'), "API add endpoint missing");
+assert(api.includes('@router.post("/watchlist/view-archived")'), "read-only archived-item API endpoint missing");
+assert(api.includes('entry["snapshot"] = _sanitize_snapshot(snapshot)'), "archive mutation must retain a sanitized read-only snapshot");
 assert(api.includes('@router.post("/watchlist/archive")'), "API archive endpoint missing");
 assert(api.includes('@router.post("/watchlist/restore")'), "API restore endpoint missing");
 assert(api.includes('@router.post("/watchlist/delete")'), "API permanent-delete endpoint missing");
