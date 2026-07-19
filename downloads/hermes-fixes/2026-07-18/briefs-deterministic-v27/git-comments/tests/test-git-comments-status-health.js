@@ -88,7 +88,7 @@ assert(!rendered.includes("View on GitHub"), "redundant source-link text must be
 assert(rendered.includes("Contributor"), "commenter association missing");
 assert(rendered.includes("closed this as not planned"), "closure reason event missing");
 assert(!rendered.includes("sweeper:cannot-reproduce"), "irrelevant label-change timeline rows must be removed");
-assert(rendered.includes("Watcher healthy"), "healthy title missing");
+assert(rendered.includes("WATCHER HEALTHY"), "healthy title missing");
 assert(rendered.includes("+ ADD URL TO WATCH"), "add URL control missing");
 assert(rendered.includes("ARCHIVE"), "archive control missing");
 assert(!rendered.includes("✓ ARCHIVE"), "archive control must not look pre-archived");
@@ -100,23 +100,36 @@ assert(sourceLinks.some((node) => node.props.href === "https://github.com/NousRe
 assert(sourceLinks.some((node) => node.props.href === "https://github.com/NousResearch/hermes-agent/issues/58510" && text(node).includes("#58510")), "#58510 source hyperlink missing");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-repo-primary").every((node) => node.type === "strong"), "repository name must use bold white semantic text");
 const issueHeads = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-head");
-assert(issueHeads.every((head) => nodes(head, (node) => String(node.props?.className || "") === "git-comments-watch-state").length === 1), "WATCHING must render under every repository name");
+assert(issueHeads.every((head) => nodes(head, (node) => String(node.props?.className || "") === "git-comments-repo-line").some((line) => text(line).includes("NousResearch/hermes-agent") && text(line).includes("WATCHING"))), "WATCHING must render inline to the right of every repository name");
 const healthTitle = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-health-title")[0];
-assert(String(healthTitle.children[0].props?.className || "").includes("git-comments-health-dot"), "health indicator must be the far-left item beside its title");
+assert(String(healthTitle.children[1].props?.className || "").includes("git-comments-health-dot healthy"), "healthy green indicator must render immediately right of its title");
 assert(source.includes('.git-comments-watch-state{font-size:15px'), "WATCHING must be exactly 25% larger than its former 12px size");
+assert(source.includes('.git-comments-number-link{font-size:20px'), "issue number must retain its original 20px size");
+assert(source.includes('health.status === "healthy"'), "green health requires an explicit healthy execution status");
+const issue58510 = nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-issue") && text(node).includes("#58510"))[0];
+const importantTimelineIndex = issue58510.children.findIndex((node) => String(node?.props?.className || "") === "git-comments-events");
+const commentsIndex = issue58510.children.findIndex((node) => String(node?.props?.className || "") === "git-comments-comments");
+assert(importantTimelineIndex > 0 && importantTimelineIndex < commentsIndex, "important close/reopen timeline must be visible immediately below the issue header");
 
 fixture = { ...fixture, watcher_health: { ok: false, stale: false, status: "failed", error: "network" } };
 tree = registered();
 rendered = text(tree);
-assert(rendered.includes("Watcher needs attention"), "failed watcher must not claim healthy");
+assert(rendered.includes("BROKEN"), "failed watcher must read BROKEN");
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-health-dot healthy")).length === 0, "failed watcher must not render green dot");
+assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-health-dot broken")).length === 1, "failed watcher must render red broken dot");
+
+fixture = { ...fixture, watcher_health: { ok: true, stale: true, status: "healthy", checked_at: "2026-07-18T01:00:00Z" } };
+tree = registered();
+rendered = text(tree);
+assert(rendered.includes("BROKEN"), "stale watcher must read BROKEN even if its last execution succeeded");
+assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-health-dot broken")).length === 1, "stale watcher must render red broken dot");
 
 fixture = { ...fixture, watchlist: { ...fixture.watchlist, active: [], archived: [{ id: "nousresearch/hermes-agent/issues/58510", url: "https://github.com/NousResearch/hermes-agent/issues/58510", repo: "NousResearch/hermes-agent", number: 58510, archived_at: "2026-07-19T05:00:00Z" }] }, issues: [] };
 tree = registered();
 rendered = text(tree);
 assert(rendered.includes("WATCH AGAIN"), "archived entry restore control missing");
 
-assert(!source.includes('item.event === "labeled"') && !source.includes('item.event === "unlabeled"'), "label-change rendering logic must be removed");
+assert(source.includes('new Set(["opened", "closed", "reopened"])'), "timeline must retain only important open/close lifecycle events");
 assert(!source.includes("labelColor") && !source.includes("item.label"), "unused label data fields must not remain in the renderer");
 assert(source.includes('const API = "/api/plugins/git-comments-v27-review"'), "renderer must use isolated review API root");
 assert(source.includes('fetchJSON(`${API}/data`)'), "renderer must load isolated review data");
@@ -124,6 +137,8 @@ assert(source.includes('register("git-comments-v27-review"'), "renderer must reg
 assert(checker.includes('plugins/git-comments-v27-review/dashboard'), "watcher must write only to isolated review data");
 assert(!checker.includes('plugins/git-comments/dashboard'), "watcher must not write production Git Comments data");
 assert(checker.includes('/timeline?per_page=100'), "watcher must fetch GitHub timeline");
+assert(checker.includes('"event": "opened"'), "watcher must synthesize the important opening lifecycle event");
+assert(!checker.includes('"labeled"') && !checker.includes('"unlabeled"') && !checker.includes('"label":'), "watcher must not persist irrelevant label-event fields");
 assert(checker.includes('"author_association"'), "watcher must preserve commenter association");
 assert(checker.includes('GIT_COMMENTS_HEALTH_FILE'), "watcher must atomically record health");
 assert(checker.includes('GIT_COMMENTS_WATCHLIST_FILE'), "watcher must read the persistent watchlist");

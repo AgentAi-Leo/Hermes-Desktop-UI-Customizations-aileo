@@ -1,17 +1,17 @@
-# Git Comments V27 UI Refinements
+# Git Comments V27 UI Refinements — Revision 2
 
-Candidate-only UI update for `git-comments-v27-review` on preview port 9120.
+Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
 ## Changes
 
-- Makes repository names such as `NousResearch/hermes-agent` bold and white.
-- Moves `WATCHING` below the repository and increases it exactly 25%, from 12px to 15px.
-- Makes every active and archived issue/pull-request number the canonical GitHub source hyperlink.
-- Removes `View on GitHub →` source-link text.
-- Moves watcher health status indicator to the far left beside the health title.
-- Changes the active action from `✓ ARCHIVE` to `ARCHIVE`.
-- Applies the number-link format to current and subsequently added watch URLs.
-- Removes GitHub label-added/removed timeline rows and their unused label-rendering fields while preserving meaningful close/reopen status events and comments.
+- Displays `WATCHER HEALTHY` followed by a green circle only when the watcher reports `ok=true`, `stale=false`, and status `healthy`.
+- Displays `BROKEN` followed by a red circle for failed, missing, unknown, or stale health.
+- Restores important GitHub lifecycle history—opened, closed, and reopened—immediately below each issue header.
+- Synthesizes the opening event from the GitHub issue creator/time because GitHub’s timeline endpoint does not return that row.
+- Continues excluding and no longer stores irrelevant label-change events.
+- Restores issue/PR numbers to their original 20px size while retaining canonical GitHub hyperlinks.
+- Places `WATCHING` inline to the right of the bold white repository name.
+- Keeps the plain `ARCHIVE` action and omits redundant `View on GitHub →` text.
 
 ## Apply
 
@@ -23,10 +23,11 @@ APPLY_GIT_COMMENTS_V27_UI_REFINEMENTS.command
 
 The updater:
 
-- changes only the V27 review candidate bundle;
-- preserves watchlists, comments, watcher results, and watcher health;
-- does not modify the production `git-comments` plugin;
-- does not restart production port 9119;
+- changes only the V27 review candidate;
+- backs up candidate code and data before changing anything;
+- aligns the preview API with the profile-local watcher data source;
+- runs a fresh GitHub check;
 - restarts only preview port 9120;
-- verifies the live manifest and served bundle before reporting success;
-- restores both candidate bundles automatically if a verification fails.
+- verifies manifest discovery, genuinely healthy live status, lifecycle data, and the served bundle;
+- does not modify the production `git-comments` plugin or restart production port 9119;
+- automatically restores candidate code and data if any verification fails.

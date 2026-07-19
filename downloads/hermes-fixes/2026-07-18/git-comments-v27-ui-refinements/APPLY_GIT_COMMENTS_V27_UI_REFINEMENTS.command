@@ -8,13 +8,21 @@ PREVIEW="${HERMES_PREVIEW_ROOT:-$HOME/.hermes/zDownloads/_BRIEFS-DASHBOARD-V3-PR
 PY="${HERMES_PYTHON:-$HOME/.hermes/hermes-agent/venv/bin/python}"
 LOG="$HOME/.hermes/logs/git-comments-v27-ui-refinements-${PORT}.log"
 SOURCE="$PACKAGE_DIR/git-comments-v27-review-index.js"
-LAUNCH_DEST="$HOME/.hermes/plugins/git-comments-v27-review/dashboard/dist/index.js"
-PROFILE_DEST="$HOME/.hermes/profiles/$PROFILE/plugins/git-comments-v27-review/dashboard/dist/index.js"
+CHECKER_SOURCE="$PACKAGE_DIR/github-comments-checker-v27-review.sh"
+LAUNCH_ROOT="$HOME/.hermes/plugins/git-comments-v27-review/dashboard"
+PROFILE_ROOT="$HOME/.hermes/profiles/$PROFILE/plugins/git-comments-v27-review/dashboard"
+LAUNCH_DEST="$LAUNCH_ROOT/dist/index.js"
+PROFILE_DEST="$PROFILE_ROOT/dist/index.js"
+LAUNCH_DATA="$LAUNCH_ROOT/data"
+PROFILE_DATA="$PROFILE_ROOT/data"
+LAUNCH_CHECKER="$HOME/.hermes/scripts/github-comments-checker-v27-review.sh"
+PROFILE_CHECKER="$HOME/.hermes/profiles/$PROFILE/scripts/github-comments-checker-v27-review.sh"
 PROD_LAUNCH="$HOME/.hermes/plugins/git-comments/dashboard/dist/index.js"
 PROD_PROFILE="$HOME/.hermes/profiles/$PROFILE/plugins/git-comments/dashboard/dist/index.js"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP="$HOME/.hermes/backups/git-comments-v27-ui-refinements-$STAMP"
 TOUCHED=0
+GLOBAL_CHECKER_EXISTED=0
 
 sha256_file() { shasum -a 256 "$1" | cut -d ' ' -f 1; }
 file_hash_or_missing() { [[ -f "$1" ]] && sha256_file "$1" || printf '%s' MISSING; }
@@ -56,6 +64,12 @@ restore() {
   if [[ "$TOUCHED" == "1" ]]; then
     cp "$BACKUP/launch-index.js" "$LAUNCH_DEST"
     cp "$BACKUP/profile-index.js" "$PROFILE_DEST"
+    cp "$BACKUP/profile-checker.sh" "$PROFILE_CHECKER"
+    if [[ "$GLOBAL_CHECKER_EXISTED" == "1" ]]; then cp "$BACKUP/launch-checker.sh" "$LAUNCH_CHECKER"; else rm -f "$LAUNCH_CHECKER"; fi
+    rm -rf "$PROFILE_DATA"
+    cp -R "$BACKUP/profile-data" "$PROFILE_DATA"
+    rm -rf "$LAUNCH_DATA"
+    cp -R "$BACKUP/launch-data" "$LAUNCH_DATA"
     stop_preview
     start_preview
     wait_preview || true
@@ -64,7 +78,7 @@ restore() {
 }
 trap 'r=$?; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
 
-for required in "$PY" "$SOURCE" "$PACKAGE_DIR/CHECKSUMS.sha256" "$LAUNCH_DEST" "$PROFILE_DEST" "$PREVIEW/hermes_cli/web_dist/index.html"; do
+for required in "$PY" "$SOURCE" "$CHECKER_SOURCE" "$PACKAGE_DIR/CHECKSUMS.sha256" "$LAUNCH_DEST" "$PROFILE_DEST" "$PROFILE_CHECKER" "$LAUNCH_DATA" "$PROFILE_DATA" "$PREVIEW/hermes_cli/web_dist/index.html"; do
   [[ -e "$required" ]] || { echo "Missing required path: $required" >&2; exit 1; }
 done
 [[ -x "$PY" ]] || { echo "Hermes Python is not executable: $PY" >&2; exit 1; }
@@ -73,9 +87,13 @@ done
 PROD_LAUNCH_BEFORE="$(file_hash_or_missing "$PROD_LAUNCH")"
 PROD_PROFILE_BEFORE="$(file_hash_or_missing "$PROD_PROFILE")"
 
-mkdir -p "$BACKUP"
+mkdir -p "$BACKUP" "$(dirname "$LAUNCH_CHECKER")"
 cp "$LAUNCH_DEST" "$BACKUP/launch-index.js"
 cp "$PROFILE_DEST" "$BACKUP/profile-index.js"
+cp "$PROFILE_CHECKER" "$BACKUP/profile-checker.sh"
+if [[ -f "$LAUNCH_CHECKER" ]]; then GLOBAL_CHECKER_EXISTED=1; cp "$LAUNCH_CHECKER" "$BACKUP/launch-checker.sh"; fi
+cp -R "$PROFILE_DATA" "$BACKUP/profile-data"
+cp -RL "$LAUNCH_DATA" "$BACKUP/launch-data"
 
 for destination in "$LAUNCH_DEST" "$PROFILE_DEST"; do
   temporary="$destination.tmp.$$"
@@ -83,11 +101,23 @@ for destination in "$LAUNCH_DEST" "$PROFILE_DEST"; do
   chmod 0644 "$temporary"
   mv -f "$temporary" "$destination"
 done
+for destination in "$PROFILE_CHECKER" "$LAUNCH_CHECKER"; do
+  temporary="$destination.tmp.$$"
+  cp "$CHECKER_SOURCE" "$temporary"
+  chmod 0755 "$temporary"
+  mv -f "$temporary" "$destination"
+done
 TOUCHED=1
+
+rm -rf "$LAUNCH_DATA"
+ln -s "$PROFILE_DATA" "$LAUNCH_DATA"
+[[ "$(readlink "$LAUNCH_DATA")" == "$PROFILE_DATA" ]] || { echo "Candidate data-link verification failed" >&2; exit 1; }
+
+"$LAUNCH_CHECKER"
 
 stop_preview
 start_preview
-wait_preview || { echo "Preview 9120 did not become ready; see $LOG" >&2; exit 1; }
+wait_preview || { echo "Preview $PORT did not become ready; see $LOG" >&2; exit 1; }
 
 curl -fsS "http://127.0.0.1:$PORT/api/dashboard/plugins" |
 "$PY" -c 'import json,sys
@@ -95,20 +125,32 @@ plugins=json.load(sys.stdin)
 assert any(p.get("name")=="git-comments-v27-review" and p.get("tab",{}).get("path")=="/git-comments-v27-review" for p in plugins), plugins
 print("V27_MANIFEST_DISCOVERED=PASS")'
 
+curl -fsS "http://127.0.0.1:$PORT/api/plugins/git-comments-v27-review/data" |
+"$PY" -c 'import json,sys
+data=json.load(sys.stdin); health=data.get("watcher_health") or {}
+assert health.get("ok") is True and health.get("stale") is False and health.get("status")=="healthy", health
+issues=data.get("issues") or []
+assert issues, "no watched issues returned"
+allowed={"opened","closed","reopened"}
+assert all({e.get("event") for e in issue.get("status_events",[])} <= allowed for issue in issues)
+assert all(any(e.get("event")=="opened" for e in issue.get("status_events",[])) for issue in issues)
+print("V27_LIVE_HEALTH_AND_LIFECYCLE=PASS")'
+
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=271" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=272" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" <<'PY'
 from pathlib import Path
 import sys
 source = Path(sys.argv[1]).read_text(encoding="utf-8")
 required = [
-    '.git-comments-repo-primary{color:#fff;font-weight:800}',
-    '.git-comments-watch-state{font-size:15px',
-    'className: "git-comments-number-link"',
-    'className: `git-comments-health-dot',
-    '"ARCHIVE")',
-    'new Set(["labeled", "unlabeled"])',
+    '.git-comments-health-dot.broken{background:#ef4444',
+    '.git-comments-repo-line{display:flex',
+    '.git-comments-number-link{font-size:20px',
+    'health.status === "healthy"',
+    '"WATCHER HEALTHY" : "BROKEN"',
+    'new Set(["opened", "closed", "reopened"])',
+    'aria-label": "Important GitHub status timeline"',
 ]
 for marker in required:
     assert marker in source, marker
@@ -123,7 +165,7 @@ rm -f "$LIVE_BUNDLE"
 
 echo "PRODUCTION_GIT_COMMENTS=UNTOUCHED"
 echo "PRODUCTION_9119=NOT_RESTARTED"
-echo "WATCHLIST_AND_WATCHER_DATA=UNTOUCHED"
+echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=271"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=272"
