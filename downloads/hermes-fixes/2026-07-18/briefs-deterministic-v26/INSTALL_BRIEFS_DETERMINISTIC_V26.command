@@ -241,4 +241,11 @@ echo "CRON_PROMPTS=NOT_CHANGED"
 echo "PRODUCTION_9119=UNTOUCHED"
 echo "BACKUP=$BACKUP"
 echo "ROLLBACK=$BACKUP/ROLLBACK_BRIEFS_DETERMINISTIC_V26.command"
-echo "PREVIEW=http://127.0.0.1:$PORT/briefs-stocks?profile=$PROFILE&candidate=deterministic-v26"
+PREVIEW_URL="http://127.0.0.1:$PORT/briefs-stocks?profile=$PROFILE&candidate=deterministic-v26"
+echo "PREVIEW=$PREVIEW_URL"
+if [[ "${SKIP_OPEN:-0}" != "1" ]] && command -v open >/dev/null 2>&1 && [[ -d "/Applications/Brave Browser.app" ]]; then
+  open -a "Brave Browser" "$PREVIEW_URL" || true
+  echo "PREVIEW_BROWSER=BRAVE"
+else
+  echo "PREVIEW_BROWSER=NOT_OPENED"
+fi

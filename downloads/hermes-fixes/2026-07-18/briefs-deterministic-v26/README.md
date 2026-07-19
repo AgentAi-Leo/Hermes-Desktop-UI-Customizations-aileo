@@ -59,7 +59,7 @@ The installer:
 3. creates an exact source, bundle, and runtime backup;
 4. runs typecheck, all focused and complete frontend tests, production build, and all 15 materializer tests;
 5. verifies installed-file checksums;
-6. restarts only isolated preview port `9120`;
+6. restarts only isolated preview port `9120` and opens the verified Stock candidate directly in Brave;
 7. reads the generated live asset from `index.html` and requires canonical, V25-style, V61/V74 behavior, portfolio, and narration markers;
 8. rolls back automatically on any failure.
 
