@@ -95,7 +95,8 @@ assert(rendered.includes("Test issue title with useful context"), "issue title m
 assert(rendered.includes("This issue description explains why the watcher matters."), "issue description missing from watched card");
 assert(rendered.includes("OPEN"), "current issue state missing from watched card");
 assert(rendered.includes("Opened by teknium1"), "issue author metadata missing from watched card");
-assert(rendered.includes("type/feature"), "current GitHub labels missing from watched card");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-current-labels").length === 0, "duplicated current-label row must not render above comments");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-current-label").length === 0, "duplicated current-label pills must not render above comments");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-title" && node.props?.href === "https://github.com/NousResearch/hermes-agent/issues/58130").length === 1, "issue title must link to its canonical GitHub URL");
 for (const payloadMarker of ['"body": issue.get("body") or ""', '"author": actor(issue.get("user"))', '"created_at": issue.get("created_at")', '"updated_at": issue.get("updated_at")', '"labels": normalized_labels']) assert(checker.includes(payloadMarker), `checker missing issue context payload: ${payloadMarker}`);
 assert(!rendered.includes("COMMENTS RECEIVED"), "received text must be removed from the comment pill");

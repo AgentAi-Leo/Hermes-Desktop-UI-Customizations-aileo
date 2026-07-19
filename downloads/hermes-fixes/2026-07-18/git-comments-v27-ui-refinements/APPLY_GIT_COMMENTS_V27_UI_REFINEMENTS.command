@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=282" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=284" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -195,7 +195,6 @@ required = [
     '.git-comments-panel-heading .add-toggle{flex:0 0 auto;margin-right:28px}',
     'className: "git-comments-issue-title"',
     'className: "git-comments-issue-context-meta"',
-    'className: "git-comments-current-labels"',
     'className: "git-comments-issue-description"',
     '`Opened by ${issueAuthor}`',
     'className: "git-comments-summary", style: { fontWeight: 400 }',
@@ -222,6 +221,8 @@ for forbidden in ['View on GitHub', '✓ ARCHIVE', '💼 WATCHED GITHUB ISSUES &
     assert forbidden not in source, forbidden
 assert '`${received.length} received`' not in source, "redundant received count remains"
 assert 'COMMENTS RECEIVED' not in source, "received text remains in comment pill"
+assert 'className: "git-comments-current-labels"' not in source, "duplicated current-label row remains"
+assert 'className: "git-comments-current-label"' not in source, "duplicated current-label pills remain"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 watched_start = source.index('e("section", { className: "git-comments-panel" }', health_start)
 add_button = source.index('className: "git-comments-button add-toggle"')
@@ -241,4 +242,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=282"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=284"
