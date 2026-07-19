@@ -2,25 +2,25 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROFILE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-PLUGIN_DIR="$PROFILE_DIR/plugins/git-comments/dashboard"
+PLUGIN_DIR="$PROFILE_DIR/plugins/git-comments-v27-review/dashboard"
 DATA_DIR="$PLUGIN_DIR/data"
 DATA_FILE="$DATA_DIR/git-comments.json"
 HEALTH_FILE="$DATA_DIR/watcher-health.json"
+WATCHLIST_FILE="$DATA_DIR/watchlist.json"
 mkdir -p "$DATA_DIR"
 export GIT_COMMENTS_DATA_FILE="$DATA_FILE"
 export GIT_COMMENTS_HEALTH_FILE="$HEALTH_FILE"
+export GIT_COMMENTS_WATCHLIST_FILE="$WATCHLIST_FILE"
 
 python3 - <<'PY'
 from __future__ import annotations
-import json, os, tempfile, urllib.request
+import json, os, tempfile, urllib.parse, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-repo = "NousResearch/hermes-agent"
-watched = [58130, 58510]
-owner = "AgentAi-Leo"
 data_path = Path(os.environ["GIT_COMMENTS_DATA_FILE"])
 health_path = Path(os.environ["GIT_COMMENTS_HEALTH_FILE"])
+watchlist_path = Path(os.environ["GIT_COMMENTS_WATCHLIST_FILE"])
 
 
 def now_iso() -> str:
@@ -44,6 +44,13 @@ def atomic_write(path: Path, payload: dict) -> None:
             pass
 
 
+def read_object(path: Path) -> dict:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise ValueError(f"{path.name} root is not an object")
+    return value
+
+
 def github(path: str):
     headers = {
         "Accept": "application/vnd.github+json",
@@ -63,19 +70,34 @@ def actor(value: dict | None) -> dict:
     return {"login": value.get("login") or "unknown", "avatar_url": value.get("avatar_url") or ""}
 
 
+def api_repo_path(repo: str) -> str:
+    owner, name = repo.split("/", 1)
+    return f"/repos/{urllib.parse.quote(owner, safe='')}/{urllib.parse.quote(name, safe='')}"
+
+
 old = {}
 try:
-    old = json.loads(data_path.read_text(encoding="utf-8"))
-except (FileNotFoundError, OSError, json.JSONDecodeError):
+    old = read_object(data_path)
+except (FileNotFoundError, OSError, json.JSONDecodeError, ValueError):
     pass
-old_issues = {int(item.get("number") or item.get("issue_number")): item for item in old.get("issues", []) if item.get("number") or item.get("issue_number")}
+old_issues = {str(item.get("watch_id") or ""): item for item in old.get("issues", []) if item.get("watch_id")}
 
 try:
+    watchlist = read_object(watchlist_path)
+    if watchlist.get("schema_version") != 1 or not isinstance(watchlist.get("active"), list) or not isinstance(watchlist.get("archived"), list):
+        raise ValueError("watchlist has an invalid schema")
+    comment_owner = str(watchlist.get("comment_owner") or "").strip()
+    if not comment_owner:
+        raise ValueError("watchlist comment_owner is required")
     issues = []
-    for number in watched:
-        issue = github(f"/repos/{repo}/issues/{number}")
-        comments = github(f"/repos/{repo}/issues/{number}/comments?per_page=100")
-        timeline = github(f"/repos/{repo}/issues/{number}/timeline?per_page=100")
+    for entry in watchlist["active"]:
+        watch_id = str(entry["id"])
+        repo = str(entry["repo"])
+        number = int(entry["number"])
+        base = api_repo_path(repo)
+        issue = github(f"{base}/issues/{number}")
+        comments = github(f"{base}/issues/{number}/comments?per_page=100")
+        timeline = github(f"{base}/issues/{number}/timeline?per_page=100")
         normalized_comments = [{
             "id": comment.get("id"),
             "body": comment.get("body") or "",
@@ -85,11 +107,11 @@ try:
             "author_association": comment.get("author_association") or "NONE",
             "author": actor(comment.get("user")),
         } for comment in comments]
-        received = [comment for comment in normalized_comments if comment["author"]["login"].lower() != owner.lower()]
-        old_issue = old_issues.get(number, {})
+        received = [comment for comment in normalized_comments if comment["author"]["login"].lower() != comment_owner.lower()]
+        old_issue = old_issues.get(watch_id, {})
         old_received_ids = {
             comment.get("id") for comment in old_issue.get("comments", [])
-            if ((comment.get("author") or {}).get("login") or (comment.get("user") or {}).get("login") or comment.get("user") or "").lower() != owner.lower()
+            if str(((comment.get("author") or {}).get("login") or "")).lower() != comment_owner.lower()
         }
         new_count = sum(1 for comment in received if comment.get("id") not in old_received_ids)
         new_count = max(new_count, int(old_issue.get("new_received_count") or 0))
@@ -110,9 +132,12 @@ try:
                 } if event in {"labeled", "unlabeled"} else None,
             })
         issues.append({
+            "watch_id": watch_id,
+            "repo": repo,
+            "kind": entry.get("kind") or ("pull" if issue.get("pull_request") else "issue"),
             "number": number,
             "title": issue.get("title") or "",
-            "html_url": issue.get("html_url"),
+            "html_url": issue.get("html_url") or entry.get("url"),
             "state": issue.get("state"),
             "state_reason": issue.get("state_reason"),
             "comments": normalized_comments,
@@ -121,7 +146,7 @@ try:
             "new_received_count": new_count,
         })
     checked_at = now_iso()
-    payload = {"schema_version": 3, "repo": repo, "owner": owner, "checked_at": checked_at, "updated": checked_at, "issues": issues}
+    payload = {"schema_version": 4, "comment_owner": comment_owner, "checked_at": checked_at, "updated": checked_at, "issues": issues}
     atomic_write(data_path, payload)
     atomic_write(health_path, {"schema_version": 1, "ok": True, "checked_at": checked_at, "issue_count": len(issues), "error": None})
 except Exception as reason:

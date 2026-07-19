@@ -1,6 +1,6 @@
-# Hermes Briefs Deterministic V27 — Per-Date AI Focus + Git Comments Status
+# Hermes Briefs Deterministic V27 — Per-Date AI Focus + Dynamic Git Comments Watchlist
 
-This cumulative V27 review package preserves all accepted V26 Stock and AI behavior while restoring semantic AI card-focus persistence across archive dates and adding truthful Git Comments timeline, author-association, link-deduplication, and watcher-health presentation.
+This cumulative V27 review package preserves all accepted V26 Stock and AI behavior while restoring semantic AI card-focus persistence across archive dates and adding a profile-local dynamic Git Comments watchlist with validated Add URL, archive/restore, truthful timeline/author status, link deduplication, and watcher health.
 
 ## Required architecture
 
@@ -41,6 +41,12 @@ This protects narration, female-voice selection policy, `1.15×` rate, play/paus
 
 ## Git Comments contract
 
+The review implementation is installed as the separate `git-comments-v27-review` plugin at `/git-comments-v27-review`, with a one-shot `github-comments-checker-v27-review.sh`. It does not overwrite the production `/git-comments` plugin or its scheduled `03_Git-COMMENTS` checker.
+
+- `+ ADD URL TO WATCH` accepts only canonical GitHub issue and pull-request URLs, rejects unsupported hosts/paths and duplicates, saves atomically, and triggers an immediate bounded refresh.
+- The two previously hardcoded Hermes issues are migrated into `data/watchlist.json`; repository/issue targets no longer exist in checker source.
+- `✓ ARCHIVE` removes a target from active GitHub polling without deleting its watch history; the ARCHIVED section exposes `WATCH AGAIN`.
+- Existing mutable `watchlist.json` data is preserved across package upgrades and rollback.
 - When a received comment exists, the green `COMMENTS (N)` badge is the sole GitHub link; the redundant issue-level `View on GitHub` link is omitted.
 - Comment cards preserve GitHub `author_association` values such as `Contributor`.
 - The watcher fetches GitHub timeline events and displays closed/reopened and label-added/removed status with actor, avatar, timestamp, closure reason, and label color.
@@ -66,7 +72,7 @@ The installer:
 
 1. verifies all package checksums;
 2. rejects symlinked/non-host archive roots and obsolete Docker defaults;
-3. creates an exact source, bundle, materializer, Git Comments renderer/API, and checker backup;
+3. creates an exact source, bundle, materializer, and any pre-existing V27 review-plugin/checker backup; the production Git Comments plugin/checker are not modified;
 4. runs typecheck, all focused and complete frontend tests, production build, all 16 materializer tests, and Git Comments runtime/schema gates;
 5. executes the installed Git Comments watcher and requires a healthy schema-3 snapshot containing the real closure reason and contributor association;
 6. verifies all installed-file checksums;
@@ -82,7 +88,7 @@ Expected results:
 - 146 complete frontend tests;
 - successful TypeScript typecheck and production build;
 - 16 deterministic renderer/materializer tests;
-- Git Comments renderer runtime, checker syntax, API compile, live GitHub schema, and health gates;
+- Git Comments renderer runtime, checker syntax, API compile, watchlist validation/duplicate/archive/restore tests, atomic-write gates, isolated production sentinels, live GitHub schema, and health gates;
 - semantic two-date Chromium persistence gate with independent card indices and exact below-player alignment;
 - 20/20 rendered responsive gates across newest/historical AI and Stock at 1900×800, 1900×1242, 1280×800, 768×900, and 390×844;
 - `AI_PER_DATE_CARD_PERSISTENCE_BROWSER=PASS`;

@@ -1,0 +1,13 @@
+{
+  "name": "git-comments-v27-review",
+  "label": "GIT COMMENTS V27 REVIEW",
+  "description": "Isolated V27 review of GitHub comments, timeline status, and watcher health",
+  "icon": "MessageCircle",
+  "version": "27.0.0",
+  "tab": {
+    "path": "/git-comments-v27-review",
+    "position": "after:git-comments"
+  },
+  "entry": "dist/index.js",
+  "api": "plugin_api.py"
+}

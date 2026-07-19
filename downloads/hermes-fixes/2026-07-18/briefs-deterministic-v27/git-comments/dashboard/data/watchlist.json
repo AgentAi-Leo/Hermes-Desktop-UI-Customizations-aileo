@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "comment_owner": "AgentAi-Leo",
+  "active": [
+    {
+      "id": "nousresearch/hermes-agent/issues/58130",
+      "url": "https://github.com/NousResearch/hermes-agent/issues/58130",
+      "repo": "NousResearch/hermes-agent",
+      "number": 58130,
+      "kind": "issue",
+      "added_at": null,
+      "migrated_from": "v26-hardcoded-watch"
+    },
+    {
+      "id": "nousresearch/hermes-agent/issues/58510",
+      "url": "https://github.com/NousResearch/hermes-agent/issues/58510",
+      "repo": "NousResearch/hermes-agent",
+      "number": 58510,
+      "kind": "issue",
+      "added_at": null,
+      "migrated_from": "v26-hardcoded-watch"
+    }
+  ],
+  "archived": []
+}

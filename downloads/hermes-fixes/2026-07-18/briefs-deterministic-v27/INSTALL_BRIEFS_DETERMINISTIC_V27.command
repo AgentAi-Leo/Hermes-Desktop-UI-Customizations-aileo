@@ -20,12 +20,14 @@ PAGE_SOURCE="$WEB/src/pages/BriefsPage.tsx"
 NEW_SOURCE="$PACKAGE_DIR/dashboard/src/lib/briefs.ts"
 NEW_TEST="$PACKAGE_DIR/dashboard/src/lib/briefs.test.ts"
 NEW_PAGE="$PACKAGE_DIR/dashboard/src/pages/BriefsPage.tsx"
-GIT_PLUGIN="$PROFILE_HOME/plugins/git-comments/dashboard"
-GIT_CHECKER="$SCRIPTS/github-comments-checker.sh"
+GIT_PLUGIN="$PROFILE_HOME/plugins/git-comments-v27-review/dashboard"
+GIT_CHECKER="$SCRIPTS/github-comments-checker-v27-review.sh"
 NEW_GIT_PLUGIN="$PACKAGE_DIR/git-comments/dashboard"
 NEW_GIT_CHECKER="$PACKAGE_DIR/git-comments/scripts/github-comments-checker.sh"
 GIT_TEST="$PACKAGE_DIR/git-comments/tests/test-git-comments-status-health.js"
-GIT_RUNTIME=(dist/index.js plugin_api.py)
+GIT_API_TEST="$PACKAGE_DIR/git-comments/tests/test_watchlist_api.py"
+NEW_GIT_WATCHLIST="$NEW_GIT_PLUGIN/data/watchlist.json"
+GIT_RUNTIME=(dist/index.js plugin_api.py manifest.json)
 RUNTIME=(brief_materializer.py brief_renderer.py materialize-briefs-ai.py materialize-briefs-stock.py config/portfolio-lots.json schemas/ai-brief-data-v1.schema.json schemas/stock-brief-data-v1.schema.json)
 SERVER_TOUCHED=0
 
@@ -101,7 +103,7 @@ restore() {
 }
 trap 'r=$?; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
 
-for required in "$PYTHON" "$SOURCE" "$TEST_SOURCE" "$PAGE_SOURCE" "$WEB/package.json" "$DIST/index.html" "$NEW_SOURCE" "$NEW_TEST" "$NEW_PAGE" "$GIT_PLUGIN" "$NEW_GIT_PLUGIN/dist/index.js" "$NEW_GIT_PLUGIN/plugin_api.py" "$NEW_GIT_CHECKER" "$GIT_TEST" "$PACKAGE_DIR/CHECKSUMS.sha256"; do
+for required in "$PYTHON" "$SOURCE" "$TEST_SOURCE" "$PAGE_SOURCE" "$WEB/package.json" "$DIST/index.html" "$NEW_SOURCE" "$NEW_TEST" "$NEW_PAGE" "$NEW_GIT_PLUGIN/dist/index.js" "$NEW_GIT_PLUGIN/plugin_api.py" "$NEW_GIT_PLUGIN/manifest.json" "$NEW_GIT_CHECKER" "$GIT_TEST" "$GIT_API_TEST" "$NEW_GIT_WATCHLIST" "$PACKAGE_DIR/CHECKSUMS.sha256"; do
   [[ -e "$required" ]] || { echo "Missing required path: $required" >&2; exit 1; }
 done
 [[ -x "$PYTHON" ]] || { echo "Hermes Python is not executable: $PYTHON" >&2; exit 1; }
@@ -183,12 +185,20 @@ PY
 
 node --check "$NEW_GIT_PLUGIN/dist/index.js"
 node "$GIT_TEST" "$NEW_GIT_PLUGIN/dist/index.js" "$NEW_GIT_CHECKER" "$NEW_GIT_PLUGIN/plugin_api.py"
+"$PYTHON" "$GIT_API_TEST" "$NEW_GIT_PLUGIN/plugin_api.py" "$NEW_GIT_WATCHLIST"
 bash -n "$NEW_GIT_CHECKER"
 "$PYTHON" -m py_compile "$NEW_GIT_PLUGIN/plugin_api.py"
 for rel in "${GIT_RUNTIME[@]}"; do
   mkdir -p "$(dirname "$GIT_PLUGIN/$rel")"
   cp "$NEW_GIT_PLUGIN/$rel" "$GIT_PLUGIN/$rel"
 done
+mkdir -p "$GIT_PLUGIN/data"
+if [[ ! -f "$GIT_PLUGIN/data/watchlist.json" ]]; then
+  cp "$NEW_GIT_WATCHLIST" "$GIT_PLUGIN/data/watchlist.json"
+  echo "GIT_COMMENTS_WATCHLIST=MIGRATED_CURRENT_URLS"
+else
+  echo "GIT_COMMENTS_WATCHLIST=PRESERVED_EXISTING"
+fi
 cp "$NEW_GIT_CHECKER" "$GIT_CHECKER"
 chmod +x "$GIT_CHECKER"
 bash "$GIT_CHECKER"
@@ -199,8 +209,12 @@ import json, sys
 from pathlib import Path
 data=json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 health=json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
-assert data.get("schema_version") == 3
+assert data.get("schema_version") == 4
 assert len(data.get("issues", [])) == 2
+assert all(issue.get("watch_id") and issue.get("repo") for issue in data["issues"])
+watchlist=json.loads(Path(sys.argv[1]).with_name("watchlist.json").read_text(encoding="utf-8"))
+assert len(watchlist.get("active", [])) == 2
+assert not watchlist.get("archived")
 assert health.get("ok") is True
 assert any(event.get("event") == "closed" and event.get("state_reason") == "not_planned" for issue in data["issues"] for event in issue.get("status_events", []))
 assert any(comment.get("author_association") == "CONTRIBUTOR" for issue in data["issues"] for comment in issue.get("comments", []))
@@ -213,6 +227,7 @@ PY
 [[ "$(sha256_file "$SCRIPTS/brief_materializer.py")" == "$(sha256_file "$PACKAGE_DIR/materializer/brief_materializer.py")" ]] || { echo "Installed materializer checksum mismatch" >&2; exit 1; }
 [[ "$(sha256_file "$GIT_PLUGIN/dist/index.js")" == "$(sha256_file "$NEW_GIT_PLUGIN/dist/index.js")" ]] || { echo "Installed Git Comments renderer checksum mismatch" >&2; exit 1; }
 [[ "$(sha256_file "$GIT_PLUGIN/plugin_api.py")" == "$(sha256_file "$NEW_GIT_PLUGIN/plugin_api.py")" ]] || { echo "Installed Git Comments API checksum mismatch" >&2; exit 1; }
+[[ "$(sha256_file "$GIT_PLUGIN/manifest.json")" == "$(sha256_file "$NEW_GIT_PLUGIN/manifest.json")" ]] || { echo "Installed Git Comments manifest checksum mismatch" >&2; exit 1; }
 [[ "$(sha256_file "$GIT_CHECKER")" == "$(sha256_file "$NEW_GIT_CHECKER")" ]] || { echo "Installed Git Comments checker checksum mismatch" >&2; exit 1; }
 
 if [[ "${SKIP_RESTART:-0}" != "1" ]]; then
@@ -297,7 +312,7 @@ cp "\$BACKUP/dashboard/BriefsPage.tsx" "\$PAGE_SOURCE"
 rm -rf "\$DIST" && cp -R "\$BACKUP/dashboard/web_dist" "\$DIST"
 while IFS= read -r rel; do rm -f "\$SCRIPTS/\$rel"; done < "\$BACKUP/scripts-missing.txt"
 (cd "\$BACKUP/scripts" && find . -type f -print0) | while IFS= read -r -d '' rel; do mkdir -p "\$(dirname "\$SCRIPTS/\$rel")"; cp "\$BACKUP/scripts/\$rel" "\$SCRIPTS/\$rel"; done
-for rel in dist/index.js plugin_api.py; do
+for rel in dist/index.js plugin_api.py manifest.json; do
   if [[ -f "\$BACKUP/git-comments/\$rel" ]]; then mkdir -p "\$(dirname "\$GIT_PLUGIN/\$rel")"; cp "\$BACKUP/git-comments/\$rel" "\$GIT_PLUGIN/\$rel"; else rm -f "\$GIT_PLUGIN/\$rel"; fi
 done
 if [[ -f "\$BACKUP/git-comments/github-comments-checker.sh" ]]; then cp "\$BACKUP/git-comments/github-comments-checker.sh" "\$GIT_CHECKER"; chmod +x "\$GIT_CHECKER"; else rm -f "\$GIT_CHECKER"; fi
@@ -316,6 +331,11 @@ echo "GIT_COMMENTS_LINK_DEDUPLICATION=PASS"
 echo "GIT_COMMENTS_TIMELINE_STATUS=PASS"
 echo "GIT_COMMENTS_AUTHOR_ASSOCIATION=PASS"
 echo "GIT_COMMENTS_HEALTH=FRESH_SUCCESS_REQUIRED_FOR_GREEN"
+echo "GIT_COMMENTS_WATCH_TARGETS=PERSISTENT_PROFILE_LOCAL_JSON"
+echo "GIT_COMMENTS_ADD_URL=VALIDATED_GITHUB_ISSUES_AND_PULLS"
+echo "GIT_COMMENTS_ARCHIVE=STOP_WATCHING_WITH_HISTORY_AND_RESTORE"
+echo "GIT_COMMENTS_HARDCODED_URLS=ABSENT"
+echo "GIT_COMMENTS_PRODUCTION_PLUGIN=UNTOUCHED"
 echo "STOCK_DATE_PILLS=UTC_SAFE_UPPERCASE_WEEKDAY"
 echo "STOCK_WEEKEND_MOVEMENT=ZERO_WITH_FRIDAY_CLOSE_CARRIED_FORWARD"
 echo "STOCK_HERO_DATE_PILL=EXACTLY_ONE_LEFT_SLOT"
@@ -335,7 +355,9 @@ echo "PRODUCTION_9119=UNTOUCHED"
 echo "BACKUP=$BACKUP"
 echo "ROLLBACK=$BACKUP/ROLLBACK_BRIEFS_DETERMINISTIC_V27.command"
 PREVIEW_URL="http://127.0.0.1:$PORT/briefs-stocks?profile=$PROFILE&candidate=deterministic-v27"
+GIT_COMMENTS_PREVIEW_URL="http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE"
 echo "PREVIEW=$PREVIEW_URL"
+echo "GIT_COMMENTS_PREVIEW=$GIT_COMMENTS_PREVIEW_URL"
 if [[ "${SKIP_OPEN:-0}" != "1" ]] && command -v open >/dev/null 2>&1 && [[ -d "/Applications/Brave Browser.app" ]]; then
   open -a "Brave Browser" "$PREVIEW_URL" || true
   echo "PREVIEW_BROWSER=BRAVE"
