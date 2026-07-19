@@ -159,7 +159,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=275" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=276" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -168,7 +168,13 @@ required = [
     '.git-comments-health-dot.broken{background:#ef4444',
     '.git-comments-repo-line{display:flex',
     '.git-comments-repo-primary{font-size:20.8px;color:#fff;font-weight:900}',
-    '.git-comments-number-link{font-size:20px',
+    '.git-comments-number-link{font-size:25px',
+    '.git-comments-watch-state{font-size:18.75px;line-height:1.1;color:#4ade80;font-weight:800',
+    'COMMENTS RECEIVED (${received.length})',
+    'className: "git-comments-summary-commented", style: { color: "#4ade80" }',
+    'className: "git-comments-summary-archived", style: { color: "#facc15" }',
+    'className: "git-comments-panel-title", style: { fontSize: "26.4px", color: "#facc15" }',
+    'duplicateWatchId(url, active, archived)',
     'health.status === "healthy"',
     '"WATCHER HEALTHY" : "BROKEN"',
     'new Set(["opened", "closed", "reopened", "labeled", "unlabeled"])',
@@ -183,6 +189,7 @@ for marker in required:
 assert source.index('comments.length ? e("div"') < source.index('visibleStatusEvents.length ? e("div"'), "timeline must follow comments"
 for forbidden in ['View on GitHub', '✓ ARCHIVE']:
     assert forbidden not in source, forbidden
+assert '`${received.length} received`' not in source, "redundant received count remains"
 for path in map(Path, sys.argv[2:4]):
     api = path.read_text(encoding="utf-8")
     assert '@router.post("/watchlist/delete")' in api, path
@@ -198,4 +205,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=275"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=276"

@@ -61,6 +61,7 @@ with tempfile.TemporaryDirectory() as temporary:
     assert [entry["id"] for entry in state["active"]] == ["owner/repo/issues/42"]
     assert state["archived"] == []
     expect_http(409, module.add_watch_url, {"url": "https://github.com/Owner/Repo/issues/42"})
+    expect_http(409, module.add_watch_url, {"url": "https://github.com/OWNER/REPO/issues/42/"})
 
     archived = module.archive_watch_url({"id": "owner/repo/issues/42"})
     assert archived["refresh"]["ok"] is True
@@ -70,6 +71,7 @@ with tempfile.TemporaryDirectory() as temporary:
     assert state["archived"][0]["archived_at"]
     expect_http(404, module.archive_watch_url, {"id": "owner/repo/issues/42"})
     expect_http(409, module.add_watch_url, {"url": "https://github.com/Owner/Repo/issues/42"})
+    expect_http(409, module.add_watch_url, {"url": "https://github.com/OWNER/REPO/issues/42/"})
 
     restored = module.restore_watch_url({"id": "owner/repo/issues/42"})
     assert restored["refresh"]["ok"] is True

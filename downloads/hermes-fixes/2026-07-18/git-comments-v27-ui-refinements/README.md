@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 5
+# Git Comments V27 UI Refinements — Revision 6
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -10,11 +10,17 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Restores GitHub label/tag history such as `sweeper:cannot-reproduce`, rendered as a colored timeline pill.
 - Places the complete opened/closed/reopened and label/tag timeline at the end of each issue card, after comments.
 - Synthesizes the opening event from the GitHub issue creator/time because GitHub’s timeline endpoint does not return that row.
-- Moves `COMMENTS (n)` and `n RECEIVED` onto a second row beneath the issue identity.
+- Places the `COMMENTS RECEIVED (n)` pill on a second row beneath the issue identity.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
-- Restores issue/PR numbers to their original 20px size while retaining canonical GitHub hyperlinks.
+- Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.
 - Increases the repository name exactly 30%, from 16px to 20.8px, and uses 900 font weight.
+- Increases issue numbers 25%, from 20px to 25px.
+- Increases `WATCHING` 25%, from 15px to 18.75px, and makes it bold green.
+- Increases `WATCHED GITHUB ISSUES & PULL REQUESTS` 20%, from 22px to 26.4px, and makes it yellow without changing the Archived heading.
+- Changes the comment pill to `COMMENTS RECEIVED (n)` and removes the redundant separate `n RECEIVED` text.
+- Makes the watch summary bold, with `COMMENTED (n)` green and `ARCHIVED (n)` yellow.
+- Rejects duplicate canonical GitHub URLs across active and archived watches, including case and trailing-slash variants, both before submission and at the API.
 - Keeps the plain `ARCHIVE` action and omits redundant `View on GitHub →` text.
 
 ## Apply
