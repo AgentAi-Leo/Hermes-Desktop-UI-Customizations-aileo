@@ -162,8 +162,8 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=295" -o "$LIVE_BUNDLE"
-"$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=296" -o "$LIVE_BUNDLE"
+"$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
 source = Path(sys.argv[1]).read_text(encoding="utf-8")
@@ -174,15 +174,13 @@ required = [
     '.git-comments-number-link{font-size:25px',
     '.git-comments-watch-state{font-size:18.75px;line-height:1.1;font-weight:800',
     '.git-comments-watch-state.open{color:#4ade80}',
-    '.git-comments-watch-state.closed{color:#a78bfa}',
+    '.git-comments-watch-state.closed{color:#ef4444}',
+    '.git-comments-watch-state.merged{color:#a78bfa}',
     'COMMENTS (${received.length})',
-    '.git-comments-current-state,.git-comments-comment-label{display:inline-flex;align-items:center;justify-content:center;width:160px;min-height:44px;box-sizing:border-box;padding:6.25px 12.5px;border-radius:999px;font-size:15px;font-weight:850',
-
-    '.git-comments-comment-label.no-comments{border-color:#facc15;background:#ca8a04;color:#fff}',
-    '.git-comments-comment-label.has-comments.open{border-color:#4ade80;background:#16a34a;color:#fff}',
-    '.git-comments-comment-label.has-comments.closed{border-color:#a78bfa;background:#7c3aed;color:#fff}',
-    '.git-comments-current-state.open{border-color:#4ade80;color:#fff;background:#123c2b}',
-    '.git-comments-current-state.closed{border-color:#a78bfa;color:#fff;background:#2e2452}',
+    '.git-comments-current-state,.git-comments-comment-label{display:inline-flex;align-items:center;justify-content:center;min-width:200px;width:auto;min-height:44px;box-sizing:border-box;padding:6.25px 16px;border-radius:999px;white-space:nowrap;flex:0 0 auto;font-size:15px;font-weight:850',
+    '.git-comments-current-state.open,.git-comments-comment-label.open{border-color:#4ade80;color:#fff;background:#166534}',
+    '.git-comments-current-state.closed,.git-comments-comment-label.closed{border-color:#ef4444;color:#fff;background:#7f1d1d}',
+    '.git-comments-current-state.merged,.git-comments-comment-label.merged{border-color:#a78bfa;color:#fff;background:#5b21b6}',
     '.git-comments-issue-context-meta{align-items:center;color:#9ca9bd;font-size:14.95px}',
     '.git-comments-status-text{display:flex;align-items:center;min-height:44px;gap:12px;flex-wrap:wrap}',
     '.git-comments-button.add-toggle{border-color:#FFE6CB;background:#35291f;color:#FFE6CB}',
@@ -218,7 +216,8 @@ required = [
     '"WATCHER HEALTHY" : "BROKEN"',
     'new Set(["opened", "closed", "reopened", "labeled", "unlabeled"])',
     'aria-label": "Important GitHub status timeline"',
-    'className: `git-comments-watch-state ${String(issue.state || "").toLowerCase()}`',
+    'function issueStatus(issue)',
+    'className: `git-comments-watch-state ${status}`',
     'className: "git-comments-event-label"',
     'className: "git-comments-button delete"',
     'mutate("/watchlist/delete", { id })',
@@ -249,11 +248,11 @@ assert 'className: "git-comments-current-labels"' not in source, "duplicated cur
 assert 'className: "git-comments-current-label"' not in source, "duplicated current-label pills remain"
 assert 'className: "git-comments-issue-meta"' not in source, "old separate comments row remains"
 repo_line = source.index('className: "git-comments-repo-line"')
-watch_state = source.index('className: `git-comments-watch-state ${String(issue.state || "").toLowerCase()}`', repo_line)
+watch_state = source.index('className: `git-comments-watch-state ${status}`', repo_line)
 issue_title = source.index('className: "git-comments-issue-title"', watch_state)
 context_row = source.index('className: "git-comments-issue-context-meta"', issue_title)
-comment_pill = source.index('className: `git-comments-comment-label ${received.length > 0 ? `has-comments ${String(issue.state || "").toLowerCase()}` : "no-comments"}`', context_row)
-current_state = source.index('className: `git-comments-current-state ${String(issue.state || "").toLowerCase()}`', comment_pill)
+comment_pill = source.index('className: `git-comments-comment-label ${status}`', context_row)
+current_state = source.index('className: `git-comments-current-state ${status}`', comment_pill)
 status_text = source.index('className: "git-comments-status-text"', current_state)
 updated = source.index('`Updated ${fmt(issue.updated_at)}`', status_text)
 assert repo_line < watch_state < issue_title < context_row < comment_pill < current_state < status_text < updated, "COMMENTS must sit left of STATUS: OPEN/CLOSED and its metadata"
@@ -269,6 +268,11 @@ for path in map(Path, sys.argv[2:4]):
     assert 'for collection in ("active", "archived")' in api, path
     assert 'result["deleted_from"] = deleted_from' in api, path
     assert 'watchlist["active"].insert(0, entry)' in api, path
+for path in map(Path, sys.argv[4:6]):
+    checker = path.read_text(encoding="utf-8")
+    assert 'merged_at = (issue.get("pull_request") or {}).get("merged_at")' in checker, path
+    assert '"merged_at": merged_at' in checker, path
+    assert '"merged": bool(merged_at)' in checker, path
 print("V27_UI_REFINEMENTS_LIVE_BUNDLE=PASS")
 PY
 rm -f "$LIVE_BUNDLE"
@@ -281,4 +285,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=295"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=296"

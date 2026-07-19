@@ -115,6 +115,7 @@ try:
         }
         new_count = sum(1 for comment in received if comment.get("id") not in old_received_ids)
         new_count = max(new_count, int(old_issue.get("new_received_count") or 0))
+        merged_at = (issue.get("pull_request") or {}).get("merged_at")
         normalized_labels = [{
             "name": label.get("name") or "",
             "color": label.get("color") or "",
@@ -151,6 +152,8 @@ try:
             "html_url": issue.get("html_url") or entry.get("url"),
             "state": issue.get("state"),
             "state_reason": issue.get("state_reason"),
+            "merged_at": merged_at,
+            "merged": bool(merged_at),
             "author": actor(issue.get("user")),
             "created_at": issue.get("created_at"),
             "updated_at": issue.get("updated_at"),

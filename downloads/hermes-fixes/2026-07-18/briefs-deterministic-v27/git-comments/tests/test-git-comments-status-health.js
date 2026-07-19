@@ -135,13 +135,13 @@ assert(contextRows.every((row) => String(row.children[0]?.props?.className || ""
 const statusTextRows = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-status-text");
 assert(statusTextRows.length === 2 && statusTextRows.every((row) => text(row).includes("Opened by") && text(row).includes("Created") && text(row).includes("Updated")), "status metadata must share a dedicated row aligned with OPEN/CLOSED");
 const commentClasses = nodes(tree, (node) => String(node.props?.className || "").startsWith("git-comments-comment-label ")).map((node) => node.props.className);
-assert(commentClasses.includes("git-comments-comment-label no-comments"), "zero-comment pill must use the no-comments class");
-assert(commentClasses.includes("git-comments-comment-label has-comments closed"), "nonzero closed comment pill must carry both comment and issue-state classes");
+assert(commentClasses.includes("git-comments-comment-label open"), "open item comment pill must use the open status class even at zero comments");
+assert(commentClasses.includes("git-comments-comment-label closed"), "closed item comment pill must use the closed status class");
 const watchStates = nodes(tree, (node) => String(node.props?.className || "").startsWith("git-comments-watch-state ")).map((node) => node.props.className);
 assert(watchStates.includes("git-comments-watch-state open"), "open WATCHING text must use the open state class");
 assert(watchStates.includes("git-comments-watch-state closed"), "closed WATCHING text must use the closed state class");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-title" && node.props?.href === "https://github.com/NousResearch/hermes-agent/issues/58130").length === 1, "issue title must link to its canonical GitHub URL");
-for (const payloadMarker of ['"body": issue.get("body") or ""', '"author": actor(issue.get("user"))', '"created_at": issue.get("created_at")', '"updated_at": issue.get("updated_at")', '"labels": normalized_labels']) assert(checker.includes(payloadMarker), `checker missing issue context payload: ${payloadMarker}`);
+for (const payloadMarker of ['"body": issue.get("body") or ""', '"author": actor(issue.get("user"))', '"created_at": issue.get("created_at")', '"updated_at": issue.get("updated_at")', '"labels": normalized_labels', '"merged_at": merged_at', '"merged": bool(merged_at)']) assert(checker.includes(payloadMarker), `checker missing issue context payload: ${payloadMarker}`);
 assert(!rendered.includes("COMMENTS RECEIVED"), "received text must be removed from the comment pill");
 assert(!rendered.includes("View on GitHub"), "redundant source-link text must be absent everywhere");
 assert(rendered.includes("Contributor"), "commenter association missing");
@@ -165,13 +165,12 @@ assert(issueContents.length === 2 && issueContents.every((content) => String(con
 assert(source.includes('.git-comments-issue-content{display:flex;align-items:flex-start;gap:12px;flex:1 1 720px;min-width:0}') && source.includes('.git-comments-card-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex:0 0 32px;line-height:1;font-size:22px}'), "card bubble must use fixed geometry and a nonwrapping identity group");
 const commentedIdentity = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-identity" && text(node).includes("#58510"))[0];
 assert(nodes(commentedIdentity, (node) => String(node.props?.className || "") === "git-comments-issue-context-meta" && text(node).includes("CLOSED") && text(node).includes("Updated") && text(node).includes("COMMENTS (1)") && !text(node).includes("RECEIVED")).length === 1, "comment pill must end the CLOSED metadata row and omit received text");
-assert(source.includes('.git-comments-current-state,.git-comments-comment-label{display:inline-flex;align-items:center;justify-content:center;width:160px;min-height:44px;box-sizing:border-box;padding:6.25px 12.5px;border-radius:999px;font-size:15px;font-weight:850'), "comments and state pills must have identical fixed dimensions and text size");
+assert(source.includes('.git-comments-current-state,.git-comments-comment-label{display:inline-flex;align-items:center;justify-content:center;min-width:200px;width:auto;min-height:44px;box-sizing:border-box;padding:6.25px 16px;border-radius:999px;white-space:nowrap;flex:0 0 auto;font-size:15px;font-weight:850'), "comments and state pills must be wide, nonwrapping, and never truncate status text");
 assert(source.includes('.git-comments-issue-context-meta{align-items:center;color:#9ca9bd;font-size:14.95px}') && source.includes('.git-comments-status-text{display:flex;align-items:center;min-height:44px;gap:12px;flex-wrap:wrap}'), "status pill and metadata must align to the right of the comments pill");
-assert(source.includes('.git-comments-comment-label.no-comments{border-color:#facc15;background:#ca8a04;color:#fff}'), "zero-comment pill must be fully opaque yellow with white text");
-assert(source.includes('.git-comments-comment-label.has-comments.open{border-color:#4ade80;background:#16a34a;color:#fff}'), "comments pill must be green while comments are present and the issue is open");
-assert(source.includes('.git-comments-comment-label.has-comments.closed{border-color:#a78bfa;background:#7c3aed;color:#fff}'), "comments pill must turn purple once the commented issue is closed");
-assert(source.includes('received.length > 0 ? `has-comments ${String(issue.state || "").toLowerCase()}` : "no-comments"'), "comment pill class must combine positive count with live issue state");
-assert(source.includes('.git-comments-current-state.open{border-color:#4ade80;color:#fff;background:#123c2b}') && source.includes('.git-comments-current-state.closed{border-color:#a78bfa;color:#fff;background:#2e2452}'), "OPEN/CLOSED pills must use matching state colors with white text");
+assert(source.includes('.git-comments-current-state.open,.git-comments-comment-label.open{border-color:#4ade80;color:#fff;background:#166534}'), "all open-status pills must be green");
+assert(source.includes('.git-comments-current-state.closed,.git-comments-comment-label.closed{border-color:#ef4444;color:#fff;background:#7f1d1d}'), "all closed-status pills must be red");
+assert(source.includes('.git-comments-current-state.merged,.git-comments-comment-label.merged{border-color:#a78bfa;color:#fff;background:#5b21b6}'), "all merged-status pills must be purple");
+assert(source.includes('className: `git-comments-comment-label ${status}`'), "comment pill class must follow effective issue status");
 assert(source.includes('.git-comments-issue-context-meta{align-items:center;color:#9ca9bd;font-size:14.95px}'), "metadata text right of the comments pill must remain exactly 15% larger than 13px");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-event-label" && text(node).includes("sweeper:cannot-reproduce")).length === 1, "label event must render as a tag pill");
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-button delete") && text(node).includes("DELETE")).length === 2, "every active watched item must have a red DELETE action");
@@ -210,7 +209,8 @@ assert(healthTitle.children[0].props?.style?.fontSize === "22.5px", "WATCHER HEA
 assert(String(healthTitle.children[1].props?.className || "").includes("git-comments-health-dot healthy"), "healthy green indicator must render immediately right of its title");
 assert(source.includes('.git-comments-watch-state{font-size:18.75px;line-height:1.1;font-weight:800'), "WATCHING must remain 25% larger and bold");
 assert(source.includes('.git-comments-watch-state.open{color:#4ade80}'), "open WATCHING must be green");
-assert(source.includes('.git-comments-watch-state.closed{color:#a78bfa}'), "closed WATCHING must be purple");
+assert(source.includes('.git-comments-watch-state.closed{color:#ef4444}'), "closed WATCHING must be red");
+assert(source.includes('.git-comments-watch-state.merged{color:#a78bfa}'), "merged WATCHING must be purple");
 assert(source.includes('.git-comments-number-link{font-size:25px'), "issue number must be 25% larger than 20px");
 assert(source.includes('health.status === "healthy"'), "green health requires an explicit healthy execution status");
 const issue58510 = nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-issue") && text(node).includes("#58510"))[0];
@@ -218,6 +218,18 @@ const importantTimelineIndex = issue58510.children.findIndex((node) => String(no
 const commentsIndex = issue58510.children.findIndex((node) => String(node?.props?.className || "") === "git-comments-comments");
 assert(importantTimelineIndex > commentsIndex, "lifecycle/tag timeline must render at the end of the issue card after comments");
 assert(source.includes('.git-comments-repo-primary{font-size:20.8px;color:#fff;font-weight:900}'), "repository name must be exactly 30% larger than 16px and extra bold");
+
+const primaryFixture = fixture;
+fixture = {
+  ...primaryFixture,
+  watchlist: { ...primaryFixture.watchlist, active: [{ id: "nousresearch/hermes-agent/pull/60000", url: "https://github.com/NousResearch/hermes-agent/pull/60000", repo: "NousResearch/hermes-agent", number: 60000, kind: "pull" }] },
+  issues: [{ watch_id: "nousresearch/hermes-agent/pull/60000", repo: "NousResearch/hermes-agent", number: 60000, html_url: "https://github.com/NousResearch/hermes-agent/pull/60000", state: "closed", merged: true, merged_at: "2026-07-19T04:30:00Z", author: { login: "teknium1", avatar_url: "avatar" }, comments: [], status_events: [] }],
+};
+tree = registered();
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-current-state merged" && text(node).trim() === "STATUS: MERGED").length === 1, "merged PR must render STATUS: MERGED");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-comment-label merged" && text(node).trim() === "COMMENTS (0)").length === 1, "merged PR comment pill must be purple-status class");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-watch-state merged" && text(node).trim() === "WATCHING").length === 1, "merged PR WATCHING text must be purple-status class");
+fixture = primaryFixture;
 
 fixture = { ...fixture, watcher_health: { ok: false, stale: false, status: "failed", error: "network" } };
 tree = registered();

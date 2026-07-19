@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 25
+# Git Comments V27 UI Refinements — Revision 26
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -34,6 +34,9 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Replaces the vertical pill stack with one horizontal row: `COMMENTS (n)`, then `STATUS: OPEN/CLOSED`, then author and timestamps to its right.
 - Adds `EXPORT HTML` to the watcher toolbar. It downloads a dated, standalone snapshot with the current dashboard markup, complete CSS, and JavaScript inline in one `.html` file.
 - Removes Add, Archive, Delete, Unarchive, transient success, and error controls from the shared snapshot so no API-dependent controls appear broken outside Hermes.
+- Derives an effective `open`, `closed`, or `merged` status. Both metadata pills and `WATCHING` use green for open, red for closed, and purple for merged.
+- Detects merged pull requests from GitHub's live `pull_request.merged_at` field and persists `merged_at` plus a boolean `merged` flag in watcher data.
+- Gives status and comments pills a 200px minimum width with auto expansion and `white-space: nowrap`, keeping labels on one untruncated line.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.
