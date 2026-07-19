@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=296" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=297" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -178,11 +178,17 @@ required = [
     '.git-comments-watch-state.merged{color:#a78bfa}',
     'COMMENTS (${received.length})',
     '.git-comments-current-state,.git-comments-comment-label{display:inline-flex;align-items:center;justify-content:center;min-width:200px;width:auto;min-height:44px;box-sizing:border-box;padding:6.25px 16px;border-radius:999px;white-space:nowrap;flex:0 0 auto;font-size:15px;font-weight:850',
-    '.git-comments-current-state.open,.git-comments-comment-label.open{border-color:#4ade80;color:#fff;background:#166534}',
-    '.git-comments-current-state.closed,.git-comments-comment-label.closed{border-color:#ef4444;color:#fff;background:#7f1d1d}',
-    '.git-comments-current-state.merged,.git-comments-comment-label.merged{border-color:#a78bfa;color:#fff;background:#5b21b6}',
+    '.git-comments-comment-label.open{border-color:#4ade80;color:#fff;background:#166534}',
+    '.git-comments-comment-label.closed{border-color:#ef4444;color:#fff;background:#7f1d1d}',
+    '.git-comments-comment-label.merged{border-color:#a78bfa;color:#fff;background:#5b21b6}',
+    '.git-comments-current-state.open{border-color:#4ade80;color:#d1fae5;background:rgba(22,101,52,.25)}',
+    '.git-comments-current-state.closed{border-color:#ef4444;color:#fecaca;background:rgba(127,29,29,.25)}',
+    '.git-comments-current-state.merged{border-color:#a78bfa;color:#e9d5ff;background:rgba(91,33,182,.25)}',
+    '.git-comments-status-cluster{display:flex;align-items:center;gap:12px;flex:0 0 auto;white-space:nowrap}',
+    '.git-comments-health-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}',
+    '.git-comments-button.export-html{min-height:54px;padding:0 24px;border-color:#facc15;background:#3a2d08;color:#fef08a;font-size:18px;letter-spacing:.08em}',
     '.git-comments-issue-context-meta{align-items:center;color:#9ca9bd;font-size:14.95px}',
-    '.git-comments-status-text{display:flex;align-items:center;min-height:44px;gap:12px;flex-wrap:wrap}',
+    '.git-comments-status-text{display:flex;align-items:center;min-height:44px;gap:12px;flex-wrap:nowrap;white-space:nowrap}',
     '.git-comments-button.add-toggle{border-color:#FFE6CB;background:#35291f;color:#FFE6CB}',
     '.git-comments-button.submit-add{border-color:#4ade80;background:#123c2b;color:#b7f7cc}',
     '.git-comments-button.cancel-add{border-color:#ef4444;background:#4a151b;color:#fecaca}',
@@ -252,16 +258,20 @@ watch_state = source.index('className: `git-comments-watch-state ${status}`', re
 issue_title = source.index('className: "git-comments-issue-title"', watch_state)
 context_row = source.index('className: "git-comments-issue-context-meta"', issue_title)
 comment_pill = source.index('className: `git-comments-comment-label ${status}`', context_row)
-current_state = source.index('className: `git-comments-current-state ${status}`', comment_pill)
+status_cluster = source.index('className: "git-comments-status-cluster"', comment_pill)
+current_state = source.index('className: `git-comments-current-state ${status}`', status_cluster)
 status_text = source.index('className: "git-comments-status-text"', current_state)
 updated = source.index('`Updated ${fmt(issue.updated_at)}`', status_text)
-assert repo_line < watch_state < issue_title < context_row < comment_pill < current_state < status_text < updated, "COMMENTS must sit left of STATUS: OPEN/CLOSED and its metadata"
+assert repo_line < watch_state < issue_title < context_row < comment_pill < status_cluster < current_state < status_text < updated, "COMMENTS must sit left of one inline STATUS and metadata cluster"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
 health_start = source.index('e("section", { className: "git-comments-health" }')
+health_top = source.index('className: "git-comments-health-top"', health_start)
 watched_start = source.index('e("section", { className: "git-comments-panel" }', health_start)
 add_button = source.index('className: "git-comments-button add-toggle"')
-export_button = source.index('className: "git-comments-button export-html"', health_start)
-assert health_start < export_button < watched_start < add_button, "export button must be in health toolbar and add button in watched-panel heading"
+health_title = source.index('className: "git-comments-health-title"', health_top)
+export_button = source.index('className: "git-comments-button export-html"', health_title)
+health_top_end = source.index('className: "git-comments-muted"', export_button)
+assert health_start < health_top < health_title < export_button < health_top_end < watched_start < add_button, "export button must be top-right in the health header and add button in watched-panel heading"
 for path in map(Path, sys.argv[2:4]):
     api = path.read_text(encoding="utf-8")
     assert '@router.post("/watchlist/delete")' in api, path
@@ -285,4 +295,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=296"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=297"
