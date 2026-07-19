@@ -129,6 +129,10 @@ assert(nodes(tree, (node) => String(node.props?.className || "") === "git-commen
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-current-label").length === 0, "duplicated current-label pills must not render above comments");
 const repoLines = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-repo-line");
 assert(repoLines.length === 2 && repoLines.every((line) => nodes(line, (node) => String(node.props?.className || "").startsWith("git-comments-comment-label")).length === 0), "comment pill must not remain in the repository line");
+const issueMainRows = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-main");
+assert(issueMainRows.length === 2 && issueMainRows.every((row) => String(row.children[0]?.props?.className || "") === "git-comments-number-link" && String(row.children[1]?.props?.className || "") === "git-comments-issue-author" && text(row.children[1]).startsWith("by ") && String(row.children[2]?.props?.className || "") === "git-comments-repo-line"), "issue author must render immediately after the issue number and before the repository");
+assert(issueMainRows.some((row) => text(row.children[0]).includes("#58130") && text(row.children[1]).trim() === "by teknium1"), "#58130 must show its payload author beside the issue number");
+assert(source.includes('.git-comments-issue-author{color:#9ca9bd;font-size:16px;font-weight:650;white-space:nowrap}'), "issue-number author must use explicit readable styling");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-meta").length === 0, "old separate comment-pill row must be removed");
 const contextRows = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-context-meta");
 assert(contextRows.length === 2 && contextRows.every((row) => nodes(row, (node) => String(node.props?.className || "").startsWith("git-comments-comment-label ")).length === 1), "comment pill must render at the end of each OPEN/CLOSED metadata row");

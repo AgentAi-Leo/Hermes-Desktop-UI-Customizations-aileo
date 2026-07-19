@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 28
+# Git Comments V27 UI Refinements — Revision 29
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -42,6 +42,7 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Groups `STATUS` with `Opened by`, `Created`, and `Updated` as one nonbreaking inline cluster immediately to the right of `COMMENTS`.
 - Forces the complete `COMMENTS → STATUS → Opened by → Created → Updated` sequence onto one horizontal row; constrained cards scroll that row instead of splitting the status block underneath comments.
 - Changes the top-right export control to match the pictured Briefs control: download icon, `HTML` label, square cream outline, dark fill, and the canonical Briefs dimensions.
+- Adds the issue author immediately after the linked issue number and before the repository name using the live GitHub payload: `#58130 by author owner/repository WATCHING`.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.

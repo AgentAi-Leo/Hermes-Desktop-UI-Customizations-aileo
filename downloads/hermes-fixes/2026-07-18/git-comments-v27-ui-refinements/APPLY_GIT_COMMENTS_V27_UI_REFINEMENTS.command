@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=298" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=299" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -172,6 +172,8 @@ required = [
     '.git-comments-repo-line{display:flex',
     '.git-comments-repo-primary{font-size:20.8px;color:#fff;font-weight:900}',
     '.git-comments-number-link{font-size:25px',
+    '.git-comments-issue-author{color:#9ca9bd;font-size:16px;font-weight:650;white-space:nowrap}',
+    'className: "git-comments-issue-author" }, `by ${issueAuthor}`',
     '.git-comments-watch-state{font-size:18.75px;line-height:1.1;font-weight:800',
     '.git-comments-watch-state.open{color:#4ade80}',
     '.git-comments-watch-state.closed{color:#ef4444}',
@@ -255,7 +257,10 @@ assert 'COMMENTS RECEIVED' not in source, "received text remains in comment pill
 assert 'className: "git-comments-current-labels"' not in source, "duplicated current-label row remains"
 assert 'className: "git-comments-current-label"' not in source, "duplicated current-label pills remain"
 assert 'className: "git-comments-issue-meta"' not in source, "old separate comments row remains"
-repo_line = source.index('className: "git-comments-repo-line"')
+issue_main = source.index('className: "git-comments-issue-main"')
+issue_number = source.index('className: "git-comments-number-link"', issue_main)
+issue_author = source.index('className: "git-comments-issue-author"', issue_number)
+repo_line = source.index('className: "git-comments-repo-line"', issue_author)
 watch_state = source.index('className: `git-comments-watch-state ${status}`', repo_line)
 issue_title = source.index('className: "git-comments-issue-title"', watch_state)
 context_row = source.index('className: "git-comments-issue-context-meta"', issue_title)
@@ -264,7 +269,7 @@ status_cluster = source.index('className: "git-comments-status-cluster"', commen
 current_state = source.index('className: `git-comments-current-state ${status}`', status_cluster)
 status_text = source.index('className: "git-comments-status-text"', current_state)
 updated = source.index('`Updated ${fmt(issue.updated_at)}`', status_text)
-assert repo_line < watch_state < issue_title < context_row < comment_pill < status_cluster < current_state < status_text < updated, "COMMENTS must sit left of one inline STATUS and metadata cluster"
+assert issue_main < issue_number < issue_author < repo_line < watch_state < issue_title < context_row < comment_pill < status_cluster < current_state < status_text < updated, "author must follow issue number; COMMENTS must sit left of one inline STATUS and metadata cluster"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 health_top = source.index('className: "git-comments-health-top"', health_start)
@@ -297,4 +302,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=298"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=299"
