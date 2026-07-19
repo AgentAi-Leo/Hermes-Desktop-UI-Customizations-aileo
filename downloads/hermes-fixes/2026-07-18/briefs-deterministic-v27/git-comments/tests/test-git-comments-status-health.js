@@ -135,6 +135,7 @@ const issueMainRows = nodes(tree, (node) => String(node.props?.className || "") 
 assert(issueMainRows.length === 2 && issueMainRows.every((row) => String(row.children[0]?.props?.className || "") === "git-comments-number-link" && String(row.children[1]?.props?.className || "") === "git-comments-issue-author" && text(row.children[1]).startsWith("by ")), "issue number and author must occupy the first line in that order, with the hydrated profile picture following when available");
 assert(issueMainRows.some((row) => text(row.children[0]).includes("#58130") && text(row.children[1]).trim() === "by teknium1"), "#58130 must show its payload author beside the issue number");
 assert(issueMainRows.some((row) => row.children[2]?.props?.src === "avatar" && row.children[2]?.props?.alt === "teknium1 profile picture"), "issue author profile picture must use the payload avatar_url immediately after the author");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-owner-star").length === 0, "non-owner payload authors must not receive the watchlist-profile star");
 const identities = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-identity");
 assert(identities.length === 2 && identities.every((identity) => String(identity.children[0]?.props?.className || "") === "git-comments-issue-main" && String(identity.children[1]?.props?.className || "") === "git-comments-repo-line") && identities.some((identity) => String(identity.children[2]?.props?.className || "") === "git-comments-issue-title"), "repository and WATCHING must move to a dedicated second line below number and author, before any title");
 assert(source.includes('.git-comments-issue-author{color:#9ca9bd;font-size:16px;font-weight:650;white-space:nowrap}'), "issue-number author must use explicit readable styling");
@@ -210,13 +211,13 @@ assert(source.includes('event.metaKey || event.ctrlKey || event.altKey || event.
 assert(source.includes('target.closest("a,button,input,textarea,select,[contenteditable=true]")'), "Enter-to-launch must not hijack interactive or editable controls");
 assert(source.includes('setActionError(""); setAddOpen(true);'), "eligible Enter must open the Add URL form");
 assert(source.includes('showSuccess("URL ADDED SUCCESSFULLY!", 5000)'), "URL-added notice must remain for five seconds before fading");
-assert(source.includes('showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000)'), "archive success must publish the exact requested text for three seconds before fading");
+assert(source.includes('showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan")'), "archive success must publish the exact requested cyan text for three seconds before fading");
 assert(source.includes('window.setTimeout(() => setSuccessFading(true), successDuration)'), "success notice must enter its fade state after the requested duration");
 assert(source.includes('window.setTimeout(() => setActionSuccess(""), successDuration + 500)'), "success notice must be removed after its 500ms fade transition");
-assert(source.includes('className: `git-comments-success${successFading ? " fading" : ""}`'), "success notice must render the fading state class");
-assert(source.includes('.git-comments-success{') && source.includes('transition:opacity .5s ease') && source.includes('.git-comments-success.fading{opacity:0}'), "success notice CSS must visibly fade over 500ms");
+assert(source.includes('className: `git-comments-success ${successTone}${successFading ? " fading" : ""}`'), "success notice must render both tone and fading-state classes");
+assert(source.includes('.git-comments-success{') && source.includes('transition:opacity .5s ease') && source.includes('.git-comments-success.fading{opacity:0;pointer-events:none}'), "success notice CSS must visibly fade over 500ms without intercepting controls");
 assert(source.includes('role: "status", "aria-live": "polite"'), "success status must render as an accessible polite live message");
-assert(source.includes('.git-comments-success{margin:0 28px 18px;padding:10px 14px;border:1px solid #4ade80;border-radius:9px;background:#123c2b;color:#b7f7cc;font-weight:800;opacity:1;transition:opacity .5s ease}'), "timed success status must retain its explicit success styling and fade transition");
+assert(source.includes('.git-comments-success{position:fixed;top:18px;left:24px;right:24px;z-index:1100;') && source.includes('border:1px solid #4ade80') && source.includes('transition:opacity .5s ease'), "timed success status must remain viewport-visible while retaining its green default and fade transition");
 const summary = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-summary")[0];
 assert(summary && summary.props?.style?.fontWeight === 400, "watch summary must use normal weight");
 assert(nodes(summary, (node) => String(node.props?.className || "") === "git-comments-summary-commented" && text(node).includes("COMMENTED (1)") && node.props?.style?.color === "#4ade80").length === 1, "COMMENTED summary must be green");
@@ -244,6 +245,15 @@ assert(importantTimelineIndex > commentsIndex, "lifecycle/tag timeline must rend
 assert(source.includes('.git-comments-repo-primary{font-size:20.8px;color:#fff;font-weight:900}'), "repository name must be exactly 30% larger than 16px and extra bold");
 
 const primaryFixture = fixture;
+fixture = {
+  ...primaryFixture,
+  watchlist: { ...primaryFixture.watchlist, active: [primaryFixture.watchlist.active[0]] },
+  issues: [{ ...primaryFixture.issues[0], author: { login: "AgentAi-Leo", avatar_url: "owner-avatar" } }],
+};
+tree = registered();
+const ownerStars = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-owner-star" && text(node).trim() === "★");
+assert(ownerStars.length === 1 && ownerStars[0].props?.title === "Watchlist profile owner" && ownerStars[0].props?.["aria-label"] === "Watchlist profile owner", "payload author matching the configured watchlist profile must show an accessible star beside the avatar");
+assert(source.includes('.git-comments-owner-star{color:#facc15;') && source.includes('issueAuthor.toLowerCase() === String(owner || "").toLowerCase()'), "owner-star styling and profile comparison missing");
 fixture = {
   ...primaryFixture,
   watchlist: { ...primaryFixture.watchlist, active: [{ id: "nousresearch/hermes-agent/pull/60000", url: "https://github.com/NousResearch/hermes-agent/pull/60000", repo: "NousResearch/hermes-agent", number: 60000, kind: "pull" }] },
@@ -276,8 +286,8 @@ const archivedRows = nodes(tree, (node) => String(node.props?.className || "") =
 assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button unarchive") && text(node).trim() === "UNARCHIVE").length === 1, "archived row must contain an UNARCHIVE button");
 assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button delete") && text(node).trim() === "DELETE").length === 1, "archived row must contain a permanent DELETE button");
 assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button view-archived") && text(node).trim() === "VIEW ISSUE").length === 1, "archived issue row must contain a small VIEW ISSUE button");
-assert(String(archivedRows[0].children[0]?.props?.className || "").includes("git-comments-button view-archived"), "archived VIEW button must be the far-left first child of the row");
-assert(String(archivedRows[0].children[1]?.props?.className || "") === "git-comments-archived-content", "archived identity and summary must follow VIEW in one content column");
+assert(String(archivedRows[0].children[0]?.props?.className || "") === "git-comments-archived-content", "archived identity and summary must occupy the left flexible content column");
+assert(String(archivedRows[0].children[1]?.props?.className || "").includes("git-comments-button view-archived"), "archived VIEW button must return to the right-side action group after repository content");
 const archivedSummary = nodes(archivedRows[0], (node) => String(node.props?.className || "") === "git-comments-archived-summary")[0];
 assert(text(archivedSummary).trim() === "Adds archived summaries beneath repository details without", "archive summary must prefer the source Summary section and stop at the last complete word within 65 characters");
 assert(text(archivedSummary).trim().length <= 65 && text(archivedSummary).trim().split(/\s+/).length <= 11, "archive summary must not exceed 65 characters or 11 words");
@@ -294,6 +304,13 @@ assert(archivedViewLabelFunction, "archived VIEW label helper missing");
 const archiveViewLabel = vm.runInNewContext(`(function archivedViewLabel(entry, hydratedIssue) {${archivedViewLabelFunction[1]}\n})`);
 assert(archiveViewLabel({ kind: "issue", url: "https://github.com/o/r/issues/1" }) === "VIEW ISSUE", "issue button must read VIEW ISSUE");
 assert(archiveViewLabel({ kind: "pull", url: "https://github.com/o/r/pull/2" }) === "VIEW PR", "pull-request button must read VIEW PR");
+assert(source.includes('.git-comments-success{position:fixed;top:18px;left:24px;right:24px;z-index:1100;'), "success notice must remain visible in the viewport for upper and lower dashboard actions");
+assert(source.includes('.git-comments-success.cyan{border-color:#22d3ee;background:#083344;color:#cffafe}'), "archive/delete/unarchive success notices must use cyan styling");
+assert(source.includes('showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan")'), "archive success must use the cyan 3-second notice");
+assert(source.includes('showSuccess("SUCCESSFULLY DELETED!", 3000, "cyan")'), "both delete paths must use the cyan SUCCESSFULLY DELETED notice");
+assert(source.match(/showSuccess\("SUCCESSFULLY DELETED!", 3000, "cyan"\)/g)?.length === 2, "main-watch and archived delete paths must each publish success");
+assert(source.includes('showSuccess("SUCCESSFULLY UNARCHIVED!!", 3000, "cyan")'), "unarchive must publish the exact cyan success notice");
+assert(source.includes('git-comments-success ${successTone}') && source.includes('setSuccessTone(tone)'), "success renderer must apply the requested notice tone");
 assert(source.includes('role: "dialog", "aria-modal": "true"') && source.includes('className: "git-comments-archive-modal"'), "VIEW must open an accessible in-dashboard read-only modal");
 assert(source.includes('className: "git-comments-button close-archive-view"') && source.includes('"CLOSE"'), "archived-item modal must provide an explicit CLOSE button");
 assert(source.includes('window.addEventListener("keydown", closeArchiveViewOnEscape, true)') && source.includes('event.stopImmediatePropagation()') && source.includes('window.removeEventListener("keydown", closeArchiveViewOnEscape, true)'), "modal Escape handler must run in capture phase, stop conflicting keybinds, and clean up");
@@ -305,7 +322,7 @@ assert(source.includes('new Set(["opened", "closed", "reopened", "labeled", "unl
 assert(source.includes("labelColor") && source.includes("item.label"), "label/tag data must be rendered as a visible timeline pill");
 assert(source.includes('mutate("/watchlist/delete", { id })'), "DELETE action must call the permanent-delete endpoint");
 assert(source.includes("Permanently delete this watched URL?"), "DELETE action must require explicit confirmation");
-assert(source.includes('const unarchive = async (id) => { await mutate("/watchlist/restore", { id }); }'), "UNARCHIVE must use the archived restore endpoint");
+assert(source.includes('const unarchive = async (id) => { if (await mutate("/watchlist/restore", { id })) showSuccess("SUCCESSFULLY UNARCHIVED!!", 3000, "cyan"); }'), "UNARCHIVE must use the archived restore endpoint and publish feedback only after success");
 assert(source.includes("Permanently delete this archived URL?"), "archived DELETE action must require explicit confirmation");
 assert(source.includes("duplicateWatchId"), "client must preflight canonical duplicate URLs");
 assert(source.includes('const API = "/api/plugins/git-comments-v27-review"'), "renderer must use isolated review API root");

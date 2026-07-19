@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=306" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=307" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -282,7 +282,7 @@ required = [
     '.git-comments-card-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex:0 0 32px;line-height:1;font-size:22px}',
     'className: "git-comments-card-icon", "aria-hidden": "true"',
     'showSuccess("URL ADDED SUCCESSFULLY!", 5000)',
-    'className: `git-comments-success${successFading ? " fading" : ""}`, role: "status", "aria-live": "polite"',
+    'className: `git-comments-success ${successTone}${successFading ? " fading" : ""}`, role: "status", "aria-live": "polite"',
     '`STATUS: ${currentState}`',
     'function exportStandaloneHtml()',
     'snapshot.querySelectorAll("button,.git-comments-panel-add,.git-comments-success,.git-comments-error")',
@@ -293,12 +293,19 @@ required = [
     '`GIT WATCH failed: ${state.error}`',
     '.git-comments-issue-avatar{width:40px;height:40px;',
     'className: "git-comments-issue-avatar", src: issue.author.avatar_url, alt: `${issueAuthor} profile picture`',
+    '.git-comments-owner-star{color:#facc15;',
+    'issueAuthor.toLowerCase() === String(owner || "").toLowerCase()',
+    'className: "git-comments-owner-star", role: "img", "aria-label": "Watchlist profile owner"',
     'showSuccess("URL ADDED SUCCESSFULLY!", 5000)',
-    'showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000)',
+    'showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan")',
+    'showSuccess("SUCCESSFULLY DELETED!", 3000, "cyan")',
+    'showSuccess("SUCCESSFULLY UNARCHIVED!!", 3000, "cyan")',
+    '.git-comments-success{position:fixed;top:18px;left:24px;right:24px;z-index:1100;',
+    '.git-comments-success.cyan{border-color:#22d3ee;background:#083344;color:#cffafe}',
     'window.setTimeout(() => setSuccessFading(true), successDuration)',
     'window.setTimeout(() => setActionSuccess(""), successDuration + 500)',
-    '.git-comments-success.fading{opacity:0}',
-    'className: `git-comments-success${successFading ? " fading" : ""}`',
+    '.git-comments-success.fading{opacity:0;pointer-events:none}',
+    'className: `git-comments-success ${successTone}${successFading ? " fading" : ""}`',
     'className: "git-comments-button export-html"',
     'function DownloadIcon()',
     '"aria-label": "Download HTML"',
@@ -348,15 +355,17 @@ current_state = source.index('className: `git-comments-current-state ${status}`'
 status_text = source.index('className: "git-comments-status-text"', current_state)
 updated = source.index('`Updated ${fmt(issue.updated_at)}`', status_text)
 assert issue_main < issue_number < issue_author < repo_line < watch_state < issue_title < context_row < comment_pill < status_cluster < current_state < status_text < updated, "number/author first line, repository/WATCHING second line, then title; COMMENTS must sit left of one inline STATUS and metadata cluster"
-assert 'alt: `${issueAuthor} profile picture` }) : null),\n          e("div", { className: "git-comments-repo-line" }' in source, "repository and WATCHING must be a separate line below issue number, author, and profile picture"
+issue_avatar = source.index('className: "git-comments-issue-avatar"', issue_author)
+owner_star = source.index('className: "git-comments-owner-star"', issue_avatar)
+assert issue_author < issue_avatar < owner_star < repo_line, "profile-owner star must follow the payload-author avatar before the repository line"
 archived_map = source.index('archived.map((entry) =>')
-archived_view = source.index('className: "git-comments-button view-archived"', archived_map)
-archived_content = source.index('className: "git-comments-archived-content"', archived_view)
+archived_content = source.index('className: "git-comments-archived-content"', archived_map)
 archived_primary = source.index('className: "git-comments-archived-primary"', archived_content)
 archived_summary = source.index('className: "git-comments-archived-summary"', archived_primary)
-archived_unarchive = source.index('className: "git-comments-button unarchive"', archived_summary)
+archived_view = source.index('className: "git-comments-button view-archived"', archived_summary)
+archived_unarchive = source.index('className: "git-comments-button unarchive"', archived_view)
 archived_delete = source.index('className: "git-comments-button delete"', archived_unarchive)
-assert archived_map < archived_view < archived_content < archived_primary < archived_summary < archived_unarchive < archived_delete, "VIEW must be far-left, followed by the two-line archive content, then UNARCHIVE and DELETE"
+assert archived_map < archived_content < archived_primary < archived_summary < archived_view < archived_unarchive < archived_delete, "archive content must remain left while VIEW returns to the right-side action group before UNARCHIVE and DELETE"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 health_top = source.index('className: "git-comments-health-top"', health_start)
@@ -393,4 +402,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=306"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=307"

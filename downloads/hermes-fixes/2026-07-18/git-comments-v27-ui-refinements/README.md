@@ -1,4 +1,6 @@
-# GIT WATCH V27 UI Refinements — Revision 36
+# GIT WATCH V27 UI Refinements — Revision 37
+
+Revision 37 moves archived `VIEW ISSUE` / `VIEW PR` controls back into the right-side action group before `UNARCHIVE` and `DELETE`. Payload authors matching the configured watchlist profile owner receive an accessible gold star immediately after their avatar. Archive, both delete paths, and unarchive now publish viewport-fixed cyan success notices with the existing 3000 ms visible duration plus 500 ms fade: `URL SUCCESSFULLY ARCHIVED!`, `SUCCESSFULLY DELETED!`, and `SUCCESSFULLY UNARCHIVED!!`.
 
 Revision 36 adds cyan archive summaries for both issues and pull requests. Legacy identity-only archives hydrate once through the existing read-only archived-view endpoint. The deterministic summarizer prefers a Markdown `Summary` section, otherwise evaluates up to 100 cleaned source words and selects a title-relevant sentence, caps that source sentence at 40 words, then displays at most 11 complete words and 65 characters. Archive buttons now read `VIEW ISSUE` or `VIEW PR` from canonical source type.
 
