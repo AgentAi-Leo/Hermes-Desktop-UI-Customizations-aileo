@@ -10,6 +10,9 @@ const checker = fs.readFileSync(checkerPath, "utf8");
 const api = fs.readFileSync(apiPath, "utf8");
 let registered = null;
 let fixture = null;
+let exportedDownload = null;
+let exportedBlob = null;
+let removedExportControls = 0;
 const React = {
   Fragment: Symbol("Fragment"),
   createElement(type, props, ...children) {
@@ -30,7 +33,19 @@ const sdk = {
     useMemo(fn) { return fn(); },
   },
 };
-const context = { window: { confirm: () => true, __HERMES_PLUGIN_SDK__: sdk, __HERMES_PLUGINS__: { register(_name, component) { registered = component; } } }, console };
+const exportClone = {
+  outerHTML: '<div class="git-comments-page"><section>Current Git Comments snapshot</section></div>',
+  querySelectorAll(selector) {
+    assert.strictEqual(selector, "button,.git-comments-panel-add,.git-comments-success,.git-comments-error");
+    return [{ remove() { removedExportControls += 1; } }];
+  },
+};
+const exportDocument = {
+  querySelector(selector) { assert.strictEqual(selector, ".git-comments-page"); return { cloneNode() { return exportClone; } }; },
+  createElement(tag) { assert.strictEqual(tag, "a"); return { href: "", download: "", click() { exportedDownload = { href: this.href, download: this.download }; } }; },
+};
+class ExportBlob { constructor(parts, options) { this.parts = parts; this.type = options.type; exportedBlob = this; } }
+const context = { window: { confirm: () => true, document: exportDocument, Blob: ExportBlob, URL: { createObjectURL: () => "blob:git-comments-export", revokeObjectURL() {} }, __HERMES_PLUGIN_SDK__: sdk, __HERMES_PLUGINS__: { register(_name, component) { registered = component; } } }, console };
 vm.createContext(context);
 vm.runInContext(source, context);
 assert(registered, "plugin must register");
@@ -91,6 +106,17 @@ fixture = {
 };
 let tree = registered();
 let rendered = text(tree);
+const exportButton = nodes(tree, (node) => String(node.props?.className || "").includes("export-html") && text(node).includes("EXPORT HTML"))[0];
+assert(exportButton && typeof exportButton.props.onClick === "function", "EXPORT HTML button missing");
+exportButton.props.onClick();
+const exportedHtml = exportedBlob?.parts?.join("") || "";
+assert(/^git-comments-watchlist-\d{4}-\d{2}-\d{2}\.html$/.test(exportedDownload?.download || "") && exportedDownload?.href === "blob:git-comments-export", "export must download a dated HTML file");
+assert(exportedBlob?.type === "text/html;charset=utf-8" && exportedHtml.startsWith("<!doctype html>"), "export must create a standalone HTML Blob");
+assert(exportedHtml.includes("<style>") && exportedHtml.includes("<script>") && exportedHtml.includes("Current Git Comments snapshot"), "export must inline CSS, JavaScript, and the current dashboard snapshot");
+const exportedScript = exportedHtml.match(/<script>([\s\S]*?)<\/script>/)?.[1] || "";
+assert(exportedHtml.endsWith("</body></html>") && !exportedHtml.includes('<link rel="stylesheet"') && !exportedHtml.includes('<script src=') && !exportedHtml.includes("/api/plugins/"), "export must be self-contained and independent of Hermes APIs");
+assert.doesNotThrow(() => new vm.Script(exportedScript), "exported inline JavaScript must parse");
+assert(exportedHtml.includes("Git Comments Watchlist Export") && removedExportControls === 1, "export must identify itself and strip API-dependent controls");
 assert(rendered.includes("COMMENTS (1)"), "comment badge missing");
 assert(rendered.includes("Test issue title with useful context"), "issue title missing from watched card");
 assert(rendered.includes("This issue description explains why the watcher matters."), "issue description missing from watched card");

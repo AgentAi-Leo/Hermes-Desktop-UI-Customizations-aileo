@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=294" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=295" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -231,6 +231,12 @@ required = [
     'setActionSuccess("URL ADDED SUCCESSFULLY!")',
     'className: "git-comments-success", role: "status"',
     '`STATUS: ${currentState}`',
+    'function exportStandaloneHtml()',
+    'snapshot.querySelectorAll("button,.git-comments-panel-add,.git-comments-success,.git-comments-error")',
+    'new window.Blob([html], { type: "text/html;charset=utf-8" })',
+    'link.download = `git-comments-watchlist-${exportedAt.toISOString().slice(0, 10)}.html`',
+    'className: "git-comments-button export-html"',
+    '"EXPORT HTML"',
 ]
 for marker in required:
     assert marker in source, marker
@@ -255,7 +261,8 @@ assert 'className: "git-comments-state-stack"' not in source, "old vertical stat
 health_start = source.index('e("section", { className: "git-comments-health" }')
 watched_start = source.index('e("section", { className: "git-comments-panel" }', health_start)
 add_button = source.index('className: "git-comments-button add-toggle"')
-assert watched_start < add_button, "Add URL button is still in the Watcher Health card"
+export_button = source.index('className: "git-comments-button export-html"', health_start)
+assert health_start < export_button < watched_start < add_button, "export button must be in health toolbar and add button in watched-panel heading"
 for path in map(Path, sys.argv[2:4]):
     api = path.read_text(encoding="utf-8")
     assert '@router.post("/watchlist/delete")' in api, path
@@ -274,4 +281,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=294"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=295"

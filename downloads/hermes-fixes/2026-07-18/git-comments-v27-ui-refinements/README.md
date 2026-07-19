@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 24
+# Git Comments V27 UI Refinements — Revision 25
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -32,6 +32,8 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Inserts newly added URLs at the top of the active watchlist instead of appending them to the bottom.
 - Closes the add form and displays the accessible success message `URL ADDED SUCCESSFULLY!` after a URL is added.
 - Replaces the vertical pill stack with one horizontal row: `COMMENTS (n)`, then `STATUS: OPEN/CLOSED`, then author and timestamps to its right.
+- Adds `EXPORT HTML` to the watcher toolbar. It downloads a dated, standalone snapshot with the current dashboard markup, complete CSS, and JavaScript inline in one `.html` file.
+- Removes Add, Archive, Delete, Unarchive, transient success, and error controls from the shared snapshot so no API-dependent controls appear broken outside Hermes.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.
