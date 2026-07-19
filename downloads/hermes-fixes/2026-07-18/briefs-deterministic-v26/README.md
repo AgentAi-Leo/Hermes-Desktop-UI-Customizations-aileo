@@ -1,6 +1,6 @@
-# Hermes Briefs Deterministic V26 — Stock Current-Price Columns + AI Focus Restoration
+# Hermes Briefs Deterministic V26 — Weekend Stock Semantics + Visible AI Navigation
 
-This cumulative V26 package keeps the canonical data/view-model architecture while preserving accepted Brief behavior, moving Stock current prices into dedicated columns, compacting the newest seven-row Stock view, and restoring AI player focus after required keyboard commands.
+This cumulative V26 package keeps the canonical data/view-model architecture while adding UTC-safe weekday Stock pills, truthful closed-market movement semantics, visible AI card navigation, and Founder Takeaways as the initial Space playback target.
 
 ## Required architecture
 
@@ -24,6 +24,8 @@ Dashboard V61/V74 overrides remain layered after those bases exactly as in V25. 
 
 Stock retains exactly one yellow hero date pill below the title/fullscreen control. The title-to-metadata gap is reduced by 70%; Summary remains 25% lower on desktop and resets on narrow layouts. The lower daily-price section begins with a white date badge reduced by exactly 45% in typography and spacing. Every quote row now has three explicit columns—identity, current price, and five metrics—with compact row spacing sufficient to show all seven newest rows in a 1900×1242 viewport after jumping to Daily Prices. Quote rows contain no repeated yellow date pills, and the installer rejects any bundle that reintroduces `.hermes-stock-row-date`.
 
+Both Stock date pills use the selected archive date and render UTC-safe uppercase weekday abbreviations such as `SAT. - July 18, 2026`. Weekend archives carry forward the latest verified regular-session price and metrics while displaying `+$0.00 (+0.00%)`; Friday archives retain their real Thursday-to-Friday session movement. Frozen CSV bytes remain unchanged until the export phase.
+
 The canonical Stock parser accepts the current deterministic producer's `.metric` blocks as well as historical definition-list, span/bold, and stat shapes. Every retained date renders the same identity-plus-five-metric quote rows: Day High, Day Low, 52-week High, 52-week Low, and Volume.
 
 Both canonical Brief templates include mobile, tablet, desktop, and compact-height rules. The dashboard Stock toolbar uses a non-overlapping three-column desktop grid and stacks cleanly at narrower widths; export controls wrap, and the date rail uses horizontal snap scrolling.
@@ -32,10 +34,10 @@ Both canonical Brief templates include mobile, tablet, desktop, and compact-heig
 
 The accepted Stock controller remains byte-locked; the AI controller is locked to the restored-focus revision:
 
-- AI `PLAYER_CONTROLLER` SHA-256: `a96f41935734bad0ab1fcafbe3eb83c0aa05baa3e3e571bdc50e2b3b2a05ff4c`
+- AI `PLAYER_CONTROLLER` SHA-256: `15db4b0c15a5c38b61f2d681ec5959e1613535700d68dafa0091b8ec3d073b93`
 - Stock `STOCK_INTERACTION_CONTROLLER` SHA-256: `dabab60fd4af3187720ff090e940ba3de768b842638b4afdecc89ed13b51e7b0`
 
-This protects narration, female-voice selection policy, `1.15×` rate, play/pause, topic selection, active-card styling, fullscreen, links, exports, viewport restoration, and Stock date navigation. AI Space/Left/Right/Up commands now restore focus to the player region; the parent dashboard also refocuses the preview after forwarding commands. A separate Stock section-navigation controller keeps Up → complete document top and Down → daily-price rows without modifying the locked Stock controller.
+This protects narration, female-voice selection policy, `1.15×` rate, play/pause, topic selection, active-card styling, fullscreen, links, exports, viewport restoration, and Stock date navigation. AI initializes silently on Founder Takeaways; first Space starts Takeaways. Left/Right/Up select, highlight, narrate, and scroll the intended card into view. A separate Stock section-navigation controller keeps Up → complete document top and Down → daily-price rows without modifying the locked Stock controller.
 
 Export button behavior and dashboard export controls are intentionally unchanged in this revision and remain the final follow-up step after visual acceptance.
 
@@ -57,7 +59,7 @@ The installer:
 1. verifies all package checksums;
 2. rejects symlinked/non-host archive roots and obsolete Docker defaults;
 3. creates an exact source, bundle, and runtime backup;
-4. runs typecheck, all focused and complete frontend tests, production build, and all 15 materializer tests;
+4. runs typecheck, all focused and complete frontend tests, production build, and all 16 materializer tests;
 5. verifies installed-file checksums;
 6. restarts only isolated preview port `9120` and opens the verified Stock candidate directly in Brave;
 7. reads the generated live asset from `index.html` and requires canonical, V25-style, V61/V74 behavior, portfolio, and narration markers;
@@ -67,10 +69,10 @@ The installer:
 
 Expected results:
 
-- 71 focused Brief tests;
-- 143 complete frontend tests;
+- 73 focused Brief tests;
+- 145 complete frontend tests;
 - successful TypeScript typecheck and production build;
-- 15 deterministic renderer/materializer tests;
+- 16 deterministic renderer/materializer tests;
 - 20/20 rendered responsive gates across newest/historical AI and Stock at 1900×800, 1900×1242, 1280×800, 768×900, and 390×844;
 - `VISUAL_PARITY=V25_AI_AND_STOCK_COMPUTED_CONTRACTS`;
 - `FUNCTIONAL_PARITY=RESTORED_AI_FOCUS_AND_ACCEPTED_STOCK_CONTROLLER_LOCKED`;

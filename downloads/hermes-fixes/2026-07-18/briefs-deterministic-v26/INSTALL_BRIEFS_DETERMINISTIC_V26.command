@@ -171,7 +171,7 @@ PY
 import re, sys
 from pathlib import Path
 data=Path(sys.argv[1]).read_bytes()
-for marker in (b'v61-date-load-keyboard-focus',b'v74-ticker-above-company',b'data-hermes-canonical-ai',b'data-hermes-canonical-stock',b'hermes-ai-canonical',b'hermes-stock-canonical',b'hermes-v25-ai-base-style',b'hermes-v25-stock-base-style',b'hermes-stock-portfolio-summary',b'hermes-stock-summary-stack',b'hermes-stock-hero-left',b'hermes-stock-meta-stack',b'hermes-stock-today-date-pill',b'hermes-stock-section-navigation-controller',b'v26-ai-player-focus-restore',b'hermes-stock-current-price',b'SUMMARY',b'v26-responsive-canonical-stock-hero',b'data-hermes-brief-preview-toolbar',b'data-hermes-date-rail',b'TOTAL +/-',b'DAY +/-',b'hermes-portfolio-day'):
+for marker in (b'v61-date-load-keyboard-focus',b'v74-ticker-above-company',b'data-hermes-canonical-ai',b'data-hermes-canonical-stock',b'hermes-ai-canonical',b'hermes-stock-canonical',b'hermes-v25-ai-base-style',b'hermes-v25-stock-base-style',b'hermes-stock-portfolio-summary',b'hermes-stock-summary-stack',b'hermes-stock-hero-left',b'hermes-stock-meta-stack',b'hermes-stock-today-date-pill',b'hermes-stock-section-navigation-controller',b'v26-ai-player-focus-restore',b'hermes-stock-current-price',b'SUMMARY',b'v26-responsive-canonical-stock-hero',b'data-hermes-brief-preview-toolbar',b'data-hermes-date-rail',b'TOTAL +/-',b'DAY +/-',b'hermes-portfolio-day',b'+$0.00 (+0.00%)',b'Founder takeaways'):
     if marker not in data:
         raise SystemExit(f'Live bundle missing marker: {marker.decode()}')
 if not re.search(rb'utterance\.rate\s*=\s*1\.15(?:0+)?\s*;', data):
@@ -237,7 +237,9 @@ trap - EXIT
 echo "BRIEFS_DETERMINISTIC_V26_INSTALL=PASS"
 echo "FRONTEND_TESTS=PASS"
 echo "VISUAL_PARITY=V25_AI_AND_STOCK_COMPUTED_CONTRACTS"
-echo "FUNCTIONAL_PARITY=RESTORED_AI_FOCUS_AND_ACCEPTED_STOCK_CONTROLLER_LOCKED"
+echo "FUNCTIONAL_PARITY=VISIBLE_AI_CARD_NAVIGATION_AND_FOUNDER_FIRST_SPACE"
+echo "STOCK_DATE_PILLS=UTC_SAFE_UPPERCASE_WEEKDAY"
+echo "STOCK_WEEKEND_MOVEMENT=ZERO_WITH_FRIDAY_CLOSE_CARRIED_FORWARD"
 echo "STOCK_HERO_DATE_PILL=EXACTLY_ONE_LEFT_SLOT"
 echo "STOCK_SECTION_DATE_PILL=WHITE_WITH_DARK_TEXT"
 echo "STOCK_SUMMARY_VERTICAL_OFFSET=25_PERCENT"
@@ -246,7 +248,7 @@ echo "STOCK_SECTION_NAVIGATION=UP_DOCUMENT_TOP_DOWN_DAILY_PRICES"
 echo "STOCK_CURRENT_PRICE=OWN_COLUMN"
 echo "STOCK_CURRENT_HISTORICAL_ROWS=FIVE_METRICS_CANONICAL"
 echo "RESPONSIVE_LAYOUT=AI_AND_STOCK_20_OF_20_RENDER_GATES"
-echo "MATERIALIZER_TESTS=15/15"
+echo "MATERIALIZER_TESTS=16/16"
 echo "HOST_ROOT_RUNTIME=SCHEMA_4_REAL_MAC_DIRECTORIES"
 echo "OLD_DOCKER_DEFAULTS=ABSENT"
 echo "STOCK_CSV_CONTRACT=UNCHANGED"

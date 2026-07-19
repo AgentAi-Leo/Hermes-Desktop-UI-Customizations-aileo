@@ -838,23 +838,32 @@ const PLAYER_CONTROLLER = `<script id="hermes-brief-player-controller">
     speakCurrent({ scroll: options.scroll === true });
   }
 
-  function playFounderTakeaways() {
-    if (!founderTakeaways || !synth) {
-      selectAndPlay(0);
-      return;
-    }
-    window.clearTimeout(volumeRestartTimer);
-    clearTakeawayQueue();
-    synth.cancel();
+  function selectFounderTakeaways(options = {}) {
+    if (!founderTakeaways) return false;
+    activeCardIndex = -1;
+    navigationStarted = false;
     cards.forEach((card) => {
       card.classList.remove("active");
       card.removeAttribute("aria-current");
       applyCardVisualState(card, false);
     });
-    activeCardIndex = -1;
     founderTakeaways.classList.add("hermes-playable-card", "active");
     founderTakeaways.setAttribute("aria-current", "true");
     applyCardVisualState(founderTakeaways, true);
+    if (options.scroll === true) founderTakeaways.scrollIntoView({ behavior: options.behavior || "smooth", block: "start" });
+    if (statusElement) statusElement.textContent = "Founder takeaways";
+    return true;
+  }
+
+  function playFounderTakeaways(options = {}) {
+    if (!founderTakeaways || !synth) {
+      selectAndPlay(0, options);
+      return;
+    }
+    window.clearTimeout(volumeRestartTimer);
+    clearTakeawayQueue();
+    synth.cancel();
+    selectFounderTakeaways(options);
 
     takeawayQueue = takeawaySpeechSegments(founderTakeaways);
     takeawayQueueIndex = 0;
@@ -908,15 +917,15 @@ const PLAYER_CONTROLLER = `<script id="hermes-brief-player-controller">
       togglePlayback();
       flash(playButton);
     } else if (command === "previous") {
-      if (!navigationStarted) selectAndPlay(index);
-      else selectAndPlay(index - 1);
+      if (!navigationStarted) selectAndPlay(0, { scroll: true });
+      else selectAndPlay(index - 1, { scroll: true });
       flash(previousButton);
     } else if (command === "next") {
-      if (!navigationStarted) selectAndPlay(index);
-      else selectAndPlay(index + 1);
+      if (!navigationStarted) selectAndPlay(0, { scroll: true });
+      else selectAndPlay(index + 1, { scroll: true });
       flash(nextButton);
     } else if (command === "first") {
-      playFounderTakeaways();
+      playFounderTakeaways({ scroll: true });
       flash(previousButton);
     }
   }
@@ -1046,7 +1055,7 @@ const PLAYER_CONTROLLER = `<script id="hermes-brief-player-controller">
 
     pinPlayer();
     index = 0;
-    mark({ behavior: "auto", scroll: false });
+    if (!selectFounderTakeaways()) mark({ behavior: "auto", scroll: false });
     updateControls();
     window.parent?.postMessage({ type: "hermes-brief-player-ready" }, "*");
   }
@@ -1703,6 +1712,23 @@ function formatArchiveDate(date: string): string {
   }
 }
 
+function formatStockArchiveDate(date: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return formatArchiveDate(date);
+  try {
+    const parsed = new Date(`${date}T00:00:00Z`);
+    const weekday = new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: "UTC" }).format(parsed).toUpperCase();
+    return `${weekday}. - ${formatArchiveDate(date)}`;
+  } catch {
+    return formatArchiveDate(date);
+  }
+}
+
+function isWeekendArchiveDate(date: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const day = new Date(`${date}T00:00:00Z`).getUTCDay();
+  return day === 0 || day === 6;
+}
+
 function stockArchiveDate(html: string): string {
   const isoDate = html.match(/\b(?:Los\s+Angeles\s+)?date\s*:\s*(\d{4}-\d{2}-\d{2})\b/i)?.[1]
     ?? html.match(/Stock Brief\s*(?:—|&mdash;|&#8212;|-)\s*(\d{4}-\d{2}-\d{2})/i)?.[1];
@@ -1853,7 +1879,8 @@ function canonicalAiDocument(html: string, selectedDate?: string): string {
 
 function canonicalStockDocument(html: string, selectedDate?: string): string {
   const escape = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  const date = formatArchiveDate(selectedDate || stockArchiveDate(html));
+  const archiveDate = selectedDate || stockArchiveDate(html);
+  const date = formatStockArchiveDate(archiveDate);
   const metadata = (html.match(/<p\b(?=[^>]*\bclass\s*=\s*["'][^"']*\bdate\b[^"']*["'])[^>]*>([\s\S]*?)<\/p\s*>/i)?.[1] ?? "")
     .replace(/<[^>]+>/g, " ").replace(/&nbsp;/gi, " ").replace(/\s+/g, " ").trim();
   const summary = stockPortfolioSummary(html);
@@ -1862,7 +1889,13 @@ function canonicalStockDocument(html: string, selectedDate?: string): string {
   const metadataStack = `<div class="hermes-stock-meta-stack">${pill}${metadata ? `<p class="date">${escape(metadata)}</p>` : ""}<div class="sub">Yahoo Finance snapshot generated at end-of-day after U.S. close · $USD</div></div>`;
   const header = `<header class="hero" data-hermes-date-normalized="true"><div class="hermes-stock-heading-row"><div class="hermes-stock-hero-left"><div class="hermes-stock-title-row"><h1>Stock Brief</h1>${fullscreenButton}</div>${metadataStack}</div><div class="hermes-stock-summary-stack">${summary}</div></div></header>`;
   const comparison = html.match(/<section\b(?=[^>]*\bid\s*=\s*["']hermes-portfolio-comparison["'])[^>]*>[\s\S]*?<\/section\s*>/i)?.[0] ?? "";
-  const rows = Array.from(html.matchAll(/<section\b(?=[^>]*\bclass\s*=\s*["'][^"']*\bhermes-stock-row\b[^"']*["'])[^>]*>[\s\S]*?<\/section\s*>/gi), (match) => match[0]).join("");
+  let rows = Array.from(html.matchAll(/<section\b(?=[^>]*\bclass\s*=\s*["'][^"']*\bhermes-stock-row\b[^"']*["'])[^>]*>[\s\S]*?<\/section\s*>/gi), (match) => match[0]).join("");
+  if (isWeekendArchiveDate(archiveDate)) {
+    rows = rows.replace(
+      /(<span\b[^>]*\bclass\s*=\s*["'][^"']*\bhermes-stock-change\b[^"']*["'][^>]*>)[\s\S]*?(<\/span\s*>)/gi,
+      "$1+$0.00 (+0.00%)$2",
+    );
+  }
   const quotes = rows ? `<main id="hermes-stock-canonical-quotes" class="grid" aria-label="Canonical tracked stock prices"><h2 id="hermes-stock-today-date-pill" class="hermes-stock-today-date-pill" aria-label="Daily stock prices for ${escape(date)}">${escape(date)}</h2>${rows}</main>` : "";
   return `<!doctype html><html lang="en" data-hermes-canonical-stock="v26"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Stock Brief</title>${V25_STOCK_BASE_STYLE}</head><body id="hermes-stock-canonical">${header}${comparison}${quotes}</body></html>`;
 }

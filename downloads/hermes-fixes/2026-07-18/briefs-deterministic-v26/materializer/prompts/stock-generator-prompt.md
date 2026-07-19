@@ -2,6 +2,8 @@
 
 After the U.S. market close, retrieve the canonical Yahoo Finance regular-market snapshot for these tickers in this exact order: `AAPL`, `AMZN`, `NVDA`, `SNAP`, `GOOGL`, `MSFT`, `DIS`.
 
+For Saturdays, Sundays, and U.S. market holidays, carry forward the latest verified regular-market session price, day range, 52-week range, and volume. Set `daily_change` to `+$0.00` and `daily_change_percent` to `+0.00%` so the publication date never implies trading activity on a closed-market day. Never fabricate a weekend or holiday quote.
+
 Return quote data only. Never produce HTML, Markdown, CSS, JavaScript, layout, controls, CSV, purchase lots, portfolio calculations, SUMMARY values, or template instructions. The deterministic renderer owns all presentation, portfolio calculations, and exports.
 
 Use the current date and timestamps in `America/Los_Angeles`. Do not guess prices or sources. If any required quote field cannot be verified, fail explicitly instead of fabricating or emitting a partial payload.

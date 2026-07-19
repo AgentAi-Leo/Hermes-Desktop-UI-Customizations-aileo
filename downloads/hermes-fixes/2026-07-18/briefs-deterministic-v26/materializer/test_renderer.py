@@ -79,6 +79,20 @@ class RendererContractTests(unittest.TestCase):
         self.assertEqual(rendered.csv, expected)
         self.assertEqual(rendered.csv.encode(), expected.encode())
 
+    def test_weekend_stock_presentation_zeroes_movement_but_keeps_frozen_csv(self):
+        saturday = fixture("stock-valid.json")
+        weekend = render_stock(saturday)
+        self.assertEqual(weekend.html.count("+$0.00 (+0.00%)"), 7)
+        self.assertEqual(weekend.markdown.count("+$0.00 (+0.00%)"), 7)
+        self.assertIn("AAPL,$333.26,+$5.76,+1.76%", weekend.csv)
+
+        friday = copy.deepcopy(saturday)
+        friday["date"] = "2026-07-17"
+        friday["generated_at"] = "2026-07-17T16:30:00-07:00"
+        trading_day = render_stock(friday)
+        self.assertIn("+$5.76 (+1.76%)", trading_day.html)
+        self.assertNotIn("+$0.00 (+0.00%)", trading_day.html)
+
     def test_stock_rejects_reordering_missing_tickers_format_and_unknowns(self):
         payload = fixture("stock-valid.json")
         payload["quotes"][0], payload["quotes"][1] = payload["quotes"][1], payload["quotes"][0]

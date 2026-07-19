@@ -233,11 +233,19 @@ def render_ai(payload: object) -> RenderedBrief:
 def render_stock(payload: object) -> RenderedBrief:
     data = validate_stock(payload)
     human = _human_date(data["date"])
+    is_non_trading_day = date.fromisoformat(data["date"]).weekday() >= 5
+    display_quotes = [
+        {
+            **quote,
+            **({"daily_change": "+$0.00", "daily_change_percent": "+0.00%"} if is_non_trading_day else {}),
+        }
+        for quote in data["quotes"]
+    ]
     rows, total_basis, total_value, total_gain, total_return = _portfolio(data)
     total_class = "positive" if total_gain >= 0 else "negative"
     portfolio_rows = "".join(f'<tr><td><strong>{_esc(row["label"])} · {_esc(row["ticker"])}</strong><br><small>{_esc(row["purchased"])}</small></td><td>{row["shares"]:,}</td><td>{_money(row["purchase_price"])}</td><td>{_money(row["current_price"])}</td><td class="{"positive" if row["current_price"]-row["purchase_price"] >= 0 else "negative"}">{_signed_money(row["current_price"]-row["purchase_price"])}</td><td>{_money(row["basis"])}</td><td>{_money(row["value"])}</td><td class="{"positive" if row["gain"] >= 0 else "negative"}">{_signed_money(row["gain"])}</td><td class="{"positive" if row["gain"] >= 0 else "negative"}">{_signed_percent(row["return"])}</td></tr>' for row in rows)
     quote_rows = []
-    for quote in data["quotes"]:
+    for quote in display_quotes:
         change_class = "positive" if quote["daily_change"].startswith("+") else "negative"
         metrics = [("Day High", quote["day_high"]), ("Day Low", quote["day_low"]), ("52-week High", quote["fifty_two_week_high"]), ("52-week Low", quote["fifty_two_week_low"]), ("Volume", quote["volume"])]
         metric_html = "".join(
@@ -251,7 +259,7 @@ def render_stock(payload: object) -> RenderedBrief:
     for row in rows:
         lines.append(f'| {row["label"]} · {row["ticker"]}<br>{row["purchased"]} | {row["shares"]:,} | {_money(row["purchase_price"])} | {_money(row["current_price"])} | {_signed_money(row["current_price"]-row["purchase_price"])} | {_money(row["basis"])} | {_money(row["value"])} | {_signed_money(row["gain"])} | {_signed_percent(row["return"])} |')
     lines += [f'| **Available-position total** ||||| **{_money(total_basis)}** | **{_money(total_value)}** | **{_signed_money(total_gain)}** | **{_signed_percent(total_return)}** |', ""]
-    for quote in data["quotes"]:
+    for quote in display_quotes:
         lines += [f'## {quote["ticker"]}', f'### {quote["company"].upper()}', "", f'Date · {human}', f'Performance · {"▲" if quote["daily_change"].startswith("+") else "▼"} {quote["daily_change"]} ({quote["daily_change_percent"]})', f'Price · {quote["current_price"]}', f'Day High · {quote["day_high"]} · Day Low · {quote["day_low"]} · 52-week High · {quote["fifty_two_week_high"]} · 52-week Low · {quote["fifty_two_week_low"]} · Volume · {quote["volume"]}', f'Source · [{quote["source_label"]}]({quote["source_url"]})', ""]
     csv_buffer = io.StringIO(newline="")
     writer = csv.writer(csv_buffer, lineterminator="\n")
