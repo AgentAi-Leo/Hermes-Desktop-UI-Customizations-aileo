@@ -78,6 +78,14 @@ with tempfile.TemporaryDirectory() as temporary:
     assert state["active"][0]["restored_at"]
     expect_http(404, module.restore_watch_url, {"id": "owner/repo/issues/42"})
 
+    deleted = module.delete_watch_url({"id": "owner/repo/issues/42"})
+    assert deleted["refresh"]["ok"] is True
+    assert deleted["deleted"]["id"] == "owner/repo/issues/42"
+    state = module._watchlist()
+    assert state["active"] == []
+    assert state["archived"] == []
+    expect_http(404, module.delete_watch_url, {"id": "owner/repo/issues/42"})
+
     leftovers = [path.name for path in root.iterdir() if path.name.startswith(".watchlist-")]
     assert leftovers == [], leftovers
 

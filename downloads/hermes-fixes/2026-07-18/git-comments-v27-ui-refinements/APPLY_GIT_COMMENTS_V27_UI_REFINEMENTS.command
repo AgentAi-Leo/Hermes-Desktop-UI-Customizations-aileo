@@ -9,10 +9,13 @@ PY="${HERMES_PYTHON:-$HOME/.hermes/hermes-agent/venv/bin/python}"
 LOG="$HOME/.hermes/logs/git-comments-v27-ui-refinements-${PORT}.log"
 SOURCE="$PACKAGE_DIR/git-comments-v27-review-index.js"
 CHECKER_SOURCE="$PACKAGE_DIR/github-comments-checker-v27-review.sh"
+API_SOURCE="$PACKAGE_DIR/plugin_api.py"
 LAUNCH_ROOT="$HOME/.hermes/plugins/git-comments-v27-review/dashboard"
 PROFILE_ROOT="$HOME/.hermes/profiles/$PROFILE/plugins/git-comments-v27-review/dashboard"
 LAUNCH_DEST="$LAUNCH_ROOT/dist/index.js"
 PROFILE_DEST="$PROFILE_ROOT/dist/index.js"
+LAUNCH_API="$LAUNCH_ROOT/plugin_api.py"
+PROFILE_API="$PROFILE_ROOT/plugin_api.py"
 LAUNCH_DATA="$LAUNCH_ROOT/data"
 PROFILE_DATA="$PROFILE_ROOT/data"
 LAUNCH_CHECKER="$HOME/.hermes/scripts/github-comments-checker-v27-review.sh"
@@ -64,6 +67,8 @@ restore() {
   if [[ "$TOUCHED" == "1" ]]; then
     cp "$BACKUP/launch-index.js" "$LAUNCH_DEST"
     cp "$BACKUP/profile-index.js" "$PROFILE_DEST"
+    cp "$BACKUP/launch-plugin-api.py" "$LAUNCH_API"
+    cp "$BACKUP/profile-plugin-api.py" "$PROFILE_API"
     cp "$BACKUP/profile-checker.sh" "$PROFILE_CHECKER"
     if [[ "$GLOBAL_CHECKER_EXISTED" == "1" ]]; then cp "$BACKUP/launch-checker.sh" "$LAUNCH_CHECKER"; else rm -f "$LAUNCH_CHECKER"; fi
     rm -rf "$PROFILE_DATA"
@@ -78,7 +83,7 @@ restore() {
 }
 trap 'r=$?; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
 
-for required in "$PY" "$SOURCE" "$CHECKER_SOURCE" "$PACKAGE_DIR/CHECKSUMS.sha256" "$LAUNCH_DEST" "$PROFILE_DEST" "$PROFILE_CHECKER" "$LAUNCH_DATA" "$PROFILE_DATA" "$PREVIEW/hermes_cli/web_dist/index.html"; do
+for required in "$PY" "$SOURCE" "$CHECKER_SOURCE" "$API_SOURCE" "$PACKAGE_DIR/CHECKSUMS.sha256" "$LAUNCH_DEST" "$PROFILE_DEST" "$LAUNCH_API" "$PROFILE_API" "$PROFILE_CHECKER" "$LAUNCH_DATA" "$PROFILE_DATA" "$PREVIEW/hermes_cli/web_dist/index.html"; do
   [[ -e "$required" ]] || { echo "Missing required path: $required" >&2; exit 1; }
 done
 [[ -x "$PY" ]] || { echo "Hermes Python is not executable: $PY" >&2; exit 1; }
@@ -90,6 +95,8 @@ PROD_PROFILE_BEFORE="$(file_hash_or_missing "$PROD_PROFILE")"
 mkdir -p "$BACKUP" "$(dirname "$LAUNCH_CHECKER")"
 cp "$LAUNCH_DEST" "$BACKUP/launch-index.js"
 cp "$PROFILE_DEST" "$BACKUP/profile-index.js"
+cp "$LAUNCH_API" "$BACKUP/launch-plugin-api.py"
+cp "$PROFILE_API" "$BACKUP/profile-plugin-api.py"
 cp "$PROFILE_CHECKER" "$BACKUP/profile-checker.sh"
 if [[ -f "$LAUNCH_CHECKER" ]]; then GLOBAL_CHECKER_EXISTED=1; cp "$LAUNCH_CHECKER" "$BACKUP/launch-checker.sh"; fi
 cp -R "$PROFILE_DATA" "$BACKUP/profile-data"
@@ -98,6 +105,12 @@ cp -RL "$LAUNCH_DATA" "$BACKUP/launch-data"
 for destination in "$LAUNCH_DEST" "$PROFILE_DEST"; do
   temporary="$destination.tmp.$$"
   cp "$SOURCE" "$temporary"
+  chmod 0644 "$temporary"
+  mv -f "$temporary" "$destination"
+done
+for destination in "$LAUNCH_API" "$PROFILE_API"; do
+  temporary="$destination.tmp.$$"
+  cp "$API_SOURCE" "$temporary"
   chmod 0644 "$temporary"
   mv -f "$temporary" "$destination"
 done
@@ -137,16 +150,17 @@ checked_at = datetime.fromisoformat(str(health.get("checked_at") or "").replace(
 assert datetime.now(timezone.utc) - checked_at <= timedelta(hours=6), health
 issues = snapshot.get("issues") or []
 assert issues, "no watched issues returned"
-allowed = {"opened", "closed", "reopened"}
+allowed = {"opened", "closed", "reopened", "labeled", "unlabeled"}
 assert all({event.get("event") for event in issue.get("status_events", [])} <= allowed for issue in issues)
 assert all(any(event.get("event") == "opened" for event in issue.get("status_events", [])) for issue in issues)
+assert any(event.get("event") in {"labeled", "unlabeled"} and (event.get("label") or {}).get("name") for issue in issues for event in issue.get("status_events", []))
 print("V27_PROFILE_HEALTH_AND_LIFECYCLE=PASS")
 PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=273" -o "$LIVE_BUNDLE"
-"$PY" - "$LIVE_BUNDLE" <<'PY'
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=274" -o "$LIVE_BUNDLE"
+"$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
 source = Path(sys.argv[1]).read_text(encoding="utf-8")
@@ -156,13 +170,20 @@ required = [
     '.git-comments-number-link{font-size:20px',
     'health.status === "healthy"',
     '"WATCHER HEALTHY" : "BROKEN"',
-    'new Set(["opened", "closed", "reopened"])',
+    'new Set(["opened", "closed", "reopened", "labeled", "unlabeled"])',
     'aria-label": "Important GitHub status timeline"',
+    'className: "git-comments-issue-meta"',
+    'className: "git-comments-event-label"',
+    'className: "git-comments-button delete"',
+    'mutate("/watchlist/delete", { id })',
 ]
 for marker in required:
     assert marker in source, marker
-for forbidden in ['View on GitHub', '✓ ARCHIVE', 'labelColor', 'item.label']:
+for forbidden in ['View on GitHub', '✓ ARCHIVE']:
     assert forbidden not in source, forbidden
+for path in map(Path, sys.argv[2:4]):
+    api = path.read_text(encoding="utf-8")
+    assert '@router.post("/watchlist/delete")' in api, path
 print("V27_UI_REFINEMENTS_LIVE_BUNDLE=PASS")
 PY
 rm -f "$LIVE_BUNDLE"
@@ -175,4 +196,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=273"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=274"

@@ -124,7 +124,7 @@ try:
         }]
         for item in timeline:
             event = item.get("event")
-            if event not in {"closed", "reopened"}:
+            if event not in {"closed", "reopened", "labeled", "unlabeled"}:
                 continue
             status_events.append({
                 "id": item.get("id") or item.get("node_id") or f"{event}-{item.get('created_at')}",
@@ -132,6 +132,10 @@ try:
                 "created_at": item.get("created_at"),
                 "actor": actor(item.get("actor")),
                 "state_reason": issue.get("state_reason") if event == "closed" else None,
+                "label": {
+                    "name": (item.get("label") or {}).get("name") or "",
+                    "color": (item.get("label") or {}).get("color") or "",
+                } if event in {"labeled", "unlabeled"} else None,
             })
         issues.append({
             "watch_id": watch_id,
