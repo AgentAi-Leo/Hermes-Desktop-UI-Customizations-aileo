@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 14
+# Git Comments V27 UI Refinements — Revision 15
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -14,6 +14,8 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Hydrates every newly added issue or pull request with its GitHub title, description, current open/closed state, author, created and updated timestamps, and current labels.
 - Links the displayed issue title to the canonical GitHub issue or pull request and keeps comments plus lifecycle/tag history below the issue context.
 - Removes the duplicated current-label row above comments; keeps only the current `OPEN`/`CLOSED` pill there while label/tag events remain at the bottom of the card.
+- Moves the linked `COMMENTS (n)` pill onto the repository line immediately after `WATCHING`, removing its former separate row.
+- Colors `WATCHING` green for open items and purple for closed items to match the corresponding state pill.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.

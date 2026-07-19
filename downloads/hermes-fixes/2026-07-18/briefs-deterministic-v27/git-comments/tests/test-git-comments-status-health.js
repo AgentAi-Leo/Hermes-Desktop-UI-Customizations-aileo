@@ -80,6 +80,7 @@ fixture = {
     repo: "NousResearch/hermes-agent",
     number: 58510,
     html_url: "https://github.com/NousResearch/hermes-agent/issues/58510",
+    state: "closed",
     comments: [{ id: 1, body: "Maintainer response", created_at: "2026-07-18T20:00:00Z", html_url: "https://github.com/NousResearch/hermes-agent/issues/58510#issuecomment-1", author_association: "CONTRIBUTOR", author: { login: "teknium1", avatar_url: "avatar" } }],
     status_events: [
       { id: 2, event: "closed", state_reason: "not_planned", created_at: "2026-07-18T21:00:00Z", actor: { login: "teknium1", avatar_url: "avatar" } },
@@ -97,6 +98,12 @@ assert(rendered.includes("OPEN"), "current issue state missing from watched card
 assert(rendered.includes("Opened by teknium1"), "issue author metadata missing from watched card");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-current-labels").length === 0, "duplicated current-label row must not render above comments");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-current-label").length === 0, "duplicated current-label pills must not render above comments");
+const repoLines = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-repo-line");
+assert(repoLines.length === 2 && repoLines.every((line) => nodes(line, (node) => String(node.props?.className || "") === "git-comments-comment-label").length === 1), "comment pill must render directly in each repository line after WATCHING");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-meta").length === 0, "old separate comment-pill row must be removed");
+const watchStates = nodes(tree, (node) => String(node.props?.className || "").startsWith("git-comments-watch-state ")).map((node) => node.props.className);
+assert(watchStates.includes("git-comments-watch-state open"), "open WATCHING text must use the open state class");
+assert(watchStates.includes("git-comments-watch-state closed"), "closed WATCHING text must use the closed state class");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-title" && node.props?.href === "https://github.com/NousResearch/hermes-agent/issues/58130").length === 1, "issue title must link to its canonical GitHub URL");
 for (const payloadMarker of ['"body": issue.get("body") or ""', '"author": actor(issue.get("user"))', '"created_at": issue.get("created_at")', '"updated_at": issue.get("updated_at")', '"labels": normalized_labels']) assert(checker.includes(payloadMarker), `checker missing issue context payload: ${payloadMarker}`);
 assert(!rendered.includes("COMMENTS RECEIVED"), "received text must be removed from the comment pill");
@@ -118,7 +125,7 @@ assert(nodes(tree, (node) => String(node.props?.className || "") === "git-commen
 const issueHeads = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-head");
 assert(issueHeads.every((head) => nodes(head, (node) => String(node.props?.className || "") === "git-comments-repo-line").some((line) => text(line).includes("NousResearch/hermes-agent") && text(line).includes("WATCHING"))), "WATCHING must render inline to the right of every repository name");
 const commentedIdentity = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-identity" && text(node).includes("#58510"))[0];
-assert(nodes(commentedIdentity, (node) => String(node.props?.className || "") === "git-comments-issue-meta" && text(node).includes("COMMENTS (1)") && !text(node).includes("RECEIVED")).length === 1, "comment pill must omit received text");
+assert(nodes(commentedIdentity, (node) => String(node.props?.className || "") === "git-comments-repo-line" && text(node).includes("WATCHING") && text(node).includes("COMMENTS (1)") && !text(node).includes("RECEIVED")).length === 1, "comment pill must follow WATCHING and omit received text");
 assert(source.includes('.git-comments-comment-label{display:inline-flex;align-items:center;padding:6.25px 12.5px;') && source.includes('font-size:15px;font-weight:850'), "comment pill must be exactly 25% larger in font and padding");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-event-label" && text(node).includes("sweeper:cannot-reproduce")).length === 1, "label event must render as a tag pill");
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-button delete") && text(node).includes("DELETE")).length === 2, "every active watched item must have a red DELETE action");
@@ -152,7 +159,9 @@ assert(archivedTitle && archivedTitle.props?.style?.color === "#22d3ee", "bottom
 const healthTitle = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-health-title")[0];
 assert(healthTitle.children[0].props?.style?.fontSize === "22.5px", "WATCHER HEALTHY must be 25% larger than 18px");
 assert(String(healthTitle.children[1].props?.className || "").includes("git-comments-health-dot healthy"), "healthy green indicator must render immediately right of its title");
-assert(source.includes('.git-comments-watch-state{font-size:18.75px;line-height:1.1;color:#4ade80;font-weight:800'), "WATCHING must be 25% larger, bold, and green");
+assert(source.includes('.git-comments-watch-state{font-size:18.75px;line-height:1.1;font-weight:800'), "WATCHING must remain 25% larger and bold");
+assert(source.includes('.git-comments-watch-state.open{color:#4ade80}'), "open WATCHING must be green");
+assert(source.includes('.git-comments-watch-state.closed{color:#a78bfa}'), "closed WATCHING must be purple");
 assert(source.includes('.git-comments-number-link{font-size:25px'), "issue number must be 25% larger than 20px");
 assert(source.includes('health.status === "healthy"'), "green health requires an explicit healthy execution status");
 const issue58510 = nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-issue") && text(node).includes("#58510"))[0];

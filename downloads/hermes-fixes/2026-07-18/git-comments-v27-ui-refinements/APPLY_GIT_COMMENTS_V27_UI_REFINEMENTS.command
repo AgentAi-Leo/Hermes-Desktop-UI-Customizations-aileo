@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=284" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=285" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -172,7 +172,9 @@ required = [
     '.git-comments-repo-line{display:flex',
     '.git-comments-repo-primary{font-size:20.8px;color:#fff;font-weight:900}',
     '.git-comments-number-link{font-size:25px',
-    '.git-comments-watch-state{font-size:18.75px;line-height:1.1;color:#4ade80;font-weight:800',
+    '.git-comments-watch-state{font-size:18.75px;line-height:1.1;font-weight:800',
+    '.git-comments-watch-state.open{color:#4ade80}',
+    '.git-comments-watch-state.closed{color:#a78bfa}',
     'COMMENTS (${received.length})',
     '.git-comments-comment-label{display:inline-flex;align-items:center;padding:6.25px 12.5px;',
     'font-size:15px;font-weight:850',
@@ -209,7 +211,7 @@ required = [
     '"WATCHER HEALTHY" : "BROKEN"',
     'new Set(["opened", "closed", "reopened", "labeled", "unlabeled"])',
     'aria-label": "Important GitHub status timeline"',
-    'className: "git-comments-issue-meta"',
+    'className: `git-comments-watch-state ${String(issue.state || "").toLowerCase()}`',
     'className: "git-comments-event-label"',
     'className: "git-comments-button delete"',
     'mutate("/watchlist/delete", { id })',
@@ -223,6 +225,12 @@ assert '`${received.length} received`' not in source, "redundant received count 
 assert 'COMMENTS RECEIVED' not in source, "received text remains in comment pill"
 assert 'className: "git-comments-current-labels"' not in source, "duplicated current-label row remains"
 assert 'className: "git-comments-current-label"' not in source, "duplicated current-label pills remain"
+assert 'className: "git-comments-issue-meta"' not in source, "old separate comments row remains"
+repo_line = source.index('className: "git-comments-repo-line"')
+watch_state = source.index('className: `git-comments-watch-state ${String(issue.state || "").toLowerCase()}`', repo_line)
+comment_pill = source.index('className: "git-comments-comment-label"', watch_state)
+issue_title = source.index('className: "git-comments-issue-title"', comment_pill)
+assert repo_line < watch_state < comment_pill < issue_title, "comments pill must follow WATCHING in the repository line"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 watched_start = source.index('e("section", { className: "git-comments-panel" }', health_start)
 add_button = source.index('className: "git-comments-button add-toggle"')
@@ -242,4 +250,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=284"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=285"
