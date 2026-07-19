@@ -192,24 +192,26 @@ header .date, header .sub { color: #67e8f9 !important; }
 @media (max-width: 940px) { .hermes-stock-row { grid-template-columns: minmax(230px, 1fr) repeat(3, minmax(100px, 1fr)) !important; } .hermes-stock-row .stats > *:nth-child(1) { grid-column: 2 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(2) { grid-column: 3 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(3) { grid-column: 4 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(4) { grid-column: 2 !important; grid-row: 2 !important; } .hermes-stock-row .stats > *:nth-child(5) { grid-column: 3 !important; grid-row: 2 !important; } }
 @media (max-width: 680px) { .hermes-stock-row { grid-template-columns: 1fr 1fr !important; } .hermes-stock-row h2 { grid-column: 1 / -1 !important; grid-row: auto !important; } .hermes-stock-row .stats > * { grid-column: auto !important; grid-row: auto !important; } }
 /* Stock archives are rewritten to a stable, canonical row markup rather than restyled opportunistically. */
-.hermes-stock-today-date-pill { display: inline-flex !important; width: max-content !important; max-width: 100% !important; align-items: center !important; margin: 12px 0 18px !important; padding: 10px 22px !important; border-radius: 999px !important; background: #ffffff !important; color: #0b1020 !important; font-family: inherit !important; font-size: clamp(22px, 2.6vw, 34px) !important; font-weight: 850 !important; line-height: 1.1 !important; letter-spacing: .02em !important; white-space: nowrap !important; }
-main.grid { display: flex !important; flex-direction: column !important; gap: 12px !important; }
-.hermes-stock-row { grid-column: 1 / -1 !important; width: 100% !important; max-width: none !important; min-width: 0 !important; box-sizing: border-box !important; display: grid !important; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr) !important; gap: 16px !important; align-items: center !important; margin: 0 !important; padding: 20px 24px !important; border: 1px solid var(--line, #334155) !important; border-radius: 16px !important; background: var(--panel, #111827) !important; box-shadow: none !important; }
+.hermes-stock-today-date-pill { display: inline-flex !important; width: max-content !important; max-width: 100% !important; align-items: center !important; margin: 6.6px 0 9.9px !important; padding: 5.5px 12.1px !important; border-radius: 999px !important; background: #ffffff !important; color: #0b1020 !important; font-family: inherit !important; font-size: clamp(12.1px, 1.43vw, 18.7px) !important; font-weight: 850 !important; line-height: 1.1 !important; letter-spacing: .02em !important; white-space: nowrap !important; }
+main.grid { display: flex !important; flex-direction: column !important; gap: 8px !important; }
+.hermes-stock-row { grid-column: 1 / -1 !important; width: 100% !important; max-width: none !important; min-width: 0 !important; box-sizing: border-box !important; display: grid !important; grid-template-columns: minmax(220px, 280px) minmax(150px, 190px) minmax(0, 1fr) !important; gap: 14px !important; align-items: center !important; margin: 0 !important; padding: 10px 20px !important; border: 1px solid var(--line, #334155) !important; border-radius: 16px !important; background: var(--panel, #111827) !important; box-shadow: none !important; }
 .hermes-stock-identity { grid-column: 1 !important; display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; justify-content: center !important; }
 .hermes-stock-title { display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; gap: 5px !important; }
 .hermes-stock-ticker { color: #ffe08a !important; font-size: 1.55rem !important; font-weight: 850 !important; letter-spacing: .02em !important; }
 .hermes-stock-company { min-width: 0 !important; color: var(--text, #f4f7fb) !important; font-size: 1.35rem !important; font-weight: 750 !important; line-height: 1.2 !important; letter-spacing: .025em !important; text-transform: uppercase !important; overflow-wrap: anywhere !important; }
 .hermes-stock-change { display: block !important; margin-top: 12px !important; font-size: 1.22rem !important; font-weight: 800 !important; line-height: 1.2 !important; white-space: nowrap !important; }
-.hermes-stock-price { display: block !important; margin-top: 8px !important; color: #ffe08a !important; font-size: 2.3rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums !important; }
-.hermes-stock-metrics { grid-column: 2 !important; display: grid !important; min-width: 0 !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 12px !important; align-items: center !important; margin: 0 !important; }
+.hermes-stock-current-price { grid-column: 2 !important; display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; justify-content: center !important; }
+.hermes-stock-current-label { color: var(--muted, #aab8ca) !important; font-size: clamp(.82rem, 1vw, 1.15rem) !important; font-weight: 700 !important; letter-spacing: .055em !important; line-height: 1.2 !important; }
+.hermes-stock-price { display: block !important; margin-top: 7px !important; color: #ffe08a !important; font-size: 2.3rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums !important; }
+.hermes-stock-metrics { grid-column: 3 !important; display: grid !important; min-width: 0 !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 12px !important; align-items: center !important; margin: 0 !important; }
 .hermes-stock-metrics > div { min-width: 0 !important; }
 .hermes-stock-metrics dt { max-width: 100% !important; color: var(--muted, #aab8ca) !important; font-size: clamp(.82rem, 1vw, 1.15rem) !important; font-weight: 700 !important; letter-spacing: .055em !important; line-height: 1.2 !important; text-transform: uppercase !important; overflow-wrap: anywhere !important; }
 .hermes-stock-metrics dd { max-width: 100% !important; margin: 7px 0 0 !important; color: var(--text, #f4f7fb) !important; font-size: clamp(1.05rem, 1.55vw, 1.9rem) !important; font-weight: 800 !important; line-height: 1.15 !important; font-variant-numeric: tabular-nums !important; white-space: nowrap !important; }
 .hermes-stock-row time, .hermes-stock-row [class*="timestamp"], .hermes-stock-row [class*="as-of"] { display: none !important; }
 @media (max-width: 1200px) { .hermes-stock-company { font-size: 1.05rem !important; } .hermes-stock-metrics { gap: 8px !important; } }
-@media (max-width: 900px) { .hermes-stock-today-date-pill { font-size: 26px !important; } }
-@media (max-width: 1100px) { .hermes-stock-row { grid-template-columns: 1fr !important; gap: 14px 12px !important; } .hermes-stock-identity { grid-column: 1 !important; } .hermes-stock-metrics { grid-column: 1 !important; grid-row: 2 !important; width: 100% !important; } }
-@media (max-width: 760px) { .hermes-stock-row { grid-template-columns: 1fr !important; gap: 18px !important; } .hermes-stock-identity, .hermes-stock-metrics { grid-column: 1 !important; } .hermes-stock-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px 22px !important; } }
+@media (max-width: 900px) { .hermes-stock-today-date-pill { font-size: 14.3px !important; } }
+@media (max-width: 1100px) { .hermes-stock-row { grid-template-columns: minmax(0, 1fr) minmax(150px, 190px) !important; gap: 10px 16px !important; } .hermes-stock-identity { grid-column: 1 !important; } .hermes-stock-current-price { grid-column: 2 !important; } .hermes-stock-metrics { grid-column: 1 / -1 !important; grid-row: 2 !important; width: 100% !important; } }
+@media (max-width: 760px) { .hermes-stock-row { grid-template-columns: 1fr !important; gap: 12px !important; padding: 14px !important; } .hermes-stock-identity, .hermes-stock-current-price, .hermes-stock-metrics { grid-column: 1 !important; } .hermes-stock-current-price { grid-row: 2 !important; } .hermes-stock-metrics { grid-row: 3 !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px 22px !important; } }
 </style>`;
 
 const AI_RESTORED_STYLE = `<style id="hermes-ai-restored-style">
@@ -294,7 +296,7 @@ body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { margin:
 .hermes-stock-title-row { display: flex !important; min-width: 0 !important; align-items: center !important; flex-wrap: wrap !important; gap: 16px !important; margin: 0 0 10px !important; }
 .hermes-stock-title-row h1 { margin: 0 !important; }
 .hermes-stock-hero-left { display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; }
-.hermes-stock-meta-stack { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; margin-top: 28px !important; }
+.hermes-stock-meta-stack { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; margin-top: 8.4px !important; }
 .hermes-stock-meta-stack > #hermes-stock-date-pill, .hermes-stock-meta-stack > .date, .hermes-stock-meta-stack > .sub { margin: 0 !important; }
 .hermes-stock-meta-stack > .sub { line-height: 1.4 !important; }
 .hermes-stock-heading-row { display: flex !important; min-width: 0 !important; align-items: flex-start !important; justify-content: space-between !important; gap: clamp(18px, 3vw, 48px) !important; }
@@ -321,7 +323,7 @@ body > header .date, body > main > header .date, .wrap > header .date, .hero .da
   body > main { padding: 14px !important; }
   body > header, body > main > header, .wrap > header, .hero { padding: 18px !important; border-radius: 16px !important; }
   .hermes-stock-title-row { gap: 10px !important; }
-  .hermes-stock-meta-stack { gap: 10px !important; margin-top: 18px !important; }
+  .hermes-stock-meta-stack { gap: 10px !important; margin-top: 5.4px !important; }
   #hermes-stock-fullscreen-button { width: 40px !important; height: 40px !important; flex-basis: 40px !important; }
   html body .hero .pill, html body header .pill { padding: 8px 16px !important; font-size: 18px !important; }
 }
@@ -330,7 +332,7 @@ body > header .date, body > main > header .date, .wrap > header .date, .hero .da
   body > header, body > main > header, .wrap > header, .hero { margin-bottom: 16px !important; padding: 20px 24px !important; }
   .hermes-stock-heading-row { align-items: center !important; }
   .hermes-stock-summary-stack { gap: 8px !important; }
-  .hermes-stock-meta-stack { gap: 10px !important; margin-top: 18px !important; }
+  .hermes-stock-meta-stack { gap: 10px !important; margin-top: 5.4px !important; }
   html body .hero .pill, html body header .pill { padding: 8px 18px !important; font-size: 18px !important; }
   body > header .date, body > main > header .date, .wrap > header .date, .hero .date { font-size: 21px !important; }
 }
@@ -597,6 +599,13 @@ const PLAYER_CONTROLLER = `<script id="hermes-brief-player-controller">
     fullscreenButton = document.getElementById("hermes-ai-fullscreen-button");
     cards = playableCards();
     return Boolean(root && previousButton && playButton && nextButton && volumeInput && cards.length);
+  }
+
+  function focusPlayerRoot() {
+    if (!root) return;
+    root.setAttribute("tabindex", "-1");
+    root.dataset.hermesAiFocusRestore = "v26-ai-player-focus-restore";
+    root.focus({ preventScroll: true });
   }
 
   function normalizedIndex(value) {
@@ -1011,6 +1020,7 @@ const PLAYER_CONTROLLER = `<script id="hermes-brief-player-controller">
       if (textEditingTarget(event.target) && !isVolumeControl(event.target)) return;
       event.preventDefault();
       event.stopImmediatePropagation();
+      focusPlayerRoot();
       runCommand(command);
     }, true);
 
@@ -1029,6 +1039,7 @@ const PLAYER_CONTROLLER = `<script id="hermes-brief-player-controller">
         return;
       }
       if (event.data?.type !== MESSAGE_TYPE) return;
+      focusPlayerRoot();
       runCommand(event.data.command);
     });
     window.addEventListener("beforeunload", () => stopSpeech({ clearHighlight: true }));
@@ -1542,7 +1553,7 @@ function normalizeStockQuoteRows(html: string, _selectedDate?: string): string {
       .join("");
 
     const priceClass = changeClass ? ` ${changeClass}` : "";
-    return `<section class="hermes-stock-row" data-ticker="${ticker}"><div class="hermes-stock-identity"><div class="hermes-stock-title"><span class="hermes-stock-ticker">${ticker}</span>${company ? `<span class="hermes-stock-company">${escape(company)}</span>` : ""}</div>${dailyChange ? `<span class="hermes-stock-change ${changeClass}">${escape(dailyChange)}</span>` : ""}<strong class="hermes-stock-price${priceClass}">${escape(price)}</strong></div><dl class="hermes-stock-metrics">${metrics}</dl></section>`;
+    return `<section class="hermes-stock-row" data-ticker="${ticker}"><div class="hermes-stock-identity"><div class="hermes-stock-title"><span class="hermes-stock-ticker">${ticker}</span>${company ? `<span class="hermes-stock-company">${escape(company)}</span>` : ""}</div>${dailyChange ? `<span class="hermes-stock-change ${changeClass}">${escape(dailyChange)}</span>` : ""}</div><div class="hermes-stock-current-price${priceClass}"><span class="hermes-stock-current-label">CURRENT PRICE</span><strong class="hermes-stock-price${priceClass}">${escape(price)}</strong></div><dl class="hermes-stock-metrics">${metrics}</dl></section>`;
   });
   return normalizedHtml;
 }

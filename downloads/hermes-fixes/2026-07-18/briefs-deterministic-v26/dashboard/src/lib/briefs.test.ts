@@ -368,7 +368,7 @@ describe("brief helpers", () => {
         <article class="card"><h2>2. Topic two</h2><p>Summary two.</p></article>
       </section>
     </main></body></html>`, "ai");
-    const dom = new JSDOM(aiPreview, { runScripts: "outside-only" });
+    const dom = new JSDOM(aiPreview, { runScripts: "outside-only", url: "http://localhost" });
     let scrollCalls = 0;
     let spoken = 0;
     Object.defineProperty(dom.window, "speechSynthesis", {
@@ -409,6 +409,15 @@ describe("brief helpers", () => {
     next?.click();
     expect(dom.window.document.activeElement).toBe(next);
     expect(spoken).toBe(2);
+    expect(scrollCalls).toBe(0);
+
+    next?.blur();
+    const right = new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true });
+    dom.window.document.body.dispatchEvent(right);
+    expect(right.defaultPrevented).toBe(true);
+    expect(dom.window.document.activeElement).toBe(dom.window.document.getElementById("hermes-brief-player"));
+    expect(dom.window.document.getElementById("hermes-brief-player")?.dataset.hermesAiFocusRestore).toBe("v26-ai-player-focus-restore");
+    expect(spoken).toBe(3);
     expect(scrollCalls).toBe(0);
   });
 
@@ -588,15 +597,15 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     expect(result).not.toContain("hermes-stock-date-nav-controller");
     expect(result).toContain('<section class="hermes-stock-row" data-ticker="AAPL">');
     expect(result).toContain(".hermes-stock-row { grid-column: 1 / -1 !important;");
-    expect(result).toContain("grid-template-columns: minmax(260px, 340px) minmax(0, 1fr) !important");
+    expect(result).toContain("grid-template-columns: minmax(220px, 280px) minmax(150px, 190px) minmax(0, 1fr) !important");
     expect(result).toContain('<span class="hermes-stock-ticker">NVDA</span>');
     expect(result).toContain('<strong class="hermes-stock-price">$195.82</strong>');
     expect(result).toContain('<span class="hermes-stock-ticker">DIS</span>');
     expect(result).toContain('<strong class="hermes-stock-price">$95.87</strong>');
     expect(result).not.toContain('<article class="card"><h2>AAPL');
     expect(result).not.toContain("<strong>$312.59</strong>");
-    expect(result).toContain(".hermes-stock-price { display: block !important; margin-top: 8px !important; color: #ffe08a !important; font-size: 2.3rem !important;");
-    expect(result).not.toContain(".hermes-stock-price { display: block !important; margin-top: 8px !important; color: #ffe08a !important; font-size: 1.84rem !important;");
+    expect(result).toContain(".hermes-stock-price { display: block !important; margin-top: 7px !important; color: #ffe08a !important; font-size: 2.3rem !important;");
+    expect(result).not.toContain(".hermes-stock-price { display: block !important; margin-top: 7px !important; color: #ffe08a !important; font-size: 1.84rem !important;");
     expect(result).toContain(".hermes-stock-metrics dd { max-width: 100% !important; margin: 7px 0 0 !important; color: var(--text, #f4f7fb) !important; font-size: clamp(1.05rem, 1.55vw, 1.9rem) !important;");
 
     const missingSnapHtml = stockHtml.replace(
@@ -742,22 +751,22 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     );
     expect(result).toContain('.hermes-stock-today-date-pill { display: inline-flex !important; width: max-content !important;');
     expect(result).toContain('background: #ffffff !important; color: #0b1020 !important;');
-    expect(result).toContain('@media (max-width: 900px) { .hermes-stock-today-date-pill { font-size: 26px !important; } }');
+    expect(result).toContain('@media (max-width: 900px) { .hermes-stock-today-date-pill { font-size: 14.3px !important; } }');
     expect(result).toContain('<span class="hermes-stock-ticker">AAPL</span>');
     expect(result).toContain('<div class="hermes-stock-title"><span class="hermes-stock-ticker">AAPL</span><span class="hermes-stock-company">APPLE INC.</span></div>');
     expect(result).toContain(".hermes-stock-title { display: flex !important; min-width: 0 !important; flex-direction: column !important;");
     expect(result).toContain(".hermes-stock-ticker { color: #ffe08a !important;");
-    expect(result).toContain(".hermes-stock-price { display: block !important; margin-top: 8px !important; color: #ffe08a !important;");
+    expect(result).toContain(".hermes-stock-price { display: block !important; margin-top: 7px !important; color: #ffe08a !important;");
     expect(result).toContain('<span class="hermes-stock-change hermes-portfolio-positive">+$12.64</span>');
     expect(result).toContain('<strong class="hermes-stock-price hermes-portfolio-positive">$327.50</strong>');
     expect(result).toContain('<dt>Day High</dt><dd>$328.72</dd>');
     expect(result).toContain('.hermes-stock-row { grid-column: 1 / -1 !important; width: 100% !important; max-width: none !important; min-width: 0 !important;');
-    expect(result).toContain('grid-template-columns: minmax(260px, 340px) minmax(0, 1fr) !important; gap: 16px !important;');
+    expect(result).toContain('grid-template-columns: minmax(220px, 280px) minmax(150px, 190px) minmax(0, 1fr) !important; gap: 14px !important;');
     expect(result).not.toContain('.hermes-stock-row-date {');
-    expect(result).toContain('.hermes-stock-metrics { grid-column: 2 !important; display: grid !important; min-width: 0 !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 12px !important;');
+    expect(result).toContain('.hermes-stock-metrics { grid-column: 3 !important; display: grid !important; min-width: 0 !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 12px !important;');
     expect(result).toContain('.hermes-stock-metrics dd { max-width: 100% !important;');
-    expect(result).toContain('@media (max-width: 1100px) { .hermes-stock-row { grid-template-columns: 1fr !important;');
-    expect(result).toContain('.hermes-stock-metrics { grid-column: 1 !important; grid-row: 2 !important; width: 100% !important;');
+    expect(result).toContain('@media (max-width: 1100px) { .hermes-stock-row { grid-template-columns: minmax(0, 1fr) minmax(150px, 190px) !important;');
+    expect(result).toContain('.hermes-stock-metrics { grid-column: 1 / -1 !important; grid-row: 2 !important; width: 100% !important;');
     expect(result).not.toContain('grid-template-columns: minmax(520px, 1.05fr) minmax(190px, .42fr)');
     expect(result).not.toContain('grid-template-columns: repeat(5, minmax(132px, 1fr))');
     expect(result).not.toContain("Yahoo source");
@@ -812,29 +821,41 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     expect(document.querySelector("#hermes-stock-date-pill")?.textContent).toBe("July 16, 2026");
     expect(document.querySelectorAll(".hermes-stock-row-date")).toHaveLength(0);
     expect(document.querySelectorAll('.hermes-stock-row [aria-label^="Daily prices date:"]')).toHaveLength(0);
-    expect(result).toContain("grid-template-columns: minmax(260px, 340px) minmax(0, 1fr) !important");
+    expect(result).toContain("grid-template-columns: minmax(220px, 280px) minmax(150px, 190px) minmax(0, 1fr) !important");
     expect(result).not.toContain(".hermes-stock-row-date {");
   });
 
-  it("groups daily movement under the ticker and expands five timestamp-free metrics across the row", () => {
+  it("moves current price into its own column and expands five timestamp-free metrics across the compact row", () => {
     const stockHtml = `<!doctype html><html><body><main class="grid">
       <article class="stock-row up" id="MSFT" data-ticker="MSFT"><div class="identity"><h2>MSFT — Microsoft Corporation</h2><div class="price">$401.10</div></div><div class="movement"><span>▲ +$5.47 (+1.38%)</span></div><dl class="metrics"><div><dt>Day High</dt><dd>$405.99</dd></div><div><dt>Day Low</dt><dd>$392.05</dd></div><div><dt>52-week High</dt><dd>$555.45</dd></div><div><dt>52-week Low</dt><dd>$349.20</dd></div><div><dt>Volume</dt><dd>34,338,326</dd></div></dl><div class="asof">As of 2026-07-16 1:00:00 PM PDT</div></article>
       <p class="archive-timestamp">As of 2026-07-16 1:00:00 PM PDT</p>
     </main></body></html>`;
     const result = prepareBriefPreviewHtml(stockHtml, "stock");
+    const document = new JSDOM(result).window.document;
+    const row = document.querySelector(".hermes-stock-row");
 
-    expect(result).toContain('<div class="hermes-stock-identity"><div class="hermes-stock-title"><span class="hermes-stock-ticker">MSFT</span><span class="hermes-stock-company">MICROSOFT CORP.</span></div><span class="hermes-stock-change hermes-portfolio-positive">▲ +$5.47 (+1.38%)</span><strong class="hermes-stock-price hermes-portfolio-positive">$401.10</strong></div>');
+    expect(Array.from(row?.children ?? [], (node) => (node as Element).className)).toEqual([
+      "hermes-stock-identity",
+      "hermes-stock-current-price hermes-portfolio-positive",
+      "hermes-stock-metrics",
+    ]);
+    expect(row?.querySelector(":scope > .hermes-stock-identity .hermes-stock-price")).toBeNull();
+    expect(row?.querySelector(":scope > .hermes-stock-current-price .hermes-stock-current-label")?.textContent).toBe("CURRENT PRICE");
+    expect(row?.querySelector(":scope > .hermes-stock-current-price .hermes-stock-price")?.textContent).toBe("$401.10");
     expect(result.match(/<div><dt>/g)).toHaveLength(5);
     expect(result).toContain("<dt>Day High</dt><dd>$405.99</dd>");
     expect(result).toContain("<dt>Volume</dt><dd>34,338,326</dd>");
     expect(result).not.toMatch(/As of\s+2026-07-16/i);
     expect(result).not.toContain('class="movement"');
     expect(result).not.toContain('class="metrics"');
-    expect(result).toContain("grid-template-columns: minmax(260px, 340px) minmax(0, 1fr) !important");
+    expect(result).toContain("grid-template-columns: minmax(220px, 280px) minmax(150px, 190px) minmax(0, 1fr) !important");
+    expect(result).toContain("padding: 10px 20px !important");
+    expect(result).toContain("main.grid { display: flex !important; flex-direction: column !important; gap: 8px !important;");
+    expect(result).toContain(".hermes-stock-current-price { grid-column: 2 !important;");
+    expect(result).toContain(".hermes-stock-metrics { grid-column: 3 !important;");
     expect(result).toContain("grid-template-columns: repeat(5, minmax(0, 1fr)) !important");
     expect(result).toContain(".hermes-stock-metrics dt { max-width: 100% !important; color: var(--muted, #aab8ca) !important; font-size: clamp(.82rem, 1vw, 1.15rem) !important;");
     expect(result).toContain(".hermes-stock-metrics dd { max-width: 100% !important; margin: 7px 0 0 !important; color: var(--text, #f4f7fb) !important; font-size: clamp(1.05rem, 1.55vw, 1.9rem) !important;");
-    expect(result).toContain(".hermes-stock-title-row { display: flex !important; min-width: 0 !important; align-items: center !important;");
   });
 
   it("uses cyan archive metadata and a weighted Founder Takeaways keypoint hierarchy", () => {
@@ -1343,6 +1364,9 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
 
     expect(iframeFocused).toBe(true);
     expect(windowFocused).toBe(true);
+
+    const briefsPage = readFileSync(new URL("../pages/BriefsPage.tsx", import.meta.url), "utf8");
+    expect(briefsPage).toContain('previewRef.current?.contentWindow?.postMessage(\n        { type: BRIEF_PLAYER_MESSAGE_TYPE, command },\n        "*",\n      );\n      if (previewRef.current) focusBriefPreview(previewRef.current);');
   });
 
   it("uses the full Takeaways width and exactly one cyan-or-yellow card border", () => {
@@ -1466,14 +1490,14 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     expect(result).not.toContain("selectAndPlay(cardIndex);");
   });
 
-  it("locks the accepted V25 AI and Stock JavaScript controllers byte-for-byte", () => {
+  it("locks the restored AI-focus and accepted Stock JavaScript controllers byte-for-byte", () => {
     const source = readFileSync(new URL("./briefs.ts", import.meta.url), "utf8");
     const digest = (name: string) => {
       const body = source.match(new RegExp("const " + name + "\\s*=\\s*`([\\s\\S]*?)`;"))?.[1];
       expect(body, `${name} must remain present`).toBeDefined();
       return createHash("sha256").update(body!).digest("hex");
     };
-    expect(digest("PLAYER_CONTROLLER")).toBe("3c416c8a58ee4010ac99aaa4851b0f4c51397454df9141d2109012621ec8e8c1");
+    expect(digest("PLAYER_CONTROLLER")).toBe("a96f41935734bad0ab1fcafbe3eb83c0aa05baa3e3e571bdc50e2b3b2a05ff4c");
     expect(digest("STOCK_INTERACTION_CONTROLLER")).toBe("dabab60fd4af3187720ff090e940ba3de768b842638b4afdecc89ed13b51e7b0");
   });
 
@@ -1492,7 +1516,7 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     expect(style(".topics .label").color).toBe("var(--accent)");
   });
 
-  it("preserves the accepted V25 Stock geometry and typography while retaining the one-pill correction", () => {
+  it("preserves Stock typography while retaining the compact accepted geometry and one-pill correction", () => {
     const cards = ['AAPL','AMZN','NVDA','SNAP','GOOGL','MSFT','DIS'].map((ticker) => `<article class="stock-row" data-ticker="${ticker}"><h2>${ticker} — Company</h2><strong class="price">$100.00</strong><span class="movement">+$1.00 (+1.00%)</span><dl><dt>Day High</dt><dd>$101.00</dd><dt>Day Low</dt><dd>$99.00</dd><dt>52-week High</dt><dd>$120.00</dd><dt>52-week Low</dt><dd>$80.00</dd><dt>Volume</dt><dd>1,000</dd></dl></article>`).join("");
     const source = `<!doctype html><html><head></head><body><header class="hero"><h1>Stock Brief — 2026-07-18</h1><p class="date">July 18, 2026 · America/Los_Angeles</p></header><main>${cards}</main></body></html>`;
     const document = new JSDOM(prepareBriefPreviewHtml(source, "stock", 1_784_400_000, "2026-07-18")).window.document;
@@ -1507,10 +1531,10 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     expect(style("body > header.hero").marginBottom).toBe("22px");
     expect(style("body > main.grid").display).toBe("flex");
     expect(style("body > main.grid").padding).toBe("28px");
-    expect(style("body > main.grid").gap).toBe("12px");
+    expect(style("body > main.grid").gap).toBe("8px");
   });
 
-  it("spaces the Stock hero metadata evenly, lowers Summary by 25%, and keeps the white daily-date pill", () => {
+  it("reduces the Stock title-to-metadata gap by 70%, lowers Summary by 25%, and keeps the white daily-date pill", () => {
     const source = `<!doctype html><html><body><header><h1>Stock Brief — 2026-07-18</h1><p class="date">2:11pm - America/Los_Angeles</p></header><main class="grid"><article class="stock-row"><h2>AAPL — Apple Inc.</h2><div class="price">$333.74</div><div class="change">+$0.48</div><dl><div><dt>Day High</dt><dd>$334.00</dd></div><div><dt>Day Low</dt><dd>$330.00</dd></div><div><dt>52w High</dt><dd>$340.00</dd></div><div><dt>52w Low</dt><dd>$200.00</dd></div><div><dt>Volume</dt><dd>10M</dd></div></dl></article></main></body></html>`;
     const result = prepareBriefPreviewHtml(source, "stock", 1_784_400_000, "2026-07-18");
     const document = new JSDOM(result).window.document;
@@ -1534,13 +1558,24 @@ script:oldObfuscatedLink()">Obfuscated unsafe link</a>
     expect(sectionPill?.textContent).toBe("July 18, 2026");
     expect(sectionPill?.classList.contains("hermes-stock-today-date-pill")).toBe(true);
     expect(document.querySelector(".hermes-stock-today-title")).toBeNull();
-    expect(result).toContain(".hermes-stock-meta-stack { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; margin-top: 28px !important;");
+    expect(result).toContain(".hermes-stock-meta-stack { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; margin-top: 8.4px !important;");
+    expect(result).toContain(".hermes-stock-meta-stack { gap: 10px !important; margin-top: 5.4px !important;");
     expect(result).toContain(".hermes-stock-summary-stack { display: flex !important; flex: 0 0 auto !important; flex-direction: column !important; align-items: flex-end !important; gap: 12px !important; margin-left: auto !important; transform: translateY(25%) !important;");
     expect(result).toContain(".hermes-stock-summary-stack { width: 100% !important; align-items: flex-start !important; margin-left: 0 !important; transform: none !important;");
     expect(result).toContain("background: #ffffff !important; color: #0b1020 !important;");
     expect(result).toContain("font-size: clamp(42px, 5vw, 64px) !important");
     expect(result).toContain("font-size: clamp(36px, 4.45vw, 56.96px) !important");
     expect(result).toContain("@media (max-height: 900px) and (min-width: 1100px)");
+  });
+
+  it("reduces the white Stock daily-date pill by exactly 45%", () => {
+    const source = '<html><body><header><h1>Stock Brief — 2026-07-18</h1></header><main><article class="stock-row"><h2>AAPL — Apple Inc.</h2><strong class="price">$333.74</strong><span class="movement">+$0.48</span><dl><dt>Day High</dt><dd>$334.98</dd><dt>Day Low</dt><dd>$329.00</dd><dt>52-week High</dt><dd>$334.99</dd><dt>52-week Low</dt><dd>$201.50</dd><dt>Volume</dt><dd>63,325,386</dd></dl></article></main></body></html>';
+    const result = prepareBriefPreviewHtml(source, "stock", 1_784_400_000, "2026-07-18");
+
+    expect(result).toContain("margin: 6.6px 0 9.9px !important; padding: 5.5px 12.1px !important;");
+    expect(result).toContain("font-size: clamp(12.1px, 1.43vw, 18.7px) !important;");
+    expect(result).toContain(".hermes-stock-today-date-pill { font-size: 14.3px !important; }");
+    expect(result).toContain("background: #ffffff !important; color: #0b1020 !important;");
   });
 
   it("maps Stock ArrowUp to the complete Stock Brief top and ArrowDown to daily prices", () => {

@@ -162,6 +162,7 @@ export default function BriefsPage({ kind, title, emptyMessage }: BriefsPageProp
         { type: BRIEF_PLAYER_MESSAGE_TYPE, command },
         "*",
       );
+      if (previewRef.current) focusBriefPreview(previewRef.current);
     };
 
     window.addEventListener("keydown", handleShortcut, true);
