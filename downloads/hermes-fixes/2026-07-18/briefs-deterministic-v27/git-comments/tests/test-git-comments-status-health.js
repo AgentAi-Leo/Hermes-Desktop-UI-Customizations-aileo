@@ -111,13 +111,15 @@ assert(exportButton && typeof exportButton.props.onClick === "function", "Briefs
 assert(nodes(exportButton, (node) => node.type === "svg" && node.props?.viewBox === "0 0 24 24").length === 1, "HTML export button must include the Briefs download icon");
 exportButton.props.onClick();
 const exportedHtml = exportedBlob?.parts?.join("") || "";
-assert(/^git-comments-watchlist-\d{4}-\d{2}-\d{2}\.html$/.test(exportedDownload?.download || "") && exportedDownload?.href === "blob:git-comments-export", "export must download a dated HTML file");
+assert(/^git-watch-\d{4}-\d{2}-\d{2}\.html$/.test(exportedDownload?.download || "") && exportedDownload?.href === "blob:git-comments-export", "export must download a dated GIT WATCH HTML file");
 assert(exportedBlob?.type === "text/html;charset=utf-8" && exportedHtml.startsWith("<!doctype html>"), "export must create a standalone HTML Blob");
 assert(exportedHtml.includes("<style>") && exportedHtml.includes("<script>") && exportedHtml.includes("Current Git Comments snapshot"), "export must inline CSS, JavaScript, and the current dashboard snapshot");
 const exportedScript = exportedHtml.match(/<script>([\s\S]*?)<\/script>/)?.[1] || "";
 assert(exportedHtml.endsWith("</body></html>") && !exportedHtml.includes('<link rel="stylesheet"') && !exportedHtml.includes('<script src=') && !exportedHtml.includes("/api/plugins/"), "export must be self-contained and independent of Hermes APIs");
 assert.doesNotThrow(() => new vm.Script(exportedScript), "exported inline JavaScript must parse");
-assert(exportedHtml.includes("Git Comments Watchlist Export") && removedExportControls === 1, "export must identify itself and strip API-dependent controls");
+assert(exportedHtml.includes("GIT WATCH Export") && removedExportControls === 1, "export must identify itself as GIT WATCH and strip API-dependent controls");
+assert(source.includes('"Loading GIT WATCH…"') && source.includes('`GIT WATCH failed: ${state.error}`'), "dashboard loading and failure copy must use the exact GIT WATCH name");
+assert(!source.includes("Git Comments"), "dashboard-facing renderer copy must not retain the former Git Comments name");
 assert(rendered.includes("COMMENTS (1)"), "comment badge missing");
 assert(rendered.includes("Test issue title with useful context"), "issue title missing from watched card");
 assert(rendered.includes("This issue description explains why the watcher matters."), "issue description missing from watched card");

@@ -10,12 +10,15 @@ LOG="$HOME/.hermes/logs/git-comments-v27-ui-refinements-${PORT}.log"
 SOURCE="$PACKAGE_DIR/git-comments-v27-review-index.js"
 CHECKER_SOURCE="$PACKAGE_DIR/github-comments-checker-v27-review.sh"
 API_SOURCE="$PACKAGE_DIR/plugin_api.py"
+MANIFEST_SOURCE="$PACKAGE_DIR/manifest.json"
 LAUNCH_ROOT="$HOME/.hermes/plugins/git-comments-v27-review/dashboard"
 PROFILE_ROOT="$HOME/.hermes/profiles/$PROFILE/plugins/git-comments-v27-review/dashboard"
 LAUNCH_DEST="$LAUNCH_ROOT/dist/index.js"
 PROFILE_DEST="$PROFILE_ROOT/dist/index.js"
 LAUNCH_API="$LAUNCH_ROOT/plugin_api.py"
 PROFILE_API="$PROFILE_ROOT/plugin_api.py"
+LAUNCH_MANIFEST="$LAUNCH_ROOT/manifest.json"
+PROFILE_MANIFEST="$PROFILE_ROOT/manifest.json"
 LAUNCH_DATA="$LAUNCH_ROOT/data"
 PROFILE_DATA="$PROFILE_ROOT/data"
 LAUNCH_CHECKER="$HOME/.hermes/scripts/github-comments-checker-v27-review.sh"
@@ -69,6 +72,8 @@ restore() {
     cp "$BACKUP/profile-index.js" "$PROFILE_DEST"
     cp "$BACKUP/launch-plugin-api.py" "$LAUNCH_API"
     cp "$BACKUP/profile-plugin-api.py" "$PROFILE_API"
+    cp "$BACKUP/launch-manifest.json" "$LAUNCH_MANIFEST"
+    cp "$BACKUP/profile-manifest.json" "$PROFILE_MANIFEST"
     cp "$BACKUP/profile-checker.sh" "$PROFILE_CHECKER"
     if [[ "$GLOBAL_CHECKER_EXISTED" == "1" ]]; then cp "$BACKUP/launch-checker.sh" "$LAUNCH_CHECKER"; else rm -f "$LAUNCH_CHECKER"; fi
     rm -rf "$PROFILE_DATA"
@@ -83,7 +88,7 @@ restore() {
 }
 trap 'r=$?; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
 
-for required in "$PY" "$SOURCE" "$CHECKER_SOURCE" "$API_SOURCE" "$PACKAGE_DIR/CHECKSUMS.sha256" "$LAUNCH_DEST" "$PROFILE_DEST" "$LAUNCH_API" "$PROFILE_API" "$PROFILE_CHECKER" "$LAUNCH_DATA" "$PROFILE_DATA" "$PREVIEW/hermes_cli/web_dist/index.html"; do
+for required in "$PY" "$SOURCE" "$CHECKER_SOURCE" "$API_SOURCE" "$MANIFEST_SOURCE" "$PACKAGE_DIR/CHECKSUMS.sha256" "$LAUNCH_DEST" "$PROFILE_DEST" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_MANIFEST" "$PROFILE_MANIFEST" "$PROFILE_CHECKER" "$LAUNCH_DATA" "$PROFILE_DATA" "$PREVIEW/hermes_cli/web_dist/index.html"; do
   [[ -e "$required" ]] || { echo "Missing required path: $required" >&2; exit 1; }
 done
 [[ -x "$PY" ]] || { echo "Hermes Python is not executable: $PY" >&2; exit 1; }
@@ -97,6 +102,8 @@ cp "$LAUNCH_DEST" "$BACKUP/launch-index.js"
 cp "$PROFILE_DEST" "$BACKUP/profile-index.js"
 cp "$LAUNCH_API" "$BACKUP/launch-plugin-api.py"
 cp "$PROFILE_API" "$BACKUP/profile-plugin-api.py"
+cp "$LAUNCH_MANIFEST" "$BACKUP/launch-manifest.json"
+cp "$PROFILE_MANIFEST" "$BACKUP/profile-manifest.json"
 cp "$PROFILE_CHECKER" "$BACKUP/profile-checker.sh"
 if [[ -f "$LAUNCH_CHECKER" ]]; then GLOBAL_CHECKER_EXISTED=1; cp "$LAUNCH_CHECKER" "$BACKUP/launch-checker.sh"; fi
 cp -R "$PROFILE_DATA" "$BACKUP/profile-data"
@@ -111,6 +118,12 @@ done
 for destination in "$LAUNCH_API" "$PROFILE_API"; do
   temporary="$destination.tmp.$$"
   cp "$API_SOURCE" "$temporary"
+  chmod 0644 "$temporary"
+  mv -f "$temporary" "$destination"
+done
+for destination in "$LAUNCH_MANIFEST" "$PROFILE_MANIFEST"; do
+  temporary="$destination.tmp.$$"
+  cp "$MANIFEST_SOURCE" "$temporary"
   chmod 0644 "$temporary"
   mv -f "$temporary" "$destination"
 done
@@ -135,7 +148,7 @@ wait_preview || { echo "Preview $PORT did not become ready; see $LOG" >&2; exit 
 curl -fsS "http://127.0.0.1:$PORT/api/dashboard/plugins" |
 "$PY" -c 'import json,sys
 plugins=json.load(sys.stdin)
-assert any(p.get("name")=="git-comments-v27-review" and p.get("tab",{}).get("path")=="/git-comments-v27-review" for p in plugins), plugins
+assert any(p.get("name")=="git-comments-v27-review" and p.get("label")=="GIT WATCH" and p.get("tab",{}).get("path")=="/git-comments-v27-review" for p in plugins), plugins
 print("V27_MANIFEST_DISCOVERED=PASS")'
 
 "$PY" - "$PROFILE_DATA/git-comments.json" "$PROFILE_DATA/watcher-health.json" <<'PY'
@@ -162,7 +175,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=300" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=301" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -242,7 +255,10 @@ required = [
     'function exportStandaloneHtml()',
     'snapshot.querySelectorAll("button,.git-comments-panel-add,.git-comments-success,.git-comments-error")',
     'new window.Blob([html], { type: "text/html;charset=utf-8" })',
-    'link.download = `git-comments-watchlist-${exportedAt.toISOString().slice(0, 10)}.html`',
+    'link.download = `git-watch-${exportedAt.toISOString().slice(0, 10)}.html`',
+    '<title>GIT WATCH Export</title>',
+    '"Loading GIT WATCH…"',
+    '`GIT WATCH failed: ${state.error}`',
     'className: "git-comments-button export-html"',
     'function DownloadIcon()',
     '"aria-label": "Download HTML"',
@@ -316,4 +332,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=300"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=301"
