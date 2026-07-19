@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 6
+# Git Comments V27 UI Refinements — Revision 7
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -17,9 +17,11 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Increases the repository name exactly 30%, from 16px to 20.8px, and uses 900 font weight.
 - Increases issue numbers 25%, from 20px to 25px.
 - Increases `WATCHING` 25%, from 15px to 18.75px, and makes it bold green.
-- Increases `WATCHED GITHUB ISSUES & PULL REQUESTS` 20%, from 22px to 26.4px, and makes it yellow without changing the Archived heading.
+- Keeps the watched heading at 26.4px, removes the briefcase, makes it white, and frames it as `/// WATCHED GITHUB ISSUES & PULL REQUESTS ///`.
 - Changes the comment pill to `COMMENTS RECEIVED (n)` and removes the redundant separate `n RECEIVED` text.
-- Makes the watch summary bold, with `COMMENTED (n)` green and `ARCHIVED (n)` yellow.
+- Makes the watch summary bold, with `COMMENTED (n)` green and `ARCHIVED (n)` cyan.
+- Makes active `ARCHIVE` buttons cyan.
+- Makes the bottom `ARCHIVED (n)` section title cyan.
 - Rejects duplicate canonical GitHub URLs across active and archived watches, including case and trailing-slash variants, both before submission and at the API.
 - Keeps the plain `ARCHIVE` action and omits redundant `View on GitHub →` text.
 

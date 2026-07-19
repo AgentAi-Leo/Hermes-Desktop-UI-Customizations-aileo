@@ -159,7 +159,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=276" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=277" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -172,8 +172,10 @@ required = [
     '.git-comments-watch-state{font-size:18.75px;line-height:1.1;color:#4ade80;font-weight:800',
     'COMMENTS RECEIVED (${received.length})',
     'className: "git-comments-summary-commented", style: { color: "#4ade80" }',
-    'className: "git-comments-summary-archived", style: { color: "#facc15" }',
-    'className: "git-comments-panel-title", style: { fontSize: "26.4px", color: "#facc15" }',
+    'className: "git-comments-summary-archived", style: { color: "#22d3ee" }',
+    '.git-comments-button.archive{margin-left:auto;border-color:#22d3ee;background:#083344;color:#cffafe}',
+    'className: "git-comments-panel-title", style: { fontSize: "26.4px", color: "#fff" } }, "/// WATCHED GITHUB ISSUES & PULL REQUESTS ///"',
+    'className: "git-comments-panel-title", style: { color: "#22d3ee" }',
     'duplicateWatchId(url, active, archived)',
     'health.status === "healthy"',
     '"WATCHER HEALTHY" : "BROKEN"',
@@ -187,7 +189,7 @@ required = [
 for marker in required:
     assert marker in source, marker
 assert source.index('comments.length ? e("div"') < source.index('visibleStatusEvents.length ? e("div"'), "timeline must follow comments"
-for forbidden in ['View on GitHub', '✓ ARCHIVE']:
+for forbidden in ['View on GitHub', '✓ ARCHIVE', '💼 WATCHED GITHUB ISSUES & PULL REQUESTS']:
     assert forbidden not in source, forbidden
 assert '`${received.length} received`' not in source, "redundant received count remains"
 for path in map(Path, sys.argv[2:4]):
@@ -205,4 +207,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=276"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=277"

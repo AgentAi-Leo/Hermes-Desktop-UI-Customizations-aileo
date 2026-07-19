@@ -107,11 +107,14 @@ assert(nodes(tree, (node) => String(node.props?.className || "") === "git-commen
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-button delete") && text(node).includes("DELETE")).length === 2, "every active watched item must have a red DELETE action");
 assert.strictEqual(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-status")).length, 0, "separate received-count text must be removed");
 const panelTitle = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-panel-title")[0];
-assert(panelTitle && panelTitle.props?.style?.fontSize === "26.4px" && panelTitle.props?.style?.color === "#facc15", "watched-items heading must be 20% larger and yellow");
+assert(panelTitle && text(panelTitle).trim() === "/// WATCHED GITHUB ISSUES & PULL REQUESTS ///" && !text(panelTitle).includes("💼") && panelTitle.props?.style?.fontSize === "26.4px" && panelTitle.props?.style?.color === "#fff", "watched-items heading must use the exact slash framing, omit the briefcase, and be white");
 const summary = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-summary")[0];
 assert(summary && summary.props?.style?.fontWeight === 900, "watch summary must be bold");
 assert(nodes(summary, (node) => String(node.props?.className || "") === "git-comments-summary-commented" && text(node).includes("COMMENTED (1)") && node.props?.style?.color === "#4ade80").length === 1, "COMMENTED summary must be green");
-assert(nodes(summary, (node) => String(node.props?.className || "") === "git-comments-summary-archived" && text(node).includes("ARCHIVED (0)") && node.props?.style?.color === "#facc15").length === 1, "ARCHIVED summary must be yellow");
+assert(nodes(summary, (node) => String(node.props?.className || "") === "git-comments-summary-archived" && text(node).includes("ARCHIVED (0)") && node.props?.style?.color === "#22d3ee").length === 1, "ARCHIVED summary must be cyan");
+assert(source.includes('.git-comments-button.archive{margin-left:auto;border-color:#22d3ee;background:#083344;color:#cffafe}'), "active ARCHIVE button must be cyan");
+const archivedTitle = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-panel-title" && text(node).trim() === "ARCHIVED (0)")[0];
+assert(archivedTitle && archivedTitle.props?.style?.color === "#22d3ee", "bottom ARCHIVED title must be cyan");
 const healthTitle = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-health-title")[0];
 assert(String(healthTitle.children[1].props?.className || "").includes("git-comments-health-dot healthy"), "healthy green indicator must render immediately right of its title");
 assert(source.includes('.git-comments-watch-state{font-size:18.75px;line-height:1.1;color:#4ade80;font-weight:800'), "WATCHING must be 25% larger, bold, and green");
