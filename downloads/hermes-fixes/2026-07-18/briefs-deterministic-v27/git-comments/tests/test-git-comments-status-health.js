@@ -103,6 +103,7 @@ assert(repoLines.length === 2 && repoLines.every((line) => nodes(line, (node) =>
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-meta").length === 0, "old separate comment-pill row must be removed");
 const contextRows = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-context-meta");
 assert(contextRows.length === 2 && contextRows.every((row) => nodes(row, (node) => String(node.props?.className || "").startsWith("git-comments-comment-label ")).length === 1), "comment pill must render at the end of each OPEN/CLOSED metadata row");
+assert(contextRows.every((row) => row.children.findIndex((node) => String(node?.props?.className || "").startsWith("git-comments-comment-label ")) < row.children.findIndex((node) => String(node?.props?.className || "").startsWith("git-comments-current-state "))), "comment pill must sit immediately left of OPEN/CLOSED");
 const commentClasses = nodes(tree, (node) => String(node.props?.className || "").startsWith("git-comments-comment-label ")).map((node) => node.props.className);
 assert(commentClasses.includes("git-comments-comment-label open"), "open comments pill must use the open state class");
 assert(commentClasses.includes("git-comments-comment-label closed"), "closed comments pill must use the closed state class");

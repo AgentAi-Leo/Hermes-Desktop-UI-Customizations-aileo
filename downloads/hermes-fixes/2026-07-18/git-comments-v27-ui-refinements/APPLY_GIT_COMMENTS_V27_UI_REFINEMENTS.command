@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=286" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=287" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -234,10 +234,10 @@ repo_line = source.index('className: "git-comments-repo-line"')
 watch_state = source.index('className: `git-comments-watch-state ${String(issue.state || "").toLowerCase()}`', repo_line)
 issue_title = source.index('className: "git-comments-issue-title"', watch_state)
 context_row = source.index('className: "git-comments-issue-context-meta"', issue_title)
-current_state = source.index('className: `git-comments-current-state ${String(issue.state || "").toLowerCase()}`', context_row)
+comment_pill = source.index('className: `git-comments-comment-label ${String(issue.state || "").toLowerCase()}`', context_row)
+current_state = source.index('className: `git-comments-current-state ${String(issue.state || "").toLowerCase()}`', comment_pill)
 updated = source.index('`Updated ${fmt(issue.updated_at)}`', current_state)
-comment_pill = source.index('className: `git-comments-comment-label ${String(issue.state || "").toLowerCase()}`', updated)
-assert repo_line < watch_state < issue_title < context_row < current_state < updated < comment_pill, "comments pill must end the OPEN/CLOSED metadata row"
+assert repo_line < watch_state < issue_title < context_row < comment_pill < current_state < updated, "comments pill must sit immediately left of OPEN/CLOSED"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 watched_start = source.index('e("section", { className: "git-comments-panel" }', health_start)
 add_button = source.index('className: "git-comments-button add-toggle"')
@@ -257,4 +257,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=286"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=287"
