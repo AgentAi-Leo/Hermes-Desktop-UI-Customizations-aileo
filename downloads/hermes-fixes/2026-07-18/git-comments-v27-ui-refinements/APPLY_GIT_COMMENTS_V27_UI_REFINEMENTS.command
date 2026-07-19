@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=305" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=306" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -312,9 +312,14 @@ required = [
     'window.removeEventListener("keydown", closeArchiveViewOnEscape, true)',
     'fetchJSON(`${API}/watchlist/view-archived`',
     'snapshot: issue',
-    'function archivedSummary(entry)',
-    'title.split(" ").slice(0, 11)',
+    'function archivedSummary(entry, hydratedIssue)',
+    '.slice(0, 100)',
+    '.slice(0, 40)',
     'if (candidate.length > 65) break',
+    'function archivedViewLabel(entry, hydratedIssue)',
+    'return isPull ? "VIEW PR" : "VIEW ISSUE"',
+    'setArchiveHydration',
+    'Loading summary…',
     '.git-comments-archived-summary{margin-top:7px;color:#22d3ee;font-size:15.6px;',
     'className: "git-comments-archived-content"',
     'className: "git-comments-archived-summary"',
@@ -329,6 +334,7 @@ assert 'COMMENTS RECEIVED' not in source, "received text remains in comment pill
 assert 'className: "git-comments-current-labels"' not in source, "duplicated current-label row remains"
 assert 'className: "git-comments-current-label"' not in source, "duplicated current-label pills remain"
 assert 'className: "git-comments-issue-meta"' not in source, "old separate comments row remains"
+assert 'if (entry?.kind !== "issue")' not in source, "archive summaries must not exclude pull requests"
 issue_main = source.index('className: "git-comments-issue-main"')
 issue_number = source.index('className: "git-comments-number-link"', issue_main)
 issue_author = source.index('className: "git-comments-issue-author"', issue_number)
@@ -387,4 +393,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=305"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=306"

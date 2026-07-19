@@ -1,4 +1,6 @@
-# GIT WATCH V27 UI Refinements — Revision 35
+# GIT WATCH V27 UI Refinements — Revision 36
+
+Revision 36 adds cyan archive summaries for both issues and pull requests. Legacy identity-only archives hydrate once through the existing read-only archived-view endpoint. The deterministic summarizer prefers a Markdown `Summary` section, otherwise evaluates up to 100 cleaned source words and selects a title-relevant sentence, caps that source sentence at 40 words, then displays at most 11 complete words and 65 characters. Archive buttons now read `VIEW ISSUE` or `VIEW PR` from canonical source type.
 
 Revision 35 updates the actual production `git-comments` manifest label that owns the visible dashboard sidebar while preserving its internal identity and adding rollback. Archived rows now place `VIEW` at the far-left edge and show an issue-only cyan summary below the identity/archive-time line, capped at 65 characters and 11 complete words, at 15.6px (20% larger than the 13px archive timestamp).
 

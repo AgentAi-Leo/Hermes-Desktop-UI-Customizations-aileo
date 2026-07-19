@@ -13,17 +13,45 @@
   function authorName(comment) { return comment.author?.login || comment.user?.login || comment.user || comment.author || "unknown"; }
   function avatar(comment) { return comment.author?.avatar_url || comment.user?.avatar_url || comment.avatar_url || ""; }
   function associationLabel(comment) { const value = String(comment.author_association || "").replaceAll("_", " ").trim(); return !value || value === "NONE" ? "" : value.toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase()); }
-  function archivedSummary(entry) {
-    if (entry?.kind !== "issue") return "";
-    const title = String(entry?.snapshot?.title || "").trim().replace(/\s+/g, " ");
-    if (!title) return "";
-    const accepted = [];
-    for (const word of title.split(" ").slice(0, 11)) {
-      const candidate = accepted.length ? `${accepted.join(" ")} ${word}` : word;
+  function archivedSummary(entry, hydratedIssue) {
+    const issue = hydratedIssue || entry?.snapshot || {};
+    const title = String(issue.title || "");
+    const body = String(issue.body || "");
+    const summarySection = body.match(/(?:^|\n)#{1,6}\s+Summary\s*\n([\s\S]*?)(?=\n#{1,6}\s+|$)/i);
+    const clean = (value) => String(value || "")
+      .replace(/```[\s\S]*?```/g, " ")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/^\s{0,3}#{1,6}\s+/gm, " ")
+      .replace(/^\s*[-*+]\s+/gm, " ")
+      .replace(/[>*_|~]/g, " ")
+      .replace(/\s+/g, " ").trim();
+    const sourceWords = clean(summarySection?.[1] || body || title).split(" ").filter(Boolean).slice(0, 100);
+    if (!sourceWords.length) return "";
+    const context = sourceWords.join(" ");
+    const sentences = context.match(/[^.!?]+[.!?]?/g) || [context];
+    const titleKeywords = new Set(clean(title).toLowerCase().split(" ").filter((word) => word.length > 3));
+    let selected = sentences[0] || context;
+    let selectedScore = -Infinity;
+    sentences.forEach((sentence, index) => {
+      const terms = clean(sentence).toLowerCase().split(" ");
+      const score = terms.reduce((total, term) => total + (titleKeywords.has(term) ? 10 : 0), 0) - index;
+      if (score > selectedScore) { selected = sentence; selectedScore = score; }
+    });
+    const candidateWords = clean(selected).split(" ").filter(Boolean).slice(0, 40);
+    const displayed = [];
+    for (const word of candidateWords.slice(0, 11)) {
+      const candidate = displayed.length ? `${displayed.join(" ")} ${word}` : word;
       if (candidate.length > 65) break;
-      accepted.push(word);
+      displayed.push(word);
     }
-    return accepted.join(" ");
+    return displayed.join(" ");
+  }
+  function archivedViewLabel(entry, hydratedIssue) {
+    const kind = String(entry?.kind || hydratedIssue?.kind || "").toLowerCase();
+    const isPull = kind === "pull" || /\/pull\/\d+/i.test(String(entry?.url || "")) || Boolean(hydratedIssue?.pull_request);
+    return isPull ? "VIEW PR" : "VIEW ISSUE";
   }
   function eventActor(item) { return item.actor?.login || "unknown"; }
   function eventText(item) { if (item.event === "opened") return "opened this"; if (item.event === "closed") return `closed this as ${String(item.state_reason || "completed").replaceAll("_", " ")}`; if (item.event === "reopened") return "reopened this"; if (item.event === "labeled") return "added"; if (item.event === "unlabeled") return "removed"; return item.event || "updated this"; }
@@ -114,11 +142,27 @@
 
   function GitCommentsPage() {
     const [state, setState] = useState({ loading: true, data: null, error: null });
-    const [addOpen, setAddOpen] = useState(false); const [url, setUrl] = useState(""); const [busy, setBusy] = useState(false); const [actionError, setActionError] = useState(""); const [actionSuccess, setActionSuccess] = useState(""); const [successDuration, setSuccessDuration] = useState(0); const [successFading, setSuccessFading] = useState(false); const [successVersion, setSuccessVersion] = useState(0); const [archiveView, setArchiveView] = useState(null); const [archiveViewReturnFocus, setArchiveViewReturnFocus] = useState(null);
+    const [addOpen, setAddOpen] = useState(false); const [url, setUrl] = useState(""); const [busy, setBusy] = useState(false); const [actionError, setActionError] = useState(""); const [actionSuccess, setActionSuccess] = useState(""); const [successDuration, setSuccessDuration] = useState(0); const [successFading, setSuccessFading] = useState(false); const [successVersion, setSuccessVersion] = useState(0); const [archiveView, setArchiveView] = useState(null); const [archiveViewReturnFocus, setArchiveViewReturnFocus] = useState(null); const [archiveHydration, setArchiveHydration] = useState({});
     const load = () => fetchJSON(`${API}/data`).then((data) => setState({ loading: false, data, error: null })).catch((error) => setState({ loading: false, data: null, error: String(error) }));
     useEffect(() => { let alive = true; fetchJSON(`${API}/data`).then((data) => alive && setState({ loading: false, data, error: null })).catch((error) => alive && setState({ loading: false, data: null, error: String(error) })); return () => { alive = false; }; }, []);
     const mutate = async (path, payload) => { setBusy(true); setActionError(""); try { const data = await fetchJSON(`${API}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); setState({ loading: false, data, error: null }); return true; } catch (error) { setActionError(String(error)); await load(); return false; } finally { setBusy(false); } };
     const data = state.data || {}; const issues = Array.isArray(data.issues) ? data.issues : []; const watchlist = data.watchlist || { active: [], archived: [] }; const active = Array.isArray(watchlist.active) ? watchlist.active : []; const archived = Array.isArray(watchlist.archived) ? watchlist.archived : []; const owner = data.comment_owner || watchlist.comment_owner || ""; const health = data.watcher_health || {}; const watcherHealthy = health.ok === true && health.stale !== true && health.status === "healthy";
+    const archiveHydrationKey = archived.map((entry) => `${entry.id}:${entry.snapshot ? "snapshot" : "legacy"}`).join("|");
+    useEffect(() => {
+      const pending = archived.filter((entry) => !entry.snapshot && !Object.prototype.hasOwnProperty.call(archiveHydration, entry.id));
+      if (!pending.length) return undefined;
+      let alive = true;
+      Promise.all(pending.map(async (entry) => {
+        try {
+          const viewed = await fetchJSON(`${API}/watchlist/view-archived`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: entry.id }) });
+          return [entry.id, viewed?.issue || null];
+        } catch (_error) { return [entry.id, null]; }
+      })).then((entries) => {
+        if (!alive) return;
+        setArchiveHydration((current) => ({ ...current, ...Object.fromEntries(entries) }));
+      });
+      return () => { alive = false; };
+    }, [archiveHydrationKey, archiveHydration]);
     const displayedIssues = useMemo(() => { const byId = new Map(issues.map((issue) => [issue.watch_id, issue])); return active.map((entry) => byId.get(entry.id) || { ...entry, watch_id: entry.id, pending: true, comments: [], status_events: [] }); }, [issues, active]);
     const commented = useMemo(() => displayedIssues.filter((issue) => (issue.comments || []).some((comment) => authorName(comment).toLowerCase() !== owner.toLowerCase())).length, [displayedIssues, owner]);
     const closeAddForm = () => { setUrl(""); setActionError(""); setAddOpen(false); };
@@ -128,7 +172,7 @@
     const addFormKeyDown = (event) => { if (event.key === "Escape") { event.preventDefault(); closeAddForm(); return; } if (event.key === "Enter" && String(event.target?.tagName || "").toUpperCase() === "INPUT") { event.preventDefault(); event.currentTarget.requestSubmit(); } };
     useEffect(() => { const launchAddOnEnter = (event) => { if (event.key !== "Enter" || addOpen || busy || state.loading || archiveView || event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return; const target = event.target; if (target && typeof target.closest === "function" && target.closest("a,button,input,textarea,select,[contenteditable=true]")) return; event.preventDefault(); setActionSuccess(""); setActionError(""); setAddOpen(true); }; window.addEventListener("keydown", launchAddOnEnter); return () => window.removeEventListener("keydown", launchAddOnEnter); }, [addOpen, busy, state.loading, archiveView]);
     const closeArchiveView = () => { setArchiveView(null); const returnFocus = archiveViewReturnFocus; Promise.resolve().then(() => { if (returnFocus && typeof returnFocus.focus === "function") returnFocus.focus(); }); };
-    const openArchiveView = async (entry, event) => { setArchiveViewReturnFocus(event?.currentTarget || null); setArchiveView({ loading: true, entry }); try { const viewed = await fetchJSON(`${API}/watchlist/view-archived`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: entry.id }) }); setArchiveView({ ...viewed, loading: false, entry }); } catch (error) { setArchiveView({ loading: false, error: String(error), entry }); } };
+    const openArchiveView = async (entry, event) => { setArchiveViewReturnFocus(event?.currentTarget || null); setArchiveView({ loading: true, entry }); try { const viewed = await fetchJSON(`${API}/watchlist/view-archived`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: entry.id }) }); setArchiveHydration((current) => ({ ...current, [entry.id]: viewed?.issue || null })); setArchiveView({ ...viewed, loading: false, entry }); } catch (error) { setArchiveView({ loading: false, error: String(error), entry }); } };
     useEffect(() => { if (!archiveView) return undefined; const closeArchiveViewOnEscape = (event) => { if (event.key !== "Escape") return; event.preventDefault(); event.stopImmediatePropagation(); closeArchiveView(); }; window.addEventListener("keydown", closeArchiveViewOnEscape, true); const closeButton = window.document.querySelector(".git-comments-button.close-archive-view"); if (closeButton && typeof closeButton.focus === "function") closeButton.focus(); return () => window.removeEventListener("keydown", closeArchiveViewOnEscape, true); }, [archiveView, archiveViewReturnFocus]);
     const archive = async (issue) => { if (window.confirm("Archive this URL and stop watching it?") && await mutate("/watchlist/archive", { id: issue.watch_id, snapshot: issue })) showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000); };
     const deleteWatch = async (id) => { if (window.confirm("Permanently delete this watched URL? This cannot be undone.")) await mutate("/watchlist/delete", { id }); };
@@ -138,7 +182,7 @@
     return e(React.Fragment, null, e("style", null, styles), e("div", { className: "git-comments-page" },
       e("section", { className: "git-comments-health" }, e("div", { className: "git-comments-health-top" }, e("div", { className: "git-comments-health-title" }, e("div", { className: "git-comments-kicker", style: { fontSize: "22.5px" } }, watcherHealthy ? "WATCHER HEALTHY" : "BROKEN"), e("span", { className: `git-comments-health-dot ${watcherHealthy ? "healthy" : "broken"}`, role: "img", "aria-label": watcherHealthy ? "Watcher status healthy" : "Watcher status broken", title: watcherHealthy ? "Watcher status healthy" : health.error || `Watcher status ${health.status || "unknown"}` })), e("button", { className: "git-comments-button export-html", type: "button", onClick: exportStandaloneHtml, "aria-label": "Download HTML" }, e(DownloadIcon), "HTML")), e("div", { className: "git-comments-muted" }, `Last successful check: ${fmt(health.checked_at || data.checked_at || data.updated)}`), e("div", { className: "git-comments-toolbar" }, e("div", { className: "git-comments-summary", style: { fontWeight: 400 } }, e("span", { className: "git-comments-summary-watching" }, `WATCHING (${active.length})`), " · ", e("span", { className: "git-comments-summary-commented", style: { color: "#4ade80" } }, `COMMENTED (${commented})`), " · ", e("span", { className: "git-comments-summary-archived", style: { color: "#22d3ee" } }, `ARCHIVED (${archived.length})`)))),
       e("section", { className: "git-comments-panel" }, e("div", { className: "git-comments-panel-heading" }, e("div", { className: "git-comments-panel-title", style: { fontSize: "26.4px", color: "#FFE6CB" } }, "*** WATCHED GITHUB ISSUES & PULL REQUESTS ***"), e("button", { className: "git-comments-button add-toggle", type: "button", disabled: busy, onClick: () => { if (addOpen) closeAddForm(); else { setActionSuccess(""); setAddOpen(true); } } }, "+ ADD URL TO WATCH")), addOpen ? e("div", { className: "git-comments-panel-add" }, e("form", { className: "git-comments-add-form", onSubmit: addUrl, onKeyDown: addFormKeyDown }, e("input", { className: "git-comments-input", type: "url", required: true, autoFocus: true, value: url, placeholder: "https://github.com/owner/repository/issues/123", onChange: (event) => setUrl(event.target.value), "aria-label": "GitHub issue or pull-request URL" }), e("button", { className: "git-comments-button submit-add", type: "submit", disabled: busy }, busy ? "CHECKING…" : "ADD URL"), e("button", { className: "git-comments-button cancel-add", type: "button", disabled: busy, onClick: closeAddForm }, "CANCEL")), actionError ? e("div", { className: "git-comments-error", role: "alert" }, actionError) : null) : null, actionSuccess ? e("div", { className: `git-comments-success${successFading ? " fading" : ""}`, role: "status", "aria-live": "polite" }, actionSuccess) : null, displayedIssues.length ? displayedIssues.map((issue) => e(Issue, { key: issue.watch_id, issue, owner, busy, onArchive: archive, onDelete: deleteWatch })) : e("div", { className: "git-comments-empty" }, "No active URLs. Add a GitHub issue or pull request to begin watching.")),
-      e("section", { className: "git-comments-panel" }, e("div", { className: "git-comments-panel-title", style: { color: "#22d3ee" } }, `ARCHIVED (${archived.length})`), archived.length ? e("div", { className: "git-comments-archived" }, archived.map((entry) => { const summary = archivedSummary(entry); return e("div", { className: "git-comments-archived-row", key: entry.id }, e("button", { className: "git-comments-button view-archived", type: "button", disabled: busy, onClick: (event) => openArchiveView(entry, event), "aria-haspopup": "dialog" }, "VIEW"), e("div", { className: "git-comments-archived-content" }, e("div", { className: "git-comments-archived-primary" }, e("strong", { className: "git-comments-repo-primary" }, entry.repo), e("a", { className: "git-comments-number-link", href: entry.url, target: "_blank", rel: "noreferrer", "aria-label": `Open ${entry.repo} #${entry.number} on GitHub` }, `#${entry.number}`), e("span", { className: "git-comments-time" }, `Archived ${fmt(entry.archived_at)}`)), summary ? e("div", { className: "git-comments-archived-summary" }, summary) : null), e("button", { className: "git-comments-button unarchive", type: "button", disabled: busy, onClick: () => unarchive(entry.id) }, "UNARCHIVE"), e("button", { className: "git-comments-button delete", type: "button", disabled: busy, onClick: () => deleteArchived(entry.id) }, "DELETE")); })) : e("div", { className: "git-comments-empty" }, "No archived URLs.")),
+      e("section", { className: "git-comments-panel" }, e("div", { className: "git-comments-panel-title", style: { color: "#22d3ee" } }, `ARCHIVED (${archived.length})`), archived.length ? e("div", { className: "git-comments-archived" }, archived.map((entry) => { const hydratedIssue = entry.snapshot || archiveHydration[entry.id] || null; const summary = archivedSummary(entry, hydratedIssue); const summaryPending = !entry.snapshot && !Object.prototype.hasOwnProperty.call(archiveHydration, entry.id); const viewLabel = archivedViewLabel(entry, hydratedIssue); return e("div", { className: "git-comments-archived-row", key: entry.id }, e("button", { className: "git-comments-button view-archived", type: "button", disabled: busy, onClick: (event) => openArchiveView(entry, event), "aria-haspopup": "dialog" }, viewLabel), e("div", { className: "git-comments-archived-content" }, e("div", { className: "git-comments-archived-primary" }, e("strong", { className: "git-comments-repo-primary" }, entry.repo), e("a", { className: "git-comments-number-link", href: entry.url, target: "_blank", rel: "noreferrer", "aria-label": `Open ${entry.repo} #${entry.number} on GitHub` }, `#${entry.number}`), e("span", { className: "git-comments-time" }, `Archived ${fmt(entry.archived_at)}`)), summary ? e("div", { className: "git-comments-archived-summary" }, summary) : summaryPending ? e("div", { className: "git-comments-archived-summary" }, "Loading summary…") : null), e("button", { className: "git-comments-button unarchive", type: "button", disabled: busy, onClick: () => unarchive(entry.id) }, "UNARCHIVE"), e("button", { className: "git-comments-button delete", type: "button", disabled: busy, onClick: () => deleteArchived(entry.id) }, "DELETE")); })) : e("div", { className: "git-comments-empty" }, "No archived URLs.")),
       archiveView ? e(ArchivedViewModal, { view: archiveView, onClose: closeArchiveView }) : null
     ));
   }
