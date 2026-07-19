@@ -1,4 +1,6 @@
-# GIT WATCH V27 UI Refinements — Revision 38
+# GIT WATCH V27 UI Refinements — Revision 39
+
+Revision 39 places every successful-action message in one exact viewport-center popup, increases its 16px text and 10px/16px padding by 50% to 24px and 15px/24px, and caps it at 720px or the available viewport so it remains narrower than a watch card. Existing 5000/3000 ms dwell times and the 500 ms fade remain unchanged. Delete feedback is red; archive remains cyan; add and unarchive remain green. Archived `UNARCHIVE` and `DELETE` now share a top-aligned right-side action group with the same 32px height as `VIEW ISSUE` / `VIEW PR`. Duplicate URLs remain rejected at client and API layers across active and archived entries, with executable normalization coverage for case, trailing slash, query, and fragment variants.
 
 Revision 38 places archived `VIEW ISSUE` / `VIEW PR` directly inline after repository, number, and archive timestamp, while keeping the cyan summary below and `UNARCHIVE` / `DELETE` as right-side row actions. Completion notices are now compact content-width toasts centered in the viewport instead of full-width banners: archive appears bottom-center, while add/delete/unarchive appear top-center. Unarchive now uses the exact green text `SUCCESSFULLY UNARCHIVED!`.
 
