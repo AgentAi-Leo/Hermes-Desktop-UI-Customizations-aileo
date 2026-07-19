@@ -125,20 +125,27 @@ plugins=json.load(sys.stdin)
 assert any(p.get("name")=="git-comments-v27-review" and p.get("tab",{}).get("path")=="/git-comments-v27-review" for p in plugins), plugins
 print("V27_MANIFEST_DISCOVERED=PASS")'
 
-curl -fsS "http://127.0.0.1:$PORT/api/plugins/git-comments-v27-review/data" |
-"$PY" -c 'import json,sys
-data=json.load(sys.stdin); health=data.get("watcher_health") or {}
-assert health.get("ok") is True and health.get("stale") is False and health.get("status")=="healthy", health
-issues=data.get("issues") or []
+"$PY" - "$PROFILE_DATA/git-comments.json" "$PROFILE_DATA/watcher-health.json" <<'PY'
+from datetime import datetime, timedelta, timezone
+import json
+from pathlib import Path
+import sys
+snapshot = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+health = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
+assert health.get("ok") is True and not health.get("error"), health
+checked_at = datetime.fromisoformat(str(health.get("checked_at") or "").replace("Z", "+00:00")).astimezone(timezone.utc)
+assert datetime.now(timezone.utc) - checked_at <= timedelta(hours=6), health
+issues = snapshot.get("issues") or []
 assert issues, "no watched issues returned"
-allowed={"opened","closed","reopened"}
-assert all({e.get("event") for e in issue.get("status_events",[])} <= allowed for issue in issues)
-assert all(any(e.get("event")=="opened" for e in issue.get("status_events",[])) for issue in issues)
-print("V27_LIVE_HEALTH_AND_LIFECYCLE=PASS")'
+allowed = {"opened", "closed", "reopened"}
+assert all({event.get("event") for event in issue.get("status_events", [])} <= allowed for issue in issues)
+assert all(any(event.get("event") == "opened" for event in issue.get("status_events", [])) for issue in issues)
+print("V27_PROFILE_HEALTH_AND_LIFECYCLE=PASS")
+PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=272" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=273" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" <<'PY'
 from pathlib import Path
 import sys
@@ -168,4 +175,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=272"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=273"

@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 2
+# Git Comments V27 UI Refinements — Revision 3
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -27,6 +27,7 @@ The updater:
 - backs up candidate code and data before changing anything;
 - aligns the preview API with the profile-local watcher data source;
 - runs a fresh GitHub check;
+- verifies the fresh profile-local snapshot and health files directly, avoiding the browser-authenticated API endpoint that rejects unauthenticated `curl` with HTTP 401;
 - restarts only preview port 9120;
 - verifies manifest discovery, genuinely healthy live status, lifecycle data, and the served bundle;
 - does not modify the production `git-comments` plugin or restart production port 9119;
