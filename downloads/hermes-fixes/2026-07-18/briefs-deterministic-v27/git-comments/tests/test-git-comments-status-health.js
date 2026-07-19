@@ -54,10 +54,21 @@ fixture = {
   watchlist: {
     schema_version: 1,
     comment_owner: "AgentAi-Leo",
-    active: [{ id: "nousresearch/hermes-agent/issues/58510", url: "https://github.com/NousResearch/hermes-agent/issues/58510", repo: "NousResearch/hermes-agent", number: 58510, kind: "issue" }],
+    active: [
+      { id: "nousresearch/hermes-agent/issues/58130", url: "https://github.com/NousResearch/hermes-agent/issues/58130", repo: "NousResearch/hermes-agent", number: 58130, kind: "issue" },
+      { id: "nousresearch/hermes-agent/issues/58510", url: "https://github.com/NousResearch/hermes-agent/issues/58510", repo: "NousResearch/hermes-agent", number: 58510, kind: "issue" },
+    ],
     archived: [],
   },
   issues: [{
+    watch_id: "nousresearch/hermes-agent/issues/58130",
+    repo: "NousResearch/hermes-agent",
+    number: 58130,
+    html_url: "https://github.com/NousResearch/hermes-agent/issues/58130",
+    comments: [],
+    status_events: [],
+    new_received_count: 0,
+  }, {
     watch_id: "nousresearch/hermes-agent/issues/58510",
     repo: "NousResearch/hermes-agent",
     number: 58510,
@@ -73,15 +84,26 @@ fixture = {
 let tree = registered();
 let rendered = text(tree);
 assert(rendered.includes("COMMENTS (1)"), "received comment badge missing");
-assert(!rendered.includes("View on GitHub"), "redundant issue link must be absent when a real received comment exists");
+assert(!rendered.includes("View on GitHub"), "redundant source-link text must be absent everywhere");
 assert(rendered.includes("Contributor"), "commenter association missing");
 assert(rendered.includes("closed this as not planned"), "closure reason event missing");
-assert(rendered.includes("sweeper:cannot-reproduce"), "label event missing");
+assert(!rendered.includes("sweeper:cannot-reproduce"), "irrelevant label-change timeline rows must be removed");
 assert(rendered.includes("Watcher healthy"), "healthy title missing");
 assert(rendered.includes("+ ADD URL TO WATCH"), "add URL control missing");
-assert(rendered.includes("✓ ARCHIVE"), "archive checkmark control missing");
+assert(rendered.includes("ARCHIVE"), "archive control missing");
+assert(!rendered.includes("✓ ARCHIVE"), "archive control must not look pre-archived");
 assert(rendered.includes("ARCHIVED (0)"), "archived summary missing");
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-health-dot healthy")).length === 1, "green health dot missing for fresh success");
+const sourceLinks = nodes(tree, (node) => node.type === "a" && String(node.props?.className || "").includes("git-comments-number-link"));
+assert(sourceLinks.length === 2, "every active issue number must be its source hyperlink");
+assert(sourceLinks.some((node) => node.props.href === "https://github.com/NousResearch/hermes-agent/issues/58130" && text(node).includes("#58130")), "#58130 source hyperlink missing");
+assert(sourceLinks.some((node) => node.props.href === "https://github.com/NousResearch/hermes-agent/issues/58510" && text(node).includes("#58510")), "#58510 source hyperlink missing");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-repo-primary").every((node) => node.type === "strong"), "repository name must use bold white semantic text");
+const issueHeads = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-head");
+assert(issueHeads.every((head) => nodes(head, (node) => String(node.props?.className || "") === "git-comments-watch-state").length === 1), "WATCHING must render under every repository name");
+const healthTitle = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-health-title")[0];
+assert(String(healthTitle.children[0].props?.className || "").includes("git-comments-health-dot"), "health indicator must be the far-left item beside its title");
+assert(source.includes('.git-comments-watch-state{font-size:15px'), "WATCHING must be exactly 25% larger than its former 12px size");
 
 fixture = { ...fixture, watcher_health: { ok: false, stale: false, status: "failed", error: "network" } };
 tree = registered();
@@ -94,6 +116,8 @@ tree = registered();
 rendered = text(tree);
 assert(rendered.includes("WATCH AGAIN"), "archived entry restore control missing");
 
+assert(!source.includes('item.event === "labeled"') && !source.includes('item.event === "unlabeled"'), "label-change rendering logic must be removed");
+assert(!source.includes("labelColor") && !source.includes("item.label"), "unused label data fields must not remain in the renderer");
 assert(source.includes('const API = "/api/plugins/git-comments-v27-review"'), "renderer must use isolated review API root");
 assert(source.includes('fetchJSON(`${API}/data`)'), "renderer must load isolated review data");
 assert(source.includes('register("git-comments-v27-review"'), "renderer must register isolated review plugin ID");
