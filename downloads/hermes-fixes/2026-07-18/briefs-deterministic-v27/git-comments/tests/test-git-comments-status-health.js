@@ -103,10 +103,11 @@ assert(repoLines.length === 2 && repoLines.every((line) => nodes(line, (node) =>
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-meta").length === 0, "old separate comment-pill row must be removed");
 const contextRows = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-context-meta");
 assert(contextRows.length === 2 && contextRows.every((row) => nodes(row, (node) => String(node.props?.className || "").startsWith("git-comments-comment-label ")).length === 1), "comment pill must render at the end of each OPEN/CLOSED metadata row");
-assert(contextRows.every((row) => row.children.findIndex((node) => String(node?.props?.className || "").startsWith("git-comments-comment-label ")) < row.children.findIndex((node) => String(node?.props?.className || "").startsWith("git-comments-current-state "))), "comment pill must sit immediately left of OPEN/CLOSED");
+const stateStacks = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-state-stack");
+assert(stateStacks.length === 2 && stateStacks.every((stack) => String(stack.children[0]?.props?.className || "").startsWith("git-comments-current-state ") && String(stack.children[1]?.props?.className || "").startsWith("git-comments-comment-label ")), "comments pill must sit directly under OPEN/CLOSED");
 const commentClasses = nodes(tree, (node) => String(node.props?.className || "").startsWith("git-comments-comment-label ")).map((node) => node.props.className);
-assert(commentClasses.includes("git-comments-comment-label open"), "open comments pill must use the open state class");
-assert(commentClasses.includes("git-comments-comment-label closed"), "closed comments pill must use the closed state class");
+assert(commentClasses.includes("git-comments-comment-label no-comments"), "zero-comment pill must use the no-comments class");
+assert(commentClasses.includes("git-comments-comment-label has-comments"), "nonzero-comment pill must use the has-comments class");
 const watchStates = nodes(tree, (node) => String(node.props?.className || "").startsWith("git-comments-watch-state ")).map((node) => node.props.className);
 assert(watchStates.includes("git-comments-watch-state open"), "open WATCHING text must use the open state class");
 assert(watchStates.includes("git-comments-watch-state closed"), "closed WATCHING text must use the closed state class");
@@ -133,8 +134,9 @@ assert(issueHeads.every((head) => nodes(head, (node) => String(node.props?.class
 const commentedIdentity = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-identity" && text(node).includes("#58510"))[0];
 assert(nodes(commentedIdentity, (node) => String(node.props?.className || "") === "git-comments-issue-context-meta" && text(node).includes("CLOSED") && text(node).includes("Updated") && text(node).includes("COMMENTS (1)") && !text(node).includes("RECEIVED")).length === 1, "comment pill must end the CLOSED metadata row and omit received text");
 assert(source.includes('.git-comments-current-state,.git-comments-comment-label{display:inline-flex;align-items:center;justify-content:center;width:160px;min-height:44px;box-sizing:border-box;padding:6.25px 12.5px;border-radius:999px;font-size:15px;font-weight:850'), "comments and state pills must have identical fixed dimensions and text size");
-assert(source.includes('.git-comments-comment-label.open{border-color:#4ade80;background:#16a34a;color:#fff}'), "open comments pill must be fully opaque green with white text");
-assert(source.includes('.git-comments-comment-label.closed{border-color:#a78bfa;background:#7c3aed;color:#fff}'), "closed comments pill must be fully opaque purple with white text");
+assert(source.includes('.git-comments-state-stack{display:grid;gap:8px;flex:0 0 160px}'), "state and comments pills must use a vertical stack");
+assert(source.includes('.git-comments-comment-label.no-comments{border-color:#facc15;background:#ca8a04;color:#fff}'), "zero-comment pill must be fully opaque yellow with white text");
+assert(source.includes('.git-comments-comment-label.has-comments{border-color:#4ade80;background:#16a34a;color:#fff}'), "comments pill must be green only when comments are present");
 assert(source.includes('.git-comments-current-state.open{border-color:#4ade80;color:#fff;background:#123c2b}') && source.includes('.git-comments-current-state.closed{border-color:#a78bfa;color:#fff;background:#2e2452}'), "OPEN/CLOSED pills must use matching state colors with white text");
 assert(source.includes('.git-comments-issue-context-meta{color:#9ca9bd;font-size:14.95px}'), "metadata text after the pills must be exactly 15% larger than 13px");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-event-label" && text(node).includes("sweeper:cannot-reproduce")).length === 1, "label event must render as a tag pill");
