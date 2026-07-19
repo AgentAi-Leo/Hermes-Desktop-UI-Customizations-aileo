@@ -159,7 +159,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=278" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=279" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -174,6 +174,13 @@ required = [
     '.git-comments-comment-label{display:inline-flex;align-items:center;padding:6.25px 12.5px;',
     'font-size:15px;font-weight:850',
     '.git-comments-button.add-toggle{border-color:#FFE6CB;background:#35291f;color:#FFE6CB}',
+    '.git-comments-button.submit-add{border-color:#4ade80;background:#123c2b;color:#b7f7cc}',
+    '.git-comments-button.cancel-add{border-color:#ef4444;background:#4a151b;color:#fecaca}',
+    'if (event.key === "Escape")',
+    'closeAddForm();',
+    'if (event.key === "Enter" && String(event.target?.tagName || "").toUpperCase() === "INPUT")',
+    'event.currentTarget.requestSubmit();',
+    'className: "git-comments-add-form", onSubmit: addUrl, onKeyDown: addFormKeyDown',
     'className: "git-comments-summary", style: { fontWeight: 400 }',
     'className: "git-comments-kicker", style: { fontSize: "22.5px" }',
     'className: "git-comments-summary-commented", style: { color: "#4ade80" }',
@@ -213,4 +220,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=278"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=279"

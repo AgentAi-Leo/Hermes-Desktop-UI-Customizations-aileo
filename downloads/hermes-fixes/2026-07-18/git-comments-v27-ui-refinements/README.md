@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 8
+# Git Comments V27 UI Refinements — Revision 9
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -19,6 +19,9 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Increases `WATCHING` 25%, from 15px to 18.75px, and makes it bold green.
 - Keeps the watched heading at 26.4px, removes the briefcase, applies Hermes Agent color `#FFE6CB`, and frames it as `/// WATCHED GITHUB ISSUES & PULL REQUESTS ///`.
 - Applies Hermes Agent color `#FFE6CB` to the `+ ADD URL TO WATCH` button text and border.
+- Makes the opened form's `ADD URL` action green and `CANCEL` action red.
+- Adds `Escape` to clear and close the add form without clicking Cancel.
+- Adds explicit `Enter` submission from the URL input through the same validation and duplicate-protection path as the green Add URL button.
 - Increases the comment pill 25%, from 12px to 15px with proportional padding, and simplifies it to `COMMENTS (n)`.
 - Uses normal weight for the watch summary while retaining green `COMMENTED (n)` and cyan `ARCHIVED (n)`.
 - Increases `WATCHER HEALTHY` 25%, from 18px to 22.5px.
