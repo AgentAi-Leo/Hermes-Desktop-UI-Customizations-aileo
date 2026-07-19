@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 23
+# Git Comments V27 UI Refinements — Revision 24
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -31,6 +31,7 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Wraps every card's bubble icon and identity in one fixed-layout group so the icon remains consistently beside the issue number on all cards and viewport widths.
 - Inserts newly added URLs at the top of the active watchlist instead of appending them to the bottom.
 - Closes the add form and displays the accessible success message `URL ADDED SUCCESSFULLY!` after a URL is added.
+- Replaces the vertical pill stack with one horizontal row: `COMMENTS (n)`, then `STATUS: OPEN/CLOSED`, then author and timestamps to its right.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.
