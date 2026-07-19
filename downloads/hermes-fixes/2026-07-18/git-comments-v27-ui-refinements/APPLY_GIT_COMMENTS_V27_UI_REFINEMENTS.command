@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=291" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=292" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -222,6 +222,9 @@ required = [
     'className: "git-comments-event-label"',
     'className: "git-comments-button delete"',
     'mutate("/watchlist/delete", { id })',
+    'className: "git-comments-button unarchive"',
+    '"UNARCHIVE"',
+    'Permanently delete this archived URL?',
 ]
 for marker in required:
     assert marker in source, marker
@@ -250,6 +253,8 @@ assert watched_start < add_button, "Add URL button is still in the Watcher Healt
 for path in map(Path, sys.argv[2:4]):
     api = path.read_text(encoding="utf-8")
     assert '@router.post("/watchlist/delete")' in api, path
+    assert 'for collection in ("active", "archived")' in api, path
+    assert 'result["deleted_from"] = deleted_from' in api, path
 print("V27_UI_REFINEMENTS_LIVE_BUNDLE=PASS")
 PY
 rm -f "$LIVE_BUNDLE"
@@ -262,4 +267,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=291"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=292"

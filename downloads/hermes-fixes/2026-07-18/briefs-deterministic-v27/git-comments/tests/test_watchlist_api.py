@@ -73,6 +73,17 @@ with tempfile.TemporaryDirectory() as temporary:
     expect_http(409, module.add_watch_url, {"url": "https://github.com/Owner/Repo/issues/42"})
     expect_http(409, module.add_watch_url, {"url": "https://github.com/OWNER/REPO/issues/42/"})
 
+    deleted_archived = module.delete_watch_url({"id": "owner/repo/issues/42"})
+    assert deleted_archived["refresh"]["ok"] is True
+    assert deleted_archived["deleted"]["id"] == "owner/repo/issues/42"
+    assert deleted_archived["deleted_from"] == "archived"
+    state = module._watchlist()
+    assert state["active"] == []
+    assert state["archived"] == []
+
+    module.add_watch_url({"url": "https://github.com/Owner/Repo/issues/42"})
+    module.archive_watch_url({"id": "owner/repo/issues/42"})
+
     restored = module.restore_watch_url({"id": "owner/repo/issues/42"})
     assert restored["refresh"]["ok"] is True
     state = module._watchlist()
@@ -83,6 +94,7 @@ with tempfile.TemporaryDirectory() as temporary:
     deleted = module.delete_watch_url({"id": "owner/repo/issues/42"})
     assert deleted["refresh"]["ok"] is True
     assert deleted["deleted"]["id"] == "owner/repo/issues/42"
+    assert deleted["deleted_from"] == "active"
     state = module._watchlist()
     assert state["active"] == []
     assert state["archived"] == []

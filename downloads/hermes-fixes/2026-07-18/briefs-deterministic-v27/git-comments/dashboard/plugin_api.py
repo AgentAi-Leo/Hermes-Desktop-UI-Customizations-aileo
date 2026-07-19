@@ -177,15 +177,22 @@ def archive_watch_url(payload: dict[str, Any]) -> dict:
 def delete_watch_url(payload: dict[str, Any]) -> dict:
     identifier = _requested_id(payload)
     watchlist = _watchlist()
-    index = next((position for position, item in enumerate(watchlist["active"]) if str(item.get("id") or "").lower() == identifier), None)
-    if index is None:
-        raise HTTPException(status_code=404, detail="Active watchlist entry not found")
-    deleted = watchlist["active"].pop(index)
+    deleted_from = None
+    deleted = None
+    for collection in ("active", "archived"):
+        index = next((position for position, item in enumerate(watchlist[collection]) if str(item.get("id") or "").lower() == identifier), None)
+        if index is not None:
+            deleted_from = collection
+            deleted = watchlist[collection].pop(index)
+            break
+    if deleted is None or deleted_from is None:
+        raise HTTPException(status_code=404, detail="Watchlist entry not found")
     _atomic_write(_WATCHLIST_PATH, watchlist)
     refresh = _run_checker()
     result = _payload()
     result["refresh"] = refresh
     result["deleted"] = deleted
+    result["deleted_from"] = deleted_from
     return result
 
 

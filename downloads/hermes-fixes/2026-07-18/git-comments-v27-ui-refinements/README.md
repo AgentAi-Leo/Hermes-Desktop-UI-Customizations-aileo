@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 21
+# Git Comments V27 UI Refinements — Revision 22
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -26,6 +26,8 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Uses an opaque yellow comments pill when the count is zero and an opaque green comments pill only when one or more comments are present.
 - Aligns `Opened by`, `Created`, and `Updated` on the same horizontal centerline as the top `OPEN` or `CLOSED` pill while keeping comments directly underneath.
 - Keeps a positive-count comments pill green while the item is open, then changes it to purple when the item closes; zero comments remain yellow.
+- Adds `UNARCHIVE` and confirmation-protected permanent `DELETE` buttons to every archived item.
+- Extends the delete API to remove matching entries from either the active or archived collection atomically.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.

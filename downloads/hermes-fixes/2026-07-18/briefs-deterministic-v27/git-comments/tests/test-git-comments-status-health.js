@@ -203,12 +203,17 @@ assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-c
 fixture = { ...fixture, watchlist: { ...fixture.watchlist, active: [], archived: [{ id: "nousresearch/hermes-agent/issues/58510", url: "https://github.com/NousResearch/hermes-agent/issues/58510", repo: "NousResearch/hermes-agent", number: 58510, archived_at: "2026-07-19T05:00:00Z" }] }, issues: [] };
 tree = registered();
 rendered = text(tree);
-assert(rendered.includes("WATCH AGAIN"), "archived entry restore control missing");
+assert(rendered.includes("UNARCHIVE"), "archived entry unarchive control missing");
+const archivedRows = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-archived-row");
+assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button unarchive") && text(node).trim() === "UNARCHIVE").length === 1, "archived row must contain an UNARCHIVE button");
+assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button delete") && text(node).trim() === "DELETE").length === 1, "archived row must contain a permanent DELETE button");
 
 assert(source.includes('new Set(["opened", "closed", "reopened", "labeled", "unlabeled"])'), "timeline must retain lifecycle and label/tag events");
 assert(source.includes("labelColor") && source.includes("item.label"), "label/tag data must be rendered as a visible timeline pill");
 assert(source.includes('mutate("/watchlist/delete", { id })'), "DELETE action must call the permanent-delete endpoint");
 assert(source.includes("Permanently delete this watched URL?"), "DELETE action must require explicit confirmation");
+assert(source.includes('const unarchive = async (id) => { await mutate("/watchlist/restore", { id }); }'), "UNARCHIVE must use the archived restore endpoint");
+assert(source.includes("Permanently delete this archived URL?"), "archived DELETE action must require explicit confirmation");
 assert(source.includes("duplicateWatchId"), "client must preflight canonical duplicate URLs");
 assert(source.includes('const API = "/api/plugins/git-comments-v27-review"'), "renderer must use isolated review API root");
 assert(source.includes('fetchJSON(`${API}/data`)'), "renderer must load isolated review data");
