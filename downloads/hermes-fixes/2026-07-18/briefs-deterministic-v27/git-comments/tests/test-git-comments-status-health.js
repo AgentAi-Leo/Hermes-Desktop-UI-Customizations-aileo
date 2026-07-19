@@ -106,8 +106,9 @@ fixture = {
 };
 let tree = registered();
 let rendered = text(tree);
-const exportButton = nodes(tree, (node) => String(node.props?.className || "").includes("export-html") && text(node).includes("EXPORT HTML"))[0];
-assert(exportButton && typeof exportButton.props.onClick === "function", "EXPORT HTML button missing");
+const exportButton = nodes(tree, (node) => String(node.props?.className || "").includes("export-html") && text(node).trim() === "HTML")[0];
+assert(exportButton && typeof exportButton.props.onClick === "function", "Briefs-style HTML export button missing");
+assert(nodes(exportButton, (node) => node.type === "svg" && node.props?.viewBox === "0 0 24 24").length === 1, "HTML export button must include the Briefs download icon");
 exportButton.props.onClick();
 const exportedHtml = exportedBlob?.parts?.join("") || "";
 assert(/^git-comments-watchlist-\d{4}-\d{2}-\d{2}\.html$/.test(exportedDownload?.download || "") && exportedDownload?.href === "blob:git-comments-export", "export must download a dated HTML file");
@@ -166,7 +167,7 @@ assert(source.includes('.git-comments-issue-content{display:flex;align-items:fle
 const commentedIdentity = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-identity" && text(node).includes("#58510"))[0];
 assert(nodes(commentedIdentity, (node) => String(node.props?.className || "") === "git-comments-issue-context-meta" && text(node).includes("CLOSED") && text(node).includes("Updated") && text(node).includes("COMMENTS (1)") && !text(node).includes("RECEIVED")).length === 1, "comment pill must end the CLOSED metadata row and omit received text");
 assert(source.includes('.git-comments-current-state,.git-comments-comment-label{display:inline-flex;align-items:center;justify-content:center;min-width:200px;width:auto;min-height:44px;box-sizing:border-box;padding:6.25px 16px;border-radius:999px;white-space:nowrap;flex:0 0 auto;font-size:15px;font-weight:850'), "comments and state pills must be wide, nonwrapping, and never truncate status text");
-assert(source.includes('.git-comments-issue-context-meta{align-items:center;color:#9ca9bd;font-size:14.95px}') && source.includes('.git-comments-status-cluster{display:flex;align-items:center;gap:12px;flex:0 0 auto;white-space:nowrap}') && source.includes('.git-comments-status-text{display:flex;align-items:center;min-height:44px;gap:12px;flex-wrap:nowrap;white-space:nowrap}'), "status pill and metadata must remain inline as one nonbreaking cluster to the right of comments");
+assert(source.includes('.git-comments-issue-context-meta{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;overflow-x:auto;color:#9ca9bd;font-size:14.95px}') && source.includes('.git-comments-status-cluster{display:flex;align-items:center;gap:12px;flex:0 0 auto;white-space:nowrap}') && source.includes('.git-comments-status-text{display:flex;align-items:center;min-height:44px;gap:12px;flex-wrap:nowrap;white-space:nowrap}'), "COMMENTS, status pill, and all status metadata must remain on one horizontal row");
 assert(source.includes('.git-comments-comment-label.open{border-color:#4ade80;color:#fff;background:#166534}'), "open comments pill must remain fully opaque green");
 assert(source.includes('.git-comments-comment-label.closed{border-color:#ef4444;color:#fff;background:#7f1d1d}'), "closed comments pill must remain fully opaque red");
 assert(source.includes('.git-comments-comment-label.merged{border-color:#a78bfa;color:#fff;background:#5b21b6}'), "merged comments pill must remain fully opaque purple");
@@ -174,7 +175,7 @@ assert(source.includes('.git-comments-current-state.open{border-color:#4ade80;co
 assert(source.includes('.git-comments-current-state.closed{border-color:#ef4444;color:#fecaca;background:rgba(127,29,29,.25)}'), "closed status pill must use a 25% translucent red fill");
 assert(source.includes('.git-comments-current-state.merged{border-color:#a78bfa;color:#e9d5ff;background:rgba(91,33,182,.25)}'), "merged status pill must use a 25% translucent purple fill");
 assert(source.includes('className: `git-comments-comment-label ${status}`'), "comment pill class must follow effective issue status");
-assert(source.includes('.git-comments-issue-context-meta{align-items:center;color:#9ca9bd;font-size:14.95px}'), "metadata text right of the comments pill must remain exactly 15% larger than 13px");
+assert(source.includes('.git-comments-issue-context-meta{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;overflow-x:auto;color:#9ca9bd;font-size:14.95px}'), "single-line metadata text must remain exactly 15% larger than 13px");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-event-label" && text(node).includes("sweeper:cannot-reproduce")).length === 1, "label event must render as a tag pill");
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-button delete") && text(node).includes("DELETE")).length === 2, "every active watched item must have a red DELETE action");
 assert.strictEqual(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-status" || String(node.props?.className || "").startsWith("git-comments-status received")).length, 0, "separate received-count text must be removed");
@@ -213,7 +214,7 @@ assert(String(healthTitle.children[1].props?.className || "").includes("git-comm
 const healthTop = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-health-top")[0];
 assert(healthTop && String(healthTop.children[0]?.props?.className || "") === "git-comments-health-title" && String(healthTop.children[1]?.props?.className || "").includes("git-comments-button export-html"), "Briefs-style EXPORT HTML must be the right-hand control in the health card's top row");
 assert(source.includes('.git-comments-health-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}'), "export control must be pinned to the health card's top-right");
-assert(source.includes('.git-comments-button.export-html{min-height:54px;padding:0 24px;border-color:#facc15;background:#3a2d08;color:#fef08a;font-size:18px;letter-spacing:.08em}'), "Git Comments export must use the exact Briefs height, padding, font size, and tracking tokens");
+assert(source.includes('.git-comments-button.export-html{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:54px;padding:0 24px;border:1px solid #FFE6CB;border-radius:0;background:#0b1324;color:#FFE6CB;font-size:18px;letter-spacing:.08em}'), "Git Comments export must match the pictured Briefs outlined HTML control");
 assert(source.includes('.git-comments-watch-state{font-size:18.75px;line-height:1.1;font-weight:800'), "WATCHING must remain 25% larger and bold");
 assert(source.includes('.git-comments-watch-state.open{color:#4ade80}'), "open WATCHING must be green");
 assert(source.includes('.git-comments-watch-state.closed{color:#ef4444}'), "closed WATCHING must be red");

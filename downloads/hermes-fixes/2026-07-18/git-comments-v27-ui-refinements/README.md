@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 27
+# Git Comments V27 UI Refinements — Revision 28
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -37,9 +37,11 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Derives an effective `open`, `closed`, or `merged` status. Both metadata pills and `WATCHING` use green for open, red for closed, and purple for merged.
 - Detects merged pull requests from GitHub's live `pull_request.merged_at` field and persists `merged_at` plus a boolean `merged` flag in watcher data.
 - Gives status and comments pills a 200px minimum width with auto expansion and `white-space: nowrap`, keeping labels on one untruncated line.
-- Moves `EXPORT HTML` into the health card's top-right header position. Its 54px height, 24px horizontal padding, 18px type, and `.08em` tracking match the canonical AI/Stock Briefs export controls.
+- Moves the HTML export control into the health card's top-right header position. Its 54px height, 24px horizontal padding, 18px type, and `.08em` tracking match the canonical AI/Stock Briefs export controls.
 - Keeps comments pills fully opaque while returning status pills to 25%-alpha state-colored fills with solid borders and readable text.
 - Groups `STATUS` with `Opened by`, `Created`, and `Updated` as one nonbreaking inline cluster immediately to the right of `COMMENTS`.
+- Forces the complete `COMMENTS → STATUS → Opened by → Created → Updated` sequence onto one horizontal row; constrained cards scroll that row instead of splitting the status block underneath comments.
+- Changes the top-right export control to match the pictured Briefs control: download icon, `HTML` label, square cream outline, dark fill, and the canonical Briefs dimensions.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.

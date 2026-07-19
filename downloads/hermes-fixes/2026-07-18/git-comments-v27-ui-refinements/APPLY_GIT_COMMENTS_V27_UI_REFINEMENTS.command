@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=297" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=298" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -186,8 +186,8 @@ required = [
     '.git-comments-current-state.merged{border-color:#a78bfa;color:#e9d5ff;background:rgba(91,33,182,.25)}',
     '.git-comments-status-cluster{display:flex;align-items:center;gap:12px;flex:0 0 auto;white-space:nowrap}',
     '.git-comments-health-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}',
-    '.git-comments-button.export-html{min-height:54px;padding:0 24px;border-color:#facc15;background:#3a2d08;color:#fef08a;font-size:18px;letter-spacing:.08em}',
-    '.git-comments-issue-context-meta{align-items:center;color:#9ca9bd;font-size:14.95px}',
+    '.git-comments-button.export-html{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:54px;padding:0 24px;border:1px solid #FFE6CB;border-radius:0;background:#0b1324;color:#FFE6CB;font-size:18px;letter-spacing:.08em}',
+    '.git-comments-issue-context-meta{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;overflow-x:auto;color:#9ca9bd;font-size:14.95px}',
     '.git-comments-status-text{display:flex;align-items:center;min-height:44px;gap:12px;flex-wrap:nowrap;white-space:nowrap}',
     '.git-comments-button.add-toggle{border-color:#FFE6CB;background:#35291f;color:#FFE6CB}',
     '.git-comments-button.submit-add{border-color:#4ade80;background:#123c2b;color:#b7f7cc}',
@@ -241,7 +241,9 @@ required = [
     'new window.Blob([html], { type: "text/html;charset=utf-8" })',
     'link.download = `git-comments-watchlist-${exportedAt.toISOString().slice(0, 10)}.html`',
     'className: "git-comments-button export-html"',
-    '"EXPORT HTML"',
+    'function DownloadIcon()',
+    '"aria-label": "Download HTML"',
+    'e(DownloadIcon), "HTML"',
 ]
 for marker in required:
     assert marker in source, marker
@@ -295,4 +297,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=297"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=298"
