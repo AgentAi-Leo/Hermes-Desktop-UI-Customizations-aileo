@@ -15,6 +15,6 @@ assert(source.includes('for destination in "$LAUNCH_MANIFEST" "$PROFILE_MANIFEST
 assert(source.includes('p.get("label")=="GIT WATCH"'), "live plugin discovery must verify the exact GIT WATCH tab label");
 assert(source.includes('for destination in "$LAUNCH_API" "$PROFILE_API"'), "updater must install the API into both candidate roots");
 assert(source.includes('allowed = {"opened", "closed", "reopened", "labeled", "unlabeled"}'), "updater must verify lifecycle and label/tag event data");
-assert(source.includes('ui=301'), "Revision 31 cache-busting marker missing");
+assert(source.includes('ui=302'), "Revision 32 cache-busting marker missing");
 assert(source.indexOf('GIT_COMMENTS_V27_UI_REFINEMENTS=PASS') < source.indexOf('open -a "Brave Browser"'), "Brave must open only after every verification passes");
 console.log("GIT_COMMENTS_UI_UPDATER_AUTH_REGRESSION=PASS");

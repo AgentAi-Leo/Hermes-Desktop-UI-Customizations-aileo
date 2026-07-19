@@ -175,7 +175,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=301" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=302" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -259,6 +259,14 @@ required = [
     '<title>GIT WATCH Export</title>',
     '"Loading GIT WATCH…"',
     '`GIT WATCH failed: ${state.error}`',
+    '.git-comments-issue-avatar{width:40px;height:40px;',
+    'className: "git-comments-issue-avatar", src: issue.author.avatar_url, alt: `${issueAuthor} profile picture`',
+    'showSuccess("URL ADDED SUCCESSFULLY!", 5000)',
+    'showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000)',
+    'window.setTimeout(() => setSuccessFading(true), successDuration)',
+    'window.setTimeout(() => setActionSuccess(""), successDuration + 500)',
+    '.git-comments-success.fading{opacity:0}',
+    'className: `git-comments-success${successFading ? " fading" : ""}`',
     'className: "git-comments-button export-html"',
     'function DownloadIcon()',
     '"aria-label": "Download HTML"',
@@ -332,4 +340,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=301"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=302"

@@ -1,4 +1,4 @@
-# GIT WATCH V27 UI Refinements — Revision 31
+# GIT WATCH V27 UI Refinements — Revision 32
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -52,6 +52,9 @@ The dashboard-facing name is exactly `GIT WATCH`. Internal plugin IDs, routes, A
 - Adds explicit `CLOSE`, backdrop close, and capture-phase Escape close. Modal Escape stops propagation before the existing Add URL Escape/Enter shortcuts and restores focus to the originating `VIEW` button.
 - Retains sanitized issue snapshots for newly archived items; already-archived items use a read-only live GitHub fallback.
 - Renames the dashboard tab and all renderer-facing loading, failure, and standalone-export copy to `GIT WATCH`; exported files use `git-watch-YYYY-MM-DD.html`.
+- Adds each issue author's 40px circular GitHub profile picture immediately after `by <author>` when `avatar_url` is available.
+- Keeps `URL ADDED SUCCESSFULLY!` visible for five seconds, then fades it over 500ms.
+- Shows `URL SUCCESSFULLY ARCHIVED!` after a successful Archive action for three seconds, then fades it over 500ms.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.
