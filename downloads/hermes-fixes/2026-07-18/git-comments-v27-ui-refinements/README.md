@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 11
+# Git Comments V27 UI Refinements — Revision 12
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -10,7 +10,9 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Restores GitHub label/tag history such as `sweeper:cannot-reproduce`, rendered as a colored timeline pill.
 - Places the complete opened/closed/reopened and label/tag timeline at the end of each issue card, after comments.
 - Synthesizes the opening event from the GitHub issue creator/time because GitHub’s timeline endpoint does not return that row.
-- Places the `COMMENTS RECEIVED (n)` pill on a second row beneath the issue identity.
+- Places the `COMMENTS (n)` pill on a second row beneath the issue identity.
+- Hydrates every newly added issue or pull request with its GitHub title, description, current open/closed state, author, created and updated timestamps, and current labels.
+- Links the displayed issue title to the canonical GitHub issue or pull request and keeps comments plus lifecycle/tag history below the issue context.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.

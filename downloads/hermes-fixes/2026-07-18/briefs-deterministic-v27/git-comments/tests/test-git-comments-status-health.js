@@ -65,6 +65,13 @@ fixture = {
     repo: "NousResearch/hermes-agent",
     number: 58130,
     html_url: "https://github.com/NousResearch/hermes-agent/issues/58130",
+    title: "Test issue title with useful context",
+    body: "This issue description explains why the watcher matters.",
+    state: "open",
+    author: { login: "teknium1", avatar_url: "avatar" },
+    created_at: "2026-07-18T18:00:00Z",
+    updated_at: "2026-07-19T03:30:00Z",
+    labels: [{ name: "type/feature", color: "1f6feb" }],
     comments: [],
     status_events: [],
     new_received_count: 0,
@@ -84,6 +91,13 @@ fixture = {
 let tree = registered();
 let rendered = text(tree);
 assert(rendered.includes("COMMENTS (1)"), "comment badge missing");
+assert(rendered.includes("Test issue title with useful context"), "issue title missing from watched card");
+assert(rendered.includes("This issue description explains why the watcher matters."), "issue description missing from watched card");
+assert(rendered.includes("OPEN"), "current issue state missing from watched card");
+assert(rendered.includes("Opened by teknium1"), "issue author metadata missing from watched card");
+assert(rendered.includes("type/feature"), "current GitHub labels missing from watched card");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-title" && node.props?.href === "https://github.com/NousResearch/hermes-agent/issues/58130").length === 1, "issue title must link to its canonical GitHub URL");
+for (const payloadMarker of ['"body": issue.get("body") or ""', '"author": actor(issue.get("user"))', '"created_at": issue.get("created_at")', '"updated_at": issue.get("updated_at")', '"labels": normalized_labels']) assert(checker.includes(payloadMarker), `checker missing issue context payload: ${payloadMarker}`);
 assert(!rendered.includes("COMMENTS RECEIVED"), "received text must be removed from the comment pill");
 assert(!rendered.includes("View on GitHub"), "redundant source-link text must be absent everywhere");
 assert(rendered.includes("Contributor"), "commenter association missing");

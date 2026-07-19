@@ -115,6 +115,10 @@ try:
         }
         new_count = sum(1 for comment in received if comment.get("id") not in old_received_ids)
         new_count = max(new_count, int(old_issue.get("new_received_count") or 0))
+        normalized_labels = [{
+            "name": label.get("name") or "",
+            "color": label.get("color") or "",
+        } for label in (issue.get("labels") or []) if isinstance(label, dict) and label.get("name")]
         status_events = [{
             "id": f"opened-{issue.get('id') or watch_id}",
             "event": "opened",
@@ -143,9 +147,14 @@ try:
             "kind": entry.get("kind") or ("pull" if issue.get("pull_request") else "issue"),
             "number": number,
             "title": issue.get("title") or "",
+            "body": issue.get("body") or "",
             "html_url": issue.get("html_url") or entry.get("url"),
             "state": issue.get("state"),
             "state_reason": issue.get("state_reason"),
+            "author": actor(issue.get("user")),
+            "created_at": issue.get("created_at"),
+            "updated_at": issue.get("updated_at"),
+            "labels": normalized_labels,
             "comments": normalized_comments,
             "status_events": status_events,
             "received_count": len(received),

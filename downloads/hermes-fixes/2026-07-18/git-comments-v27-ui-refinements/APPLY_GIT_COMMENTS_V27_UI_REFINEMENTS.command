@@ -154,12 +154,15 @@ allowed = {"opened", "closed", "reopened", "labeled", "unlabeled"}
 assert all({event.get("event") for event in issue.get("status_events", [])} <= allowed for issue in issues)
 assert all(any(event.get("event") == "opened" for event in issue.get("status_events", [])) for issue in issues)
 assert any(event.get("event") in {"labeled", "unlabeled"} and (event.get("label") or {}).get("name") for issue in issues for event in issue.get("status_events", []))
-print("V27_PROFILE_HEALTH_AND_LIFECYCLE=PASS")
+context_keys = {"title", "body", "state", "author", "created_at", "updated_at", "labels"}
+assert all(context_keys <= set(issue) for issue in issues), "issue context fields missing"
+assert all(issue.get("title") and (issue.get("author") or {}).get("login") and issue.get("created_at") and issue.get("updated_at") for issue in issues), "issue context not hydrated"
+print("V27_PROFILE_HEALTH_LIFECYCLE_AND_CONTEXT=PASS")
 PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=281" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=282" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -190,6 +193,11 @@ required = [
     'className: "git-comments-panel-heading"',
     'className: "git-comments-panel-add"',
     '.git-comments-panel-heading .add-toggle{flex:0 0 auto;margin-right:28px}',
+    'className: "git-comments-issue-title"',
+    'className: "git-comments-issue-context-meta"',
+    'className: "git-comments-current-labels"',
+    'className: "git-comments-issue-description"',
+    '`Opened by ${issueAuthor}`',
     'className: "git-comments-summary", style: { fontWeight: 400 }',
     'className: "git-comments-kicker", style: { fontSize: "22.5px" }',
     'className: "git-comments-summary-commented", style: { color: "#4ade80" }',
@@ -233,4 +241,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=281"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=282"
