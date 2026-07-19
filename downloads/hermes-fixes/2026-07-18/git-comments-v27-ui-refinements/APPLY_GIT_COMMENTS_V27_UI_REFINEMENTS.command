@@ -162,7 +162,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=292" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=293" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -225,6 +225,11 @@ required = [
     'className: "git-comments-button unarchive"',
     '"UNARCHIVE"',
     'Permanently delete this archived URL?',
+    '.git-comments-issue-content{display:flex;align-items:flex-start;gap:12px;flex:1 1 720px;min-width:0}',
+    '.git-comments-card-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex:0 0 32px;line-height:1;font-size:22px}',
+    'className: "git-comments-card-icon", "aria-hidden": "true"',
+    'setActionSuccess("URL ADDED SUCCESSFULLY!")',
+    'className: "git-comments-success", role: "status"',
 ]
 for marker in required:
     assert marker in source, marker
@@ -255,6 +260,7 @@ for path in map(Path, sys.argv[2:4]):
     assert '@router.post("/watchlist/delete")' in api, path
     assert 'for collection in ("active", "archived")' in api, path
     assert 'result["deleted_from"] = deleted_from' in api, path
+    assert 'watchlist["active"].insert(0, entry)' in api, path
 print("V27_UI_REFINEMENTS_LIVE_BUNDLE=PASS")
 PY
 rm -f "$LIVE_BUNDLE"
@@ -267,4 +273,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=292"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=293"

@@ -148,7 +148,7 @@ def add_watch_url(payload: dict[str, Any]) -> dict:
     all_entries = [*watchlist["active"], *watchlist["archived"]]
     if any(str(item.get("id") or "").lower() == entry["id"] for item in all_entries):
         raise HTTPException(status_code=409, detail="That GitHub URL is already in the watchlist")
-    watchlist["active"].append(entry)
+    watchlist["active"].insert(0, entry)
     _atomic_write(_WATCHLIST_PATH, watchlist)
     refresh = _run_checker()
     result = _payload()

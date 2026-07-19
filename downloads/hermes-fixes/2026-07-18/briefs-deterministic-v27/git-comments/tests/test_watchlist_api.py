@@ -63,6 +63,12 @@ with tempfile.TemporaryDirectory() as temporary:
     expect_http(409, module.add_watch_url, {"url": "https://github.com/Owner/Repo/issues/42"})
     expect_http(409, module.add_watch_url, {"url": "https://github.com/OWNER/REPO/issues/42/"})
 
+    module.add_watch_url({"url": "https://github.com/Owner/Repo/pull/84"})
+    state = module._watchlist()
+    assert [entry["id"] for entry in state["active"]] == ["owner/repo/pull/84", "owner/repo/issues/42"]
+    removed_newest = module.delete_watch_url({"id": "owner/repo/pull/84"})
+    assert removed_newest["deleted_from"] == "active"
+
     archived = module.archive_watch_url({"id": "owner/repo/issues/42"})
     assert archived["refresh"]["ok"] is True
     state = module._watchlist()

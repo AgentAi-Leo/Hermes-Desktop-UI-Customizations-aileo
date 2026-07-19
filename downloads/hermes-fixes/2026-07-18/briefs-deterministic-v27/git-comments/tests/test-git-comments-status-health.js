@@ -133,6 +133,9 @@ assert(sourceLinks.some((node) => node.props.href === "https://github.com/NousRe
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-repo-primary").every((node) => node.type === "strong"), "repository name must use bold white semantic text");
 const issueHeads = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-head");
 assert(issueHeads.every((head) => nodes(head, (node) => String(node.props?.className || "") === "git-comments-repo-line").some((line) => text(line).includes("NousResearch/hermes-agent") && text(line).includes("WATCHING"))), "WATCHING must render inline to the right of every repository name");
+const issueContents = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-content");
+assert(issueContents.length === 2 && issueContents.every((content) => String(content.children[0]?.props?.className || "") === "git-comments-card-icon" && String(content.children[1]?.props?.className || "") === "git-comments-issue-identity"), "every card must keep the same wrapped bubble icon immediately beside its identity");
+assert(source.includes('.git-comments-issue-content{display:flex;align-items:flex-start;gap:12px;flex:1 1 720px;min-width:0}') && source.includes('.git-comments-card-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex:0 0 32px;line-height:1;font-size:22px}'), "card bubble must use fixed geometry and a nonwrapping identity group");
 const commentedIdentity = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-identity" && text(node).includes("#58510"))[0];
 assert(nodes(commentedIdentity, (node) => String(node.props?.className || "") === "git-comments-issue-context-meta" && text(node).includes("CLOSED") && text(node).includes("Updated") && text(node).includes("COMMENTS (1)") && !text(node).includes("RECEIVED")).length === 1, "comment pill must end the CLOSED metadata row and omit received text");
 assert(source.includes('.git-comments-current-state,.git-comments-comment-label{display:inline-flex;align-items:center;justify-content:center;width:160px;min-height:44px;box-sizing:border-box;padding:6.25px 12.5px;border-radius:999px;font-size:15px;font-weight:850'), "comments and state pills must have identical fixed dimensions and text size");
@@ -166,6 +169,9 @@ assert(source.includes('if (event.key !== "Enter" || addOpen || busy || state.lo
 assert(source.includes('event.metaKey || event.ctrlKey || event.altKey || event.shiftKey'), "modified Enter shortcuts must not launch Add URL");
 assert(source.includes('target.closest("a,button,input,textarea,select,[contenteditable=true]")'), "Enter-to-launch must not hijack interactive or editable controls");
 assert(source.includes('setActionError(""); setAddOpen(true);'), "eligible Enter must open the Add URL form");
+assert(source.includes('setActionSuccess("URL ADDED SUCCESSFULLY!")'), "successful URL addition must publish the required status text");
+assert(source.includes('className: "git-comments-success", role: "status"'), "URL-added status must render as an accessible visible message");
+assert(source.includes('.git-comments-success{margin:0 28px 18px;padding:10px 14px;border:1px solid #4ade80;border-radius:9px;background:#123c2b;color:#b7f7cc;font-weight:800}'), "URL-added status must have explicit success styling");
 const summary = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-summary")[0];
 assert(summary && summary.props?.style?.fontWeight === 400, "watch summary must use normal weight");
 assert(nodes(summary, (node) => String(node.props?.className || "") === "git-comments-summary-commented" && text(node).includes("COMMENTED (1)") && node.props?.style?.color === "#4ade80").length === 1, "COMMENTED summary must be green");

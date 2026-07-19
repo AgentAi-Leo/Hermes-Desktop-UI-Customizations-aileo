@@ -1,4 +1,4 @@
-# Git Comments V27 UI Refinements — Revision 22
+# Git Comments V27 UI Refinements — Revision 23
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -28,6 +28,9 @@ Candidate-only update for `git-comments-v27-review` on preview port 9120.
 - Keeps a positive-count comments pill green while the item is open, then changes it to purple when the item closes; zero comments remain yellow.
 - Adds `UNARCHIVE` and confirmation-protected permanent `DELETE` buttons to every archived item.
 - Extends the delete API to remove matching entries from either the active or archived collection atomically.
+- Wraps every card's bubble icon and identity in one fixed-layout group so the icon remains consistently beside the issue number on all cards and viewport widths.
+- Inserts newly added URLs at the top of the active watchlist instead of appending them to the bottom.
+- Closes the add form and displays the accessible success message `URL ADDED SUCCESSFULLY!` after a URL is added.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
 - Places `WATCHING` inline to the right of the bold white repository name.
