@@ -159,7 +159,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=280" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=281" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" <<'PY'
 from pathlib import Path
 import sys
@@ -187,6 +187,9 @@ required = [
     'event.metaKey || event.ctrlKey || event.altKey || event.shiftKey',
     'target.closest("a,button,input,textarea,select,[contenteditable=true]")',
     'setActionError(""); setAddOpen(true);',
+    'className: "git-comments-panel-heading"',
+    'className: "git-comments-panel-add"',
+    '.git-comments-panel-heading .add-toggle{flex:0 0 auto;margin-right:28px}',
     'className: "git-comments-summary", style: { fontWeight: 400 }',
     'className: "git-comments-kicker", style: { fontSize: "22.5px" }',
     'className: "git-comments-summary-commented", style: { color: "#4ade80" }',
@@ -211,6 +214,10 @@ for forbidden in ['View on GitHub', '✓ ARCHIVE', '💼 WATCHED GITHUB ISSUES &
     assert forbidden not in source, forbidden
 assert '`${received.length} received`' not in source, "redundant received count remains"
 assert 'COMMENTS RECEIVED' not in source, "received text remains in comment pill"
+health_start = source.index('e("section", { className: "git-comments-health" }')
+watched_start = source.index('e("section", { className: "git-comments-panel" }', health_start)
+add_button = source.index('className: "git-comments-button add-toggle"')
+assert watched_start < add_button, "Add URL button is still in the Watcher Health card"
 for path in map(Path, sys.argv[2:4]):
     api = path.read_text(encoding="utf-8")
     assert '@router.post("/watchlist/delete")' in api, path
@@ -226,4 +233,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=280"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=281"
