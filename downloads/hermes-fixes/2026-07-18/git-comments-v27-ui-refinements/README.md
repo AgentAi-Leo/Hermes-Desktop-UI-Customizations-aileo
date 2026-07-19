@@ -1,4 +1,4 @@
-# GIT WATCH V27 UI Refinements — Revision 33
+# GIT WATCH V27 UI Refinements — Revision 34
 
 Candidate-only update for `git-comments-v27-review` on preview port 9120.
 
@@ -6,6 +6,7 @@ The dashboard-facing name is exactly `GIT WATCH`. Internal plugin IDs, routes, A
 
 ## Changes
 
+- Supersedes Revision 33: updates the structural verifier for the new `author → profile picture → repository/WATCHING` layout and executes the complete embedded live-verifier block against every packaged runtime file before release.
 - Supersedes Revision 32: removes two stale installer assertions for the pre-fade success implementation and validates all installer renderer markers against the packaged renderer before release.
 
 - Displays `WATCHER HEALTHY` followed by a green circle only when the watcher reports `ok=true`, `stale=false`, and status `healthy`.

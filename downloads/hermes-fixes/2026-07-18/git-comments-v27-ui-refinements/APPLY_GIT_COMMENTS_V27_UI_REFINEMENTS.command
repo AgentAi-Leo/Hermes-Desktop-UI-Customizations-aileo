@@ -175,7 +175,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=303" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=304" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -304,7 +304,7 @@ current_state = source.index('className: `git-comments-current-state ${status}`'
 status_text = source.index('className: "git-comments-status-text"', current_state)
 updated = source.index('`Updated ${fmt(issue.updated_at)}`', status_text)
 assert issue_main < issue_number < issue_author < repo_line < watch_state < issue_title < context_row < comment_pill < status_cluster < current_state < status_text < updated, "number/author first line, repository/WATCHING second line, then title; COMMENTS must sit left of one inline STATUS and metadata cluster"
-assert '}, `by ${issueAuthor}`)),\n          e("div", { className: "git-comments-repo-line" }' in source, "repository and WATCHING must be a separate line below issue number and author"
+assert 'alt: `${issueAuthor} profile picture` }) : null),\n          e("div", { className: "git-comments-repo-line" }' in source, "repository and WATCHING must be a separate line below issue number, author, and profile picture"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 health_top = source.index('className: "git-comments-health-top"', health_start)
@@ -340,4 +340,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=303"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=304"

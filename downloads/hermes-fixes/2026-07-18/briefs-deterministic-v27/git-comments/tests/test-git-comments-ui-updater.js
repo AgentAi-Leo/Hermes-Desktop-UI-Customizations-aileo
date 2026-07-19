@@ -1,10 +1,13 @@
 const fs = require("fs");
 const assert = require("assert");
 const vm = require("vm");
+const path = require("path");
+const { spawnSync } = require("child_process");
 
 const installerPath = process.argv[2];
 const source = fs.readFileSync(installerPath, "utf8");
-const renderer = fs.readFileSync(process.argv[3], "utf8");
+const rendererPath = process.argv[3];
+const renderer = fs.readFileSync(rendererPath, "utf8");
 
 assert(!source.includes('curl -fsS "http://127.0.0.1:$PORT/api/plugins/git-comments-v27-review/data"'), "updater must not curl the browser-authenticated plugin data endpoint");
 assert(source.includes('"$PROFILE_DATA/git-comments.json"'), "updater must verify the freshly written profile snapshot directly");
@@ -22,8 +25,13 @@ assert(requiredBlock, "updater renderer-marker block missing");
 const requiredMarkers = vm.runInNewContext(requiredBlock[1]);
 const missingMarkers = requiredMarkers.filter((marker) => !renderer.includes(marker));
 assert.deepStrictEqual(Array.from(missingMarkers), [], `updater has stale renderer markers: ${missingMarkers.join(" | ")}`);
+const verifierBlock = source.match(/"\$PY" - "\$LIVE_BUNDLE" "\$LAUNCH_API" "\$PROFILE_API" "\$LAUNCH_CHECKER" "\$PROFILE_CHECKER" <<'PY'\n([\s\S]*?)\nPY/);
+assert(verifierBlock, "updater embedded live-verifier block missing");
+const packageDir = path.dirname(installerPath);
+const verifierRun = spawnSync("python3", ["-", rendererPath, path.join(packageDir, "plugin_api.py"), path.join(packageDir, "plugin_api.py"), path.join(packageDir, "github-comments-checker-v27-review.sh"), path.join(packageDir, "github-comments-checker-v27-review.sh")], { input: verifierBlock[1], encoding: "utf8" });
+assert.strictEqual(verifierRun.status, 0, `embedded live verifier failed:\n${verifierRun.stdout}${verifierRun.stderr}`);
 assert(source.includes('for destination in "$LAUNCH_API" "$PROFILE_API"'), "updater must install the API into both candidate roots");
 assert(source.includes('allowed = {"opened", "closed", "reopened", "labeled", "unlabeled"}'), "updater must verify lifecycle and label/tag event data");
-assert(source.includes('ui=303'), "Revision 33 cache-busting marker missing");
+assert(source.includes('ui=304'), "Revision 34 cache-busting marker missing");
 assert(source.indexOf('GIT_COMMENTS_V27_UI_REFINEMENTS=PASS') < source.indexOf('open -a "Brave Browser"'), "Brave must open only after every verification passes");
 console.log("GIT_COMMENTS_UI_UPDATER_AUTH_REGRESSION=PASS");
