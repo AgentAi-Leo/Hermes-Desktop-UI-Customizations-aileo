@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=316" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=317" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -312,11 +312,11 @@ required = [
     'className: "git-comments-button retry-connection"',
     '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;min-width:min(523.25px,calc(100vw - 62.4px));max-width:calc(100vw - 62.4px);min-height:min(114.4px,calc(100vh - 62.4px));box-sizing:border-box;transform:translate(-50%,-50%);',
     'display:flex;align-items:center;justify-content:center;margin:0;padding:39px 62.4px',
-    'border:1px solid #fff;border-radius:7px;background:rgba(18,60,43,.8);color:rgba(255,255,255,.9)',
+    'border:1px solid rgba(187,247,208,.9);border-radius:35px;background:rgba(18,60,43,.8);color:rgba(255,255,255,.9)',
     'font-size:30.55px;line-height:1.25;font-weight:800;text-align:center;white-space:nowrap',
-    'box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36);backdrop-filter:blur(5.2px)',
-    '.git-comments-success.cyan{border-color:#fff;background:rgba(8,51,68,.8);color:rgba(255,255,255,.9)}',
-    '.git-comments-success.red{border-color:#fff;background:rgba(74,21,27,.8);color:rgba(255,255,255,.9)}',
+    'box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(134,239,172,.22),inset 0 1px 0 rgba(255,255,255,.16);backdrop-filter:blur(5.2px)',
+    '.git-comments-success.cyan{border-color:rgba(165,243,252,.9);background:rgba(8,51,68,.8);color:rgba(255,255,255,.9);box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(103,232,249,.22),inset 0 1px 0 rgba(255,255,255,.16)}',
+    '.git-comments-success.red{border-color:rgba(254,202,202,.9);background:rgba(74,21,27,.8);color:rgba(255,255,255,.9);box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(252,165,165,.22),inset 0 1px 0 rgba(255,255,255,.16)}',
     '.git-comments-archived-row{display:flex;align-items:flex-start;',
     '.git-comments-archived-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex:0 0 auto}',
     '.git-comments-archived-actions .git-comments-button{min-height:32px;height:32px;padding:5px 11px;font-size:12px}',
