@@ -256,6 +256,56 @@ def _run_checker() -> dict:
         return {"ok": False, "error": str(reason)}
 
 
+def _migrated_presentation(entry: dict, source: object) -> dict:
+    raw = dict(source) if isinstance(source, dict) else {}
+    raw["watch_id"] = str(raw.get("watch_id") or entry.get("id") or "")
+    raw["repo"] = str(raw.get("repo") or entry.get("repo") or "")
+    raw["kind"] = str(raw.get("kind") or entry.get("kind") or "issue")
+    raw["number"] = int(raw.get("number") or entry.get("number") or 0)
+    raw["html_url"] = str(raw.get("html_url") or entry.get("url") or "")
+    presentation = _sanitize_snapshot(raw)
+    presentation["at_a_glance"] = str(presentation.get("at_a_glance") or _one_time_summary(presentation.get("title"), presentation.get("body")))
+    return presentation
+
+
+def _migrate_stored_presentations(watchlist: dict, payload: dict) -> bool:
+    live_by_id = {
+        str(issue.get("watch_id") or "").lower(): issue
+        for issue in payload.get("issues", [])
+        if isinstance(issue, dict) and issue.get("watch_id")
+    }
+    changed = False
+    for entry in watchlist["active"]:
+        existing = entry.get("presentation")
+        if isinstance(existing, dict) and existing.get("at_a_glance"):
+            continue
+        source = existing if isinstance(existing, dict) else live_by_id.get(str(entry.get("id") or "").lower())
+        if not isinstance(source, dict):
+            continue
+        presentation = _migrated_presentation(entry, source)
+        if presentation.get("at_a_glance"):
+            entry["presentation"] = presentation
+            changed = True
+    for entry in watchlist["archived"]:
+        existing = entry.get("presentation")
+        if isinstance(existing, dict) and existing.get("at_a_glance"):
+            continue
+        snapshot = entry.get("snapshot")
+        source = existing if isinstance(existing, dict) else snapshot
+        if not isinstance(source, dict):
+            continue
+        presentation = _migrated_presentation(entry, source)
+        if not presentation.get("at_a_glance"):
+            continue
+        entry["presentation"] = presentation
+        if isinstance(snapshot, dict):
+            retained_snapshot = _sanitize_snapshot(snapshot)
+            retained_snapshot["at_a_glance"] = presentation["at_a_glance"]
+            entry["snapshot"] = retained_snapshot
+        changed = True
+    return changed
+
+
 def _payload() -> dict:
     watchlist = _watchlist()
     try:
@@ -266,6 +316,8 @@ def _payload() -> dict:
         raise HTTPException(status_code=500, detail=f"Git Comments snapshot is unreadable: {exc}") from exc
     if not isinstance(payload.get("issues"), list):
         raise HTTPException(status_code=500, detail="Git Comments snapshot has an invalid schema")
+    if _migrate_stored_presentations(watchlist, payload):
+        _atomic_write(_WATCHLIST_PATH, watchlist)
     payload["watcher_health"] = _watcher_health()
     payload["watchlist"] = watchlist
     return payload

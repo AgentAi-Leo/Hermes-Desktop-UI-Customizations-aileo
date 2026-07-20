@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=312" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=314" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -281,7 +281,7 @@ required = [
     '.git-comments-issue-content{display:flex;align-items:flex-start;gap:12px;flex:1 1 720px;min-width:0}',
     '.git-comments-card-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex:0 0 32px;line-height:1;font-size:22px}',
     'className: "git-comments-card-icon", "aria-hidden": "true"',
-    'showSuccess("URL ADDED SUCCESSFULLY!", 5000)',
+    'showSuccess("URL ADDED SUCCESSFULLY!", 3000)',
     'className: `git-comments-success ${successTone}${successFading ? " fading" : ""}`, role: "status", "aria-live": "polite"',
     '`STATUS: ${currentState}`',
     'function exportStandaloneHtml()',
@@ -296,14 +296,14 @@ required = [
     '.git-comments-owner-star{color:#facc15;',
     'issueAuthor.toLowerCase() === String(owner || "").toLowerCase()',
     'className: "git-comments-owner-star", role: "img", "aria-label": "Watchlist profile owner"',
-    'showSuccess("URL ADDED SUCCESSFULLY!", 5000)',
+    'showSuccess("URL ADDED SUCCESSFULLY!", 3000)',
     'showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan")',
     'showSuccess("SUCCESSFULLY DELETED!", 3000, "red")',
     'showSuccess("SUCCESSFULLY UNARCHIVED!", 3000, "green")',
-    '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:min(1020px,calc(100vw - 96px));min-height:min(208px,calc(100vh - 96px));box-sizing:border-box;transform:translate(-50%,-50%);',
+    '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:min(805px,calc(100vw - 96px));min-height:min(176px,calc(100vh - 96px));box-sizing:border-box;transform:translate(-50%,-50%);',
     'display:flex;align-items:center;justify-content:center;margin:0;padding:60px 96px',
     'border:1px solid #4ade80;border-radius:27px;background:rgba(18,60,43,.8)',
-    'font-size:43.2px;line-height:1.25;font-weight:800;text-align:center',
+    'font-size:35px;line-height:1.25;font-weight:800;text-align:center',
     'box-shadow:0 24px 64px rgba(0,0,0,.6),0 8px 24px rgba(0,0,0,.36);backdrop-filter:blur(8px)',
     '.git-comments-success.cyan{border-color:#22d3ee;background:rgba(8,51,68,.8);color:#cffafe}',
     '.git-comments-success.red{border-color:#ef4444;background:rgba(74,21,27,.8);color:#fecaca}',
@@ -382,6 +382,8 @@ assert archived_map < archived_content < archived_primary < archived_time < arch
 assert 'SUCCESSFULLY UNARCHIVED!!' not in source, "obsolete double-exclamation unarchive text remains"
 assert 'successPlacement' not in source and '.git-comments-success.top{' not in source and '.git-comments-success.bottom{' not in source, "per-action popup placement remains instead of one unified center position"
 assert source.count('showSuccess("SUCCESSFULLY DELETED!", 3000, "red")') == 2, "both active and archived delete paths must publish red success"
+assert source.count('showSuccess("') == 5 and 'showSuccess("URL ADDED SUCCESSFULLY!", 5000)' not in source, "every successful mutation must use the three-second popup contract"
+assert 'width:min(1020px' not in source and 'font-size:43.2px' not in source, "superseded Revision 41 popup geometry remains"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 health_top = source.index('className: "git-comments-health-top"', health_start)
@@ -405,6 +407,9 @@ for path in map(Path, sys.argv[2:4]):
     assert 'entry["presentation"] = issue' in api and '"source": "github_live_migrated"' in api, path
     assert 'source_words = _clean_markdown(summary_section or body or title).split()[:100]' in api, path
     assert 'words = candidate.split()[:30]' in api and 'if len(rendered) <= 160' in api, path
+    assert 'def _migrate_stored_presentations(watchlist: dict, payload: dict) -> bool:' in api, path
+    assert 'source = existing if isinstance(existing, dict) else snapshot' in api, path
+    assert 'if _migrate_stored_presentations(watchlist, payload):' in api and '_atomic_write(_WATCHLIST_PATH, watchlist)' in api, path
     assert 'entry.pop("presentation", None)' not in api, path
 for path in map(Path, sys.argv[4:6]):
     checker = path.read_text(encoding="utf-8")
@@ -425,4 +430,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=312"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=314"

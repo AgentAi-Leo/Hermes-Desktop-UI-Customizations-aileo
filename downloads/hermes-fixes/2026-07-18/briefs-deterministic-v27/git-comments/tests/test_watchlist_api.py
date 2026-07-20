@@ -108,6 +108,7 @@ with tempfile.TemporaryDirectory() as temporary:
     assert len(presentation["at_a_glance"].split()) <= 30
     assert len(presentation["at_a_glance"]) <= 160
     initial_summary = presentation["at_a_glance"]
+    initial_presentation = json.loads(json.dumps(presentation))
     expect_http(409, module.add_watch_url, {"url": "https://github.com/Owner/Repo/issues/42"})
     expect_http(409, module.add_watch_url, {"url": "https://github.com/OWNER/REPO/issues/42/"})
 
@@ -143,6 +144,7 @@ with tempfile.TemporaryDirectory() as temporary:
     assert state["archived"][0]["snapshot"]["title"] == "Archived issue title"
     assert state["archived"][0]["presentation"]["at_a_glance"] == initial_summary
     assert state["archived"][0]["snapshot"]["at_a_glance"] == initial_summary
+    assert state["archived"][0]["presentation"] == initial_presentation
     assert "ignored_secret" not in state["archived"][0]["snapshot"]
     viewed = module.view_archived_watch_url({"id": "owner/repo/issues/42"})
     assert viewed["read_only"] is True
@@ -150,6 +152,13 @@ with tempfile.TemporaryDirectory() as temporary:
     assert viewed["issue"]["title"] == "Archived issue title"
     assert viewed["issue"]["comments"][0]["body"] == "Archived comment"
     expect_http(404, module.archive_watch_url, {"id": "owner/repo/issues/42"})
+    round_trip_restore = module.restore_watch_url({"id": "owner/repo/issues/42"})
+    assert round_trip_restore["watchlist"]["active"][0]["presentation"] == initial_presentation
+    state = module._watchlist()
+    assert state["active"][0]["presentation"] == initial_presentation
+    assert "snapshot" not in state["active"][0]
+    module.archive_watch_url({"id": "owner/repo/issues/42"})
+    assert module._watchlist()["archived"][0]["presentation"] == initial_presentation
     expect_http(409, module.add_watch_url, {"url": "https://github.com/Owner/Repo/issues/42"})
     expect_http(409, module.add_watch_url, {"url": "https://github.com/OWNER/REPO/issues/42/"})
 
@@ -160,6 +169,41 @@ with tempfile.TemporaryDirectory() as temporary:
     state = module._watchlist()
     assert state["active"] == []
     assert state["archived"] == []
+
+    legacy_snapshot_entry = module._canonical_entry("https://github.com/Owner/Repo/issues/43")
+    legacy_snapshot_entry["archived_at"] = module._now_iso()
+    legacy_snapshot_entry["snapshot"] = module._sanitize_snapshot({
+        "watch_id": legacy_snapshot_entry["id"],
+        "repo": legacy_snapshot_entry["repo"],
+        "number": 43,
+        "kind": "issue",
+        "title": "Legacy archived row needs readable context",
+        "body": "## Summary\nPreserve this concise stored description through archive and unarchive without fetching GitHub or generating it again.",
+        "html_url": legacy_snapshot_entry["url"],
+        "state": "closed",
+        "author": {"login": "legacy-author", "avatar_url": "legacy-avatar"},
+        "created_at": "2026-07-18T18:00:00Z",
+        "updated_at": "2026-07-19T04:00:00Z",
+        "labels": [],
+        "comments": [],
+        "status_events": [],
+    })
+    module._atomic_write(module._WATCHLIST_PATH, {
+        "schema_version": 1,
+        "comment_owner": "AgentAi-Leo",
+        "active": [],
+        "archived": [legacy_snapshot_entry],
+    })
+    migrated_payload = module._payload()
+    migrated_archive = migrated_payload["watchlist"]["archived"][0]
+    assert migrated_archive["presentation"]["at_a_glance"]
+    assert migrated_archive["snapshot"]["at_a_glance"] == migrated_archive["presentation"]["at_a_glance"]
+    assert migrated_archive["presentation"]["title"] == "Legacy archived row needs readable context"
+    migrated_presentation = json.loads(json.dumps(migrated_archive["presentation"]))
+    migrated_restore = module.restore_watch_url({"id": legacy_snapshot_entry["id"]})
+    assert migrated_restore["watchlist"]["active"][0]["presentation"] == migrated_presentation
+    assert module._watchlist()["active"][0]["presentation"] == migrated_presentation
+    module.delete_watch_url({"id": legacy_snapshot_entry["id"]})
 
     module.add_watch_url({"url": "https://github.com/Owner/Repo/issues/42"})
     module.archive_watch_url({"id": "owner/repo/issues/42"})
