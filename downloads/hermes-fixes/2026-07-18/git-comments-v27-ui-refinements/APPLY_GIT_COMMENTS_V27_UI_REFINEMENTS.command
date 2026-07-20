@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=319" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=320" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -296,13 +296,14 @@ required = [
     'new window.Blob([html], { type: "text/html;charset=utf-8" })',
     'link.download = `git-watch-${exportedAt.toISOString().slice(0, 10)}.html`',
     '<title>GIT WATCH Export</title>',
-    '<meta name="git-watch-export-version" content="48">',
-    '<meta name="git-watch-visual-baseline" content="47">',
+    '<meta name="git-watch-export-version" content="49">',
+    '<meta name="git-watch-visual-baseline" content="49">',
     'GIT WATCH OFFLINE FILE GUIDE',
     'API-DEPENDENT CONTROLS OMITTED',
-    'SUCCESS POPUP TOKENS (Revision 47)',
+    'SUCCESS POPUP TOKENS (Revision 49)',
+    'font: embedded Alumni Sans SC ExtraBold 800',
     'EXACT RENDERED DASHBOARD SNAPSHOT',
-    'DASHBOARD CSS: byte-identical to the live Revision 47 renderer',
+    'DASHBOARD CSS: byte-identical to the live Revision 49 renderer',
     'GIT WATCH OFFLINE CONTROLLER',
     'document.querySelectorAll(".git-comments-button.activity-toggle")',
     'document.querySelector(".git-comments-archive-modal")',
@@ -321,10 +322,11 @@ required = [
     'showSuccess("CONNECTION RESTORED!", 3000, "green")',
     'fetchJSON(`${API}/refresh`, { method: "POST" })',
     'className: "git-comments-button retry-connection"',
-    '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;min-width:min(654.0625px,calc(100vw - 78px));max-width:calc(100vw - 78px);min-height:min(143px,calc(100vh - 78px));box-sizing:border-box;transform:translate(-50%,-50%);',
-    'display:flex;align-items:center;justify-content:center;margin:0;padding:48.75px 78px',
+    '@font-face{font-family:"Alumni Sans SC";font-style:normal;font-weight:800;font-display:swap;src:url(data:font/woff2;base64,',
+    '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;min-width:min(589.7103px,calc(100vw - 70.3257px));max-width:calc(100vw - 70.3257px);min-height:min(245.1429px,calc(100vh - 70.3257px));box-sizing:border-box;transform:translate(-50%,-50%);',
+    'display:flex;align-items:center;justify-content:center;margin:0;padding:83.5714px 70.3257px',
     'border:1px solid rgba(187,247,208,.9);border-radius:25px;background:rgba(18,60,43,.8);color:rgba(255,255,255,.9)',
-    'font-size:30.55px;line-height:1.25;font-weight:800;text-align:center;white-space:nowrap',
+    'font-family:"Alumni Sans SC",sans-serif;font-size:30.55px;line-height:1.25;font-weight:800;text-align:center;white-space:nowrap',
     'box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(134,239,172,.22),inset 0 1px 0 rgba(255,255,255,.16);backdrop-filter:blur(5.2px)',
     '.git-comments-success.cyan{border-color:rgba(165,243,252,.9);background:rgba(8,51,68,.8);color:rgba(255,255,255,.9);box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(103,232,249,.22),inset 0 1px 0 rgba(255,255,255,.16)}',
     '.git-comments-success.red{border-color:rgba(254,202,202,.9);background:rgba(74,21,27,.8);color:rgba(255,255,255,.9);box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(252,165,165,.22),inset 0 1px 0 rgba(255,255,255,.16)}',
