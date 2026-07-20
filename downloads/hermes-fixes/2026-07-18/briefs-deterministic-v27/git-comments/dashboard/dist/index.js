@@ -30,11 +30,124 @@
   function exportStandaloneHtml() {
     const currentPage = window.document.querySelector(".git-comments-page");
     if (!currentPage) return;
+
+    // Clone the live rendered subtree so exported HTML matches the visible dashboard exactly.
     const snapshot = currentPage.cloneNode(true);
+
+    // Remove only controls that need the unavailable Hermes backend, plus transient notices.
     snapshot.querySelectorAll(".git-comments-panel-add,.git-comments-success,.git-comments-error,.git-comments-button.add-toggle,.git-comments-button.archive,.git-comments-button.delete,.git-comments-button.restore,.git-comments-button.unarchive,.git-comments-button.view-archived,.git-comments-button.retry-connection,.git-comments-button.export-html").forEach((node) => node.remove());
+
     const exportedAt = new Date();
-    const inlineScript = '(function(){document.querySelectorAll("a").forEach(function(link){link.setAttribute("rel","noreferrer noopener");});document.querySelectorAll(".git-comments-button.activity-toggle").forEach(function(button){var region=document.getElementById(button.getAttribute("aria-controls"));if(!region){button.remove();return;}function sync(expanded){var count=(button.textContent.match(/\\((\\d+)\\)/)||["","0"])[1];button.setAttribute("aria-expanded",String(expanded));region.hidden=!expanded;button.textContent=(expanded?"HIDE ACTIVITY":"SHOW ACTIVITY")+" ("+count+")";}sync(button.getAttribute("aria-expanded")==="true");button.addEventListener("click",function(){sync(button.getAttribute("aria-expanded")!=="true");});});var modal=document.querySelector(".git-comments-archive-modal");if(modal){var backdrop=modal.closest(".git-comments-archive-backdrop");var closeButton=modal.querySelector(".git-comments-button.close-archive-view");function closeModal(){if(backdrop)backdrop.remove();else modal.remove();}if(closeButton)closeButton.addEventListener("click",closeModal);if(backdrop)backdrop.addEventListener("click",function(event){if(event.target===backdrop)closeModal();});document.addEventListener("keydown",function(event){if(event.key === "Escape")closeModal();});}document.documentElement.dataset.gitCommentsExport="ready";})();';
-    const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="git-watch-export-version" content="47"><title>GIT WATCH Export</title><style>html{background:#07101d}body{margin:0;background:#07101d;color:#f0f6fc;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.git-comments-export-note{margin:20px 24px 0;padding:12px 16px;border:1px solid #475569;border-radius:10px;background:#0c1624;color:#cbd5e1;font-size:14px}${styles}</style></head><body><div class="git-comments-export-note"><strong>GIT WATCH Export</strong> · Snapshot exported ${exportedAt.toISOString()}</div>${snapshot.outerHTML}<script>${inlineScript}<\/script></body></html>`;
+    const exportGuide = `<!-- GIT WATCH OFFLINE FILE GUIDE
+
+PURPOSE
+  This is one shareable HTML file containing the exact dashboard snapshot,
+  all dashboard CSS, and all JavaScript behavior that can run without Hermes.
+
+WHERE TO EDIT
+  HTML: search for EXACT RENDERED DASHBOARD SNAPSHOT.
+  CSS: search for DASHBOARD CSS. Class names begin with .git-comments-.
+  JavaScript: search for GIT WATCH OFFLINE CONTROLLER.
+
+API-DEPENDENT CONTROLS OMITTED
+  Add, Archive, Delete, Unarchive, Retry Connection, API-backed archive View,
+  and Export require the live Hermes plugin backend. They are intentionally
+  removed instead of being left as broken offline buttons. Canonical GitHub
+  links, retained activity disclosure, and an already-open archive viewer work.
+
+SUCCESS POPUP TOKENS (Revision 47)
+  selector: .git-comments-success
+  border radius: 25px
+  minimum width: 654.0625px
+  minimum height: 143px
+  padding: 48.75px 78px
+  text size remains: 30.55px
+  dwell: 3000ms, then fade: 500ms
+  Popup elements are transient and therefore omitted from the snapshot, but
+  their complete green, cyan, and red styling remains in DASHBOARD CSS.
+
+SAFETY AND PORTABILITY
+  No external stylesheet, external script, credential, or Hermes API call is
+  embedded. Image and canonical GitHub link URLs may still load from GitHub.
+-->`;
+    const exportShellStyles = `/* EXPORT SHELL:
+   These rules style only the standalone document background and export banner.
+   They do not replace or modify dashboard component styling. */
+html{background:#07101d}
+body{margin:0;background:#07101d;color:#f0f6fc;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.git-comments-export-note{margin:20px 24px 0;padding:12px 16px;border:1px solid #475569;border-radius:10px;background:#0c1624;color:#cbd5e1;font-size:14px}
+
+/* DASHBOARD CSS: byte-identical to the live Revision 47 renderer begins below.
+   Edit .git-comments-* selectors to customize the offline copy. */
+`;
+    const inlineScript = `/* GIT WATCH OFFLINE CONTROLLER
+   This controller uses only this document. It performs no network or API calls. */
+(function () {
+  /* 1. Harden every exported link opened in another browser context. */
+  document.querySelectorAll("a").forEach(function (link) {
+    link.setAttribute("rel", "noreferrer noopener");
+  });
+
+  /* 2. Preserve activity disclosure when its rendered timeline exists. */
+  document.querySelectorAll(".git-comments-button.activity-toggle").forEach(function (button) {
+    var region = document.getElementById(button.getAttribute("aria-controls"));
+    if (!region) {
+      button.remove();
+      return;
+    }
+    function sync(expanded) {
+      var count = (button.textContent.match(/\\((\\d+)\\)/) || ["", "0"])[1];
+      button.setAttribute("aria-expanded", String(expanded));
+      region.hidden = !expanded;
+      button.textContent = (expanded ? "HIDE ACTIVITY" : "SHOW ACTIVITY") + " (" + count + ")";
+    }
+    sync(button.getAttribute("aria-expanded") === "true");
+    button.addEventListener("click", function () {
+      sync(button.getAttribute("aria-expanded") !== "true");
+    });
+  });
+
+  /* 3. Close an exported archive viewer by button, backdrop, or Escape. */
+  var modal = document.querySelector(".git-comments-archive-modal");
+  if (modal) {
+    var backdrop = modal.closest(".git-comments-archive-backdrop");
+    var closeButton = modal.querySelector(".git-comments-button.close-archive-view");
+    function closeModal() {
+      if (backdrop) backdrop.remove();
+      else modal.remove();
+    }
+    if (closeButton) closeButton.addEventListener("click", closeModal);
+    if (backdrop) backdrop.addEventListener("click", function (event) {
+      if (event.target === backdrop) closeModal();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") closeModal();
+    });
+  }
+
+  /* 4. Publish a ready marker for readers, tests, and future offline edits. */
+  document.documentElement.dataset.gitCommentsExport = "ready";
+})();`;
+    const html = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="git-watch-export-version" content="48">
+  <meta name="git-watch-visual-baseline" content="47">
+  <title>GIT WATCH Export</title>
+  <style>${exportShellStyles}${styles}</style>
+</head>
+<body>
+${exportGuide}
+  <div class="git-comments-export-note"><strong>GIT WATCH Export</strong> · Snapshot exported ${exportedAt.toISOString()} · Export format 48 · Visual baseline 47</div>
+
+<!-- EXACT RENDERED DASHBOARD SNAPSHOT: edit this region to change offline content. -->
+${snapshot.outerHTML}
+<!-- END EXACT RENDERED DASHBOARD SNAPSHOT -->
+
+<script>${inlineScript}<\/script>
+</body></html>`;
     const blob = new window.Blob([html], { type: "text/html;charset=utf-8" });
     const href = window.URL.createObjectURL(blob);
     const link = window.document.createElement("a");

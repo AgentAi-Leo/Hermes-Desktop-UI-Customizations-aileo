@@ -1,4 +1,6 @@
-# GIT WATCH V27 UI Refinements — Revision 47
+# GIT WATCH V27 UI Refinements — Revision 48
+
+Revision 48 is export-only hardening; it makes no dashboard visual, state, API, checker, or mutation changes. The single-file HTML export now carries a readable `GIT WATCH OFFLINE FILE GUIDE`, clearly labels the exact cloned HTML snapshot, separates export-shell CSS from the complete byte-identical Revision 47 dashboard CSS, and formats the inline controller with comments explaining link hardening, activity disclosure, archive-view close paths, and the ready marker. The file documents which controls require Hermes and are intentionally omitted offline, identifies where to edit HTML/CSS/JavaScript, and records the final Revision 47 success-popup tokens for future modification. Export schema is `48`; visual baseline remains `47`.
 
 Revision 47 changes every success popup to an exact 25px rounded-rectangle radius and enlarges only the box by exactly 25% from Revision 46: minimum width `523.25px → 654.0625px`, minimum height `114.4px → 143px`, padding `39px 62.4px → 48.75px 78px`, and viewport allowance `62.4px → 78px`. Popup text remains exactly `30.55px`; fills, glow, inner highlight, center placement, three-second dwell, 500ms fade, behavior, animation, and mutation logic are unchanged.
 

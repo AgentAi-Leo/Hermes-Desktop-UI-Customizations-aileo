@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=318" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=319" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -296,10 +296,17 @@ required = [
     'new window.Blob([html], { type: "text/html;charset=utf-8" })',
     'link.download = `git-watch-${exportedAt.toISOString().slice(0, 10)}.html`',
     '<title>GIT WATCH Export</title>',
-    '<meta name="git-watch-export-version" content="47">',
+    '<meta name="git-watch-export-version" content="48">',
+    '<meta name="git-watch-visual-baseline" content="47">',
+    'GIT WATCH OFFLINE FILE GUIDE',
+    'API-DEPENDENT CONTROLS OMITTED',
+    'SUCCESS POPUP TOKENS (Revision 47)',
+    'EXACT RENDERED DASHBOARD SNAPSHOT',
+    'DASHBOARD CSS: byte-identical to the live Revision 47 renderer',
+    'GIT WATCH OFFLINE CONTROLLER',
     'document.querySelectorAll(".git-comments-button.activity-toggle")',
     'document.querySelector(".git-comments-archive-modal")',
-    'if(event.key === "Escape")closeModal()',
+    'if (event.key === "Escape") closeModal()',
     '"Loading GIT WATCH…"',
     '`GIT WATCH failed: ${state.error}`',
     '.git-comments-issue-avatar{width:40px;height:40px;',
