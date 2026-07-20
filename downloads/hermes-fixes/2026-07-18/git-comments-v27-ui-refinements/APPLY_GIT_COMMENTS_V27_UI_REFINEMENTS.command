@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=317" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=318" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -292,10 +292,14 @@ required = [
     'className: `git-comments-success ${successTone}${successFading ? " fading" : ""}`, role: "status", "aria-live": "polite"',
     '`STATUS: ${currentState}`',
     'function exportStandaloneHtml()',
-    'snapshot.querySelectorAll("button,.git-comments-panel-add,.git-comments-success,.git-comments-error")',
+    'snapshot.querySelectorAll(".git-comments-panel-add,.git-comments-success,.git-comments-error,.git-comments-button.add-toggle,.git-comments-button.archive,.git-comments-button.delete,.git-comments-button.restore,.git-comments-button.unarchive,.git-comments-button.view-archived,.git-comments-button.retry-connection,.git-comments-button.export-html")',
     'new window.Blob([html], { type: "text/html;charset=utf-8" })',
     'link.download = `git-watch-${exportedAt.toISOString().slice(0, 10)}.html`',
     '<title>GIT WATCH Export</title>',
+    '<meta name="git-watch-export-version" content="47">',
+    'document.querySelectorAll(".git-comments-button.activity-toggle")',
+    'document.querySelector(".git-comments-archive-modal")',
+    'if(event.key === "Escape")closeModal()',
     '"Loading GIT WATCH…"',
     '`GIT WATCH failed: ${state.error}`',
     '.git-comments-issue-avatar{width:40px;height:40px;',
@@ -310,9 +314,9 @@ required = [
     'showSuccess("CONNECTION RESTORED!", 3000, "green")',
     'fetchJSON(`${API}/refresh`, { method: "POST" })',
     'className: "git-comments-button retry-connection"',
-    '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;min-width:min(523.25px,calc(100vw - 62.4px));max-width:calc(100vw - 62.4px);min-height:min(114.4px,calc(100vh - 62.4px));box-sizing:border-box;transform:translate(-50%,-50%);',
-    'display:flex;align-items:center;justify-content:center;margin:0;padding:39px 62.4px',
-    'border:1px solid rgba(187,247,208,.9);border-radius:35px;background:rgba(18,60,43,.8);color:rgba(255,255,255,.9)',
+    '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;min-width:min(654.0625px,calc(100vw - 78px));max-width:calc(100vw - 78px);min-height:min(143px,calc(100vh - 78px));box-sizing:border-box;transform:translate(-50%,-50%);',
+    'display:flex;align-items:center;justify-content:center;margin:0;padding:48.75px 78px',
+    'border:1px solid rgba(187,247,208,.9);border-radius:25px;background:rgba(18,60,43,.8);color:rgba(255,255,255,.9)',
     'font-size:30.55px;line-height:1.25;font-weight:800;text-align:center;white-space:nowrap',
     'box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(134,239,172,.22),inset 0 1px 0 rgba(255,255,255,.16);backdrop-filter:blur(5.2px)',
     '.git-comments-success.cyan{border-color:rgba(165,243,252,.9);background:rgba(8,51,68,.8);color:rgba(255,255,255,.9);box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(103,232,249,.22),inset 0 1px 0 rgba(255,255,255,.16)}',
