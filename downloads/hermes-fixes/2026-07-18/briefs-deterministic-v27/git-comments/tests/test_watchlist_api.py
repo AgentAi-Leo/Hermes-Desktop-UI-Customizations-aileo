@@ -43,6 +43,7 @@ assert seed["schema_version"] == 1
 assert len(seed["active"]) == 2
 assert len(seed["archived"]) == 0
 assert {entry["number"] for entry in seed["active"]} == {58130, 58510}
+real_github_json = module._github_json
 
 with tempfile.TemporaryDirectory() as temporary:
     root = Path(temporary)
@@ -251,6 +252,56 @@ with tempfile.TemporaryDirectory() as temporary:
     assert state["active"] == []
     assert state["archived"] == []
     expect_http(404, module.delete_watch_url, {"id": "owner/repo/issues/42"})
+
+    module._run_checker = lambda: {"ok": True, "test": "manual-recovery"}
+    recovered = module.refresh_watcher()
+    assert recovered["refresh"] == {"ok": True, "test": "manual-recovery"}
+    assert recovered["watchlist"]["active"] == []
+    module._run_checker = lambda: {"ok": False, "error": "fixture connection failure"}
+    failed_recovery = module.refresh_watcher()
+    assert failed_recovery["refresh"]["ok"] is False
+    assert failed_recovery["refresh"]["error"] == "fixture connection failure"
+
+    class JsonResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self, *_args):
+            return b'{"connection": "recovered"}'
+
+    retry_attempts = []
+    retry_delays = []
+
+    def flaky_urlopen(_request, timeout=30):
+        retry_attempts.append(timeout)
+        if len(retry_attempts) < 3:
+            raise module.urllib.error.HTTPError("https://api.github.com/test", 503, "fixture unavailable", {}, None)
+        return JsonResponse()
+
+    module.urllib.request.urlopen = flaky_urlopen
+    module.time.sleep = lambda delay: retry_delays.append(delay)
+    module._github_json = real_github_json
+    assert module._github_json("/test") == {"connection": "recovered"}
+    assert retry_attempts == [30, 30, 30]
+    assert retry_delays == [1, 2]
+
+    nonretry_attempts = []
+
+    def nonretryable_urlopen(_request, timeout=30):
+        nonretry_attempts.append(timeout)
+        raise module.urllib.error.HTTPError("https://api.github.com/missing", 404, "fixture missing", {}, None)
+
+    module.urllib.request.urlopen = nonretryable_urlopen
+    try:
+        module._github_json("/missing")
+    except module.urllib.error.HTTPError as reason:
+        assert reason.code == 404
+    else:
+        raise AssertionError("non-retryable 404 must propagate immediately")
+    assert nonretry_attempts == [30]
 
     def failed_hydration(_path: str):
         raise OSError("fixture transport failed")

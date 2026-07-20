@@ -1,8 +1,10 @@
-# GIT WATCH V27 UI Refinements — Revision 43
+# GIT WATCH V27 UI Refinements — Revision 44
 
-Revision 43 makes every success popup use the same 3-second dwell, reduces the centered popup from 1020×208px to the screenshot-derived 805×176px yellow-guide target, and sets the exact popup font size to 35px while preserving the accepted 500ms fade, center placement, 80%-opaque action colors, fully opaque text, blur, shadow, padding, and timer reset behavior.
+Revision 44 repairs transient GitHub connectivity with four bounded attempts and 1/2/4-second exponential backoff in both the background checker and immediate hydration API. A broken health card now exposes `RETRY CONNECTION`, uses the dedicated `/refresh` endpoint without changing watchlist membership, reports the real failure when recovery is unsuccessful, and displays `CONNECTION RESTORED!` only after explicit checker success. `Last successful check` now prefers the last valid normalized snapshot timestamp instead of a failed-attempt timestamp.
 
-Revision 43 also migrates existing stored active and archived records that predate `presentation.at_a_glance`. Active rows are migrated once from existing checker data; archived rows are migrated once from their existing sanitized snapshot. No GitHub request is needed. The same allowlisted `presentation` object and cyan summary then flow unchanged through Add → Archive → Unarchive, restoring the original active-card title, author/avatar, dates, status/comment pills, body, comments, lifecycle data, and summary after Unarchive.
+Revision 44 keeps the accepted centered 805×176px success surface and unified 3-second dwell plus 500ms fade, increases success text from 35px to exactly 47px, and uses `rgba(255,255,255,.9)` lettering for green, cyan, and red actions while preserving 80%-opaque action-colored backgrounds, blur, shadow, padding, border, radius, center placement, and timer reset behavior.
+
+Revision 44 also collapses each dense lifecycle/label activity timeline by default. Cards with retained events show `SHOW ACTIVITY (N)` / `HIDE ACTIVITY (N)` with `aria-expanded`, `aria-controls`, and a deterministic per-card region ID. Comments, current status, and all normalized activity remain intact; collapsed history simply stops consuming vertical card space until expanded.
 
 Revision 40 strengthens separation between success feedback and dashboard content while preserving the unified center position and all established dwell/fade timings. Popup text doubles from 24px to 48px; padding expands from 15px/24px to 60px/96px; the viewport-constrained target box is up to 1200px wide with a 280px minimum height. Green, cyan, and red backgrounds use 80% opacity while text remains fully opaque. A medium two-layer soft drop shadow and 8px backdrop blur improve readability over busy cards.
 
@@ -28,8 +30,8 @@ The dashboard-facing name is exactly `GIT WATCH`. Internal plugin IDs, routes, A
 - Displays `WATCHER HEALTHY` followed by a green circle only when the watcher reports `ok=true`, `stale=false`, and status `healthy`.
 - Displays `BROKEN` followed by a red circle for failed, missing, unknown, or stale health.
 - Retains important GitHub lifecycle history—opened, closed, and reopened.
-- Restores GitHub label/tag history such as `sweeper:cannot-reproduce`, rendered as a colored timeline pill.
-- Places the complete opened/closed/reopened and label/tag timeline at the end of each issue card, after comments.
+- Retains GitHub label/tag history such as `sweeper:cannot-reproduce`, rendered as colored timeline pills when activity is expanded.
+- Places an accessible collapsed-by-default `SHOW ACTIVITY (N)` disclosure after comments; expanding it reveals the complete opened/closed/reopened and label/tag timeline without deleting data.
 - Synthesizes the opening event from the GitHub issue creator/time because GitHub’s timeline endpoint does not return that row.
 - Places the `COMMENTS (n)` pill on a second row beneath the issue identity.
 - Hydrates every newly added issue or pull request with its GitHub title, description, current open/closed state, author, created and updated timestamps, and current labels.
@@ -72,7 +74,7 @@ The dashboard-facing name is exactly `GIT WATCH`. Internal plugin IDs, routes, A
 - Retains sanitized issue snapshots for newly archived items; already-archived items use a read-only live GitHub fallback.
 - Renames the dashboard tab and all renderer-facing loading, failure, and standalone-export copy to `GIT WATCH`; exported files use `git-watch-YYYY-MM-DD.html`.
 - Adds each issue author's 40px circular GitHub profile picture immediately after `by <author>` when `avatar_url` is available.
-- Keeps `URL ADDED SUCCESSFULLY!` visible for five seconds, then fades it over 500ms.
+- Keeps `URL ADDED SUCCESSFULLY!` visible for three seconds, then fades it over 500ms, matching all other successful actions.
 - Shows `URL SUCCESSFULLY ARCHIVED!` after a successful Archive action for three seconds, then fades it over 500ms.
 - Adds a red, confirmation-protected `DELETE` action that permanently removes an active watch instead of archiving it.
 - Retains canonical GitHub hyperlinks on every issue and pull-request number.
@@ -111,7 +113,7 @@ The updater:
 - backs up candidate code and data before changing anything;
 - aligns the preview API with the profile-local watcher data source;
 - installs and verifies the candidate-only permanent-delete API in both candidate plugin roots;
-- runs a fresh GitHub check;
+- installs the retry-capable checker into both candidate roots, runs a fresh GitHub check, and exposes manual broken-state recovery;
 - verifies the fresh profile-local snapshot and health files directly, avoiding the browser-authenticated API endpoint that rejects unauthenticated `curl` with HTTP 401;
 - restarts only preview port 9120;
 - verifies manifest discovery, genuinely healthy live status, lifecycle data, and the served bundle;

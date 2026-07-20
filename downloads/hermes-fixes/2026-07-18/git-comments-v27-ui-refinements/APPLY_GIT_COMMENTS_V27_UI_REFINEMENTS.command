@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=314" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=315" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -234,6 +234,8 @@ required = [
     '.git-comments-current-state.merged{border-color:#a78bfa;color:#e9d5ff;background:rgba(91,33,182,.25)}',
     '.git-comments-status-cluster{display:flex;align-items:center;gap:12px;flex:0 0 auto;white-space:nowrap}',
     '.git-comments-health-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}',
+    '.git-comments-health-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap}',
+    '.git-comments-button.retry-connection{border-color:#ef4444;background:#4a151b;color:#fff}',
     '.git-comments-button.export-html{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:54px;padding:0 24px;border:1px solid #FFE6CB;border-radius:0;background:#0b1324;color:#FFE6CB;font-size:18px;letter-spacing:.08em}',
     '.git-comments-issue-context-meta{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;overflow-x:auto;color:#9ca9bd;font-size:14.95px}',
     '.git-comments-status-text{display:flex;align-items:center;min-height:44px;gap:12px;flex-wrap:nowrap;white-space:nowrap}',
@@ -270,6 +272,11 @@ required = [
     '"WATCHER HEALTHY" : "BROKEN"',
     'new Set(["opened", "closed", "reopened", "labeled", "unlabeled"])',
     'aria-label": "Important GitHub status timeline"',
+    'className: "git-comments-button activity-toggle"',
+    'activityOpen ? "HIDE ACTIVITY" : "SHOW ACTIVITY"',
+    '"aria-expanded": activityOpen, "aria-controls": activityId',
+    'onClick: () => setActivityOpen((open) => !open)',
+    '.git-comments-button.activity-toggle{margin:0 14px 14px;border-color:#64748b;background:#172033;color:#dbe5f4}',
     'function issueStatus(issue)',
     'className: `git-comments-watch-state ${status}`',
     'className: "git-comments-event-label"',
@@ -300,13 +307,16 @@ required = [
     'showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan")',
     'showSuccess("SUCCESSFULLY DELETED!", 3000, "red")',
     'showSuccess("SUCCESSFULLY UNARCHIVED!", 3000, "green")',
+    'showSuccess("CONNECTION RESTORED!", 3000, "green")',
+    'fetchJSON(`${API}/refresh`, { method: "POST" })',
+    'className: "git-comments-button retry-connection"',
     '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:min(805px,calc(100vw - 96px));min-height:min(176px,calc(100vh - 96px));box-sizing:border-box;transform:translate(-50%,-50%);',
     'display:flex;align-items:center;justify-content:center;margin:0;padding:60px 96px',
-    'border:1px solid #4ade80;border-radius:27px;background:rgba(18,60,43,.8)',
-    'font-size:35px;line-height:1.25;font-weight:800;text-align:center',
+    'border:1px solid #4ade80;border-radius:27px;background:rgba(18,60,43,.8);color:rgba(255,255,255,.9)',
+    'font-size:47px;line-height:1.25;font-weight:800;text-align:center',
     'box-shadow:0 24px 64px rgba(0,0,0,.6),0 8px 24px rgba(0,0,0,.36);backdrop-filter:blur(8px)',
-    '.git-comments-success.cyan{border-color:#22d3ee;background:rgba(8,51,68,.8);color:#cffafe}',
-    '.git-comments-success.red{border-color:#ef4444;background:rgba(74,21,27,.8);color:#fecaca}',
+    '.git-comments-success.cyan{border-color:#22d3ee;background:rgba(8,51,68,.8);color:rgba(255,255,255,.9)}',
+    '.git-comments-success.red{border-color:#ef4444;background:rgba(74,21,27,.8);color:rgba(255,255,255,.9)}',
     '.git-comments-archived-row{display:flex;align-items:flex-start;',
     '.git-comments-archived-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex:0 0 auto}',
     '.git-comments-archived-actions .git-comments-button{min-height:32px;height:32px;padding:5px 11px;font-size:12px}',
@@ -342,7 +352,7 @@ required = [
 ]
 for marker in required:
     assert marker in source, marker
-assert source.index('comments.length ? e("div"') < source.index('visibleStatusEvents.length ? e("div"'), "timeline must follow comments"
+assert source.index('comments.length ? e("div"') < source.index('visibleStatusEvents.length ? ['), "collapsed activity disclosure must follow comments"
 for forbidden in ['View on GitHub', '✓ ARCHIVE', '💼 WATCHED GITHUB ISSUES & PULL REQUESTS']:
     assert forbidden not in source, forbidden
 assert '`${received.length} received`' not in source, "redundant received count remains"
@@ -382,8 +392,8 @@ assert archived_map < archived_content < archived_primary < archived_time < arch
 assert 'SUCCESSFULLY UNARCHIVED!!' not in source, "obsolete double-exclamation unarchive text remains"
 assert 'successPlacement' not in source and '.git-comments-success.top{' not in source and '.git-comments-success.bottom{' not in source, "per-action popup placement remains instead of one unified center position"
 assert source.count('showSuccess("SUCCESSFULLY DELETED!", 3000, "red")') == 2, "both active and archived delete paths must publish red success"
-assert source.count('showSuccess("') == 5 and 'showSuccess("URL ADDED SUCCESSFULLY!", 5000)' not in source, "every successful mutation must use the three-second popup contract"
-assert 'width:min(1020px' not in source and 'font-size:43.2px' not in source, "superseded Revision 41 popup geometry remains"
+assert source.count('showSuccess("') == 6 and 'showSuccess("URL ADDED SUCCESSFULLY!", 5000)' not in source, "all six successful action paths must use the three-second popup contract"
+assert 'width:min(1020px' not in source and 'font-size:43.2px' not in source and 'font-size:35px' not in source, "superseded popup geometry or typography remains"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 health_top = source.index('className: "git-comments-health-top"', health_start)
@@ -396,6 +406,9 @@ assert health_start < health_top < health_title < export_button < health_top_end
 for path in map(Path, sys.argv[2:4]):
     api = path.read_text(encoding="utf-8")
     assert '@router.post("/watchlist/delete")' in api, path
+    assert '@router.post("/refresh")' in api, path
+    assert 'for attempt in range(4):' in api and 'time.sleep(2 ** attempt)' in api, path
+    assert 'code not in {429, 500, 502, 503, 504}' in api, path
     assert 'for collection in ("active", "archived")' in api, path
     assert 'result["deleted_from"] = deleted_from' in api, path
     assert 'watchlist["active"].insert(0, entry)' in api, path
@@ -417,6 +430,8 @@ for path in map(Path, sys.argv[4:6]):
     assert '"merged_at": merged_at' in checker, path
     assert '"merged": bool(merged_at)' in checker, path
     assert '"at_a_glance": str((entry.get("presentation") or {}).get("at_a_glance") or old_issue.get("at_a_glance") or "")' in checker, path
+    assert 'for attempt in range(4):' in checker and 'time.sleep(2 ** attempt)' in checker, path
+    assert 'code not in {429, 500, 502, 503, 504}' in checker, path
 print("V27_UI_REFINEMENTS_LIVE_BUNDLE=PASS")
 PY
 rm -f "$LIVE_BUNDLE"
@@ -430,4 +445,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=314"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=315"

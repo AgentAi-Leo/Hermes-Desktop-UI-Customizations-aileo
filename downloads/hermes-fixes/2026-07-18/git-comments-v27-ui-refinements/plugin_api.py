@@ -6,6 +6,8 @@ import os
 import re
 import subprocess
 import tempfile
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -195,8 +197,19 @@ def _github_json(path: str) -> Any:
     if token:
         headers["Authorization"] = f"Bearer {token}"
     request = urllib.request.Request(f"https://api.github.com{path}", headers=headers)
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return json.load(response)
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as reason:
+            code = int(reason.code)
+            if attempt == 3 or code not in {429, 500, 502, 503, 504}:
+                raise
+        except (urllib.error.URLError, TimeoutError, OSError):
+            if attempt == 3:
+                raise
+        time.sleep(2 ** attempt)
+    raise RuntimeError("GitHub request retry loop exhausted")
 
 
 def _live_entry_snapshot(entry: dict, comment_owner: str) -> dict:
@@ -326,6 +339,14 @@ def _payload() -> dict:
 @router.get("/data")
 def get_data() -> dict:
     return _payload()
+
+
+@router.post("/refresh")
+def refresh_watcher() -> dict:
+    refresh = _run_checker()
+    result = _payload()
+    result["refresh"] = refresh
+    return result
 
 
 @router.post("/watchlist/add")

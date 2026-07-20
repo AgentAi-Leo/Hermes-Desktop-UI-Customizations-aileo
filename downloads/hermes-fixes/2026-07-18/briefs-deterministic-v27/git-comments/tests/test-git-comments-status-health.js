@@ -158,8 +158,10 @@ for (const payloadMarker of ['"body": issue.get("body") or ""', '"at_a_glance": 
 assert(!rendered.includes("COMMENTS RECEIVED"), "received text must be removed from the comment pill");
 assert(!rendered.includes("View on GitHub"), "redundant source-link text must be absent everywhere");
 assert(rendered.includes("Contributor"), "commenter association missing");
-assert(rendered.includes("closed this as not planned"), "closure reason event missing");
-assert(rendered.includes("sweeper:cannot-reproduce"), "GitHub label/tag timeline event missing");
+assert(!rendered.includes("closed this as not planned") && !rendered.includes("sweeper:cannot-reproduce"), "lifecycle activity must be collapsed by default");
+const activityButtons = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-button activity-toggle");
+assert(activityButtons.length === 1 && text(activityButtons[0]).trim() === "SHOW ACTIVITY (2)" && activityButtons[0].props?.["aria-expanded"] === false && activityButtons[0].props?.["aria-controls"], "cards with lifecycle events need one accessible collapsed activity control with a count");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-events").length === 0, "collapsed activity must not consume card height");
 assert(rendered.includes("WATCHER HEALTHY"), "healthy title missing");
 assert(rendered.includes("+ ADD URL TO WATCH"), "add URL control missing");
 assert(rendered.includes("ARCHIVE"), "archive control missing");
@@ -188,7 +190,7 @@ assert(source.includes('.git-comments-current-state.closed{border-color:#ef4444;
 assert(source.includes('.git-comments-current-state.merged{border-color:#a78bfa;color:#e9d5ff;background:rgba(91,33,182,.25)}'), "merged status pill must use a 25% translucent purple fill");
 assert(source.includes('className: `git-comments-comment-label ${status}`'), "comment pill class must follow effective issue status");
 assert(source.includes('.git-comments-issue-context-meta{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;overflow-x:auto;color:#9ca9bd;font-size:14.95px}'), "single-line metadata text must remain exactly 15% larger than 13px");
-assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-event-label" && text(node).includes("sweeper:cannot-reproduce")).length === 1, "label event must render as a tag pill");
+assert(source.includes('activityOpen ? "HIDE ACTIVITY" : "SHOW ACTIVITY"') && source.includes('onClick: () => setActivityOpen((open) => !open)'), "activity control must toggle between SHOW and HIDE without discarding timeline data");
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-button delete") && text(node).includes("DELETE")).length === 2, "every active watched item must have a red DELETE action");
 assert.strictEqual(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-status" || String(node.props?.className || "").startsWith("git-comments-status received")).length, 0, "separate received-count text must be removed");
 const panelTitle = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-panel-title")[0];
@@ -217,9 +219,9 @@ assert(source.includes('window.setTimeout(() => setActionSuccess(""), successDur
 assert(source.includes('className: `git-comments-success ${successTone}${successFading ? " fading" : ""}`'), "success popup must render tone and fading-state classes without per-action placement");
 assert(source.includes('.git-comments-success{') && source.includes('transition:opacity .5s ease') && source.includes('.git-comments-success.fading{opacity:0;pointer-events:none}'), "success notice CSS must visibly fade over 500ms without intercepting controls");
 assert(source.includes('role: "status", "aria-live": "polite"'), "success status must render as an accessible polite live message");
-assert(source.includes('.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:min(805px,calc(100vw - 96px));min-height:min(176px,calc(100vh - 96px));box-sizing:border-box;transform:translate(-50%,-50%);') && source.includes('display:flex;align-items:center;justify-content:center') && source.includes('padding:60px 96px') && source.includes('font-size:35px') && source.includes('border-radius:27px') && source.includes('box-shadow:0 24px 64px rgba(0,0,0,.6),0 8px 24px rgba(0,0,0,.36)') && source.includes('backdrop-filter:blur(8px)') && source.includes('transition:opacity .5s ease'), "center popup must match the newest yellow-guide 805px by 176px box with exact 35px text while preserving all other styling");
+assert(source.includes('.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:min(805px,calc(100vw - 96px));min-height:min(176px,calc(100vh - 96px));box-sizing:border-box;transform:translate(-50%,-50%);') && source.includes('display:flex;align-items:center;justify-content:center') && source.includes('padding:60px 96px') && source.includes('font-size:47px') && source.includes('color:rgba(255,255,255,.9)') && source.includes('border-radius:27px') && source.includes('box-shadow:0 24px 64px rgba(0,0,0,.6),0 8px 24px rgba(0,0,0,.36)') && source.includes('backdrop-filter:blur(8px)') && source.includes('transition:opacity .5s ease'), "center popup must retain the 805px by 176px box with exact 47px text and 90%-opaque white lettering while preserving all other styling");
 assert(!source.includes('width:min(1020px') && !source.includes('font-size:43.2px'), "superseded Revision 41 popup geometry must be absent");
-assert(source.includes('background:rgba(18,60,43,.8)') && source.includes('.git-comments-success.cyan{border-color:#22d3ee;background:rgba(8,51,68,.8);color:#cffafe}') && source.includes('.git-comments-success.red{border-color:#ef4444;background:rgba(74,21,27,.8);color:#fecaca}') && !source.includes('.git-comments-success{opacity:.8'), "popup backgrounds must be 80% opaque while text remains fully opaque");
+assert(source.includes('background:rgba(18,60,43,.8)') && source.includes('.git-comments-success.cyan{border-color:#22d3ee;background:rgba(8,51,68,.8);color:rgba(255,255,255,.9)}') && source.includes('.git-comments-success.red{border-color:#ef4444;background:rgba(74,21,27,.8);color:rgba(255,255,255,.9)}') && !source.includes('.git-comments-success{opacity:.8'), "popup backgrounds must remain 80% opaque while every action tone uses 90%-opaque white text");
 const summary = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-summary")[0];
 assert(summary && summary.props?.style?.fontWeight === 400, "watch summary must use normal weight");
 assert(nodes(summary, (node) => String(node.props?.className || "") === "git-comments-summary-commented" && text(node).includes("COMMENTED (1)") && node.props?.style?.color === "#4ade80").length === 1, "COMMENTED summary must be green");
@@ -231,7 +233,7 @@ const healthTitle = nodes(tree, (node) => String(node.props?.className || "") ==
 assert(healthTitle.children[0].props?.style?.fontSize === "22.5px", "WATCHER HEALTHY must be 25% larger than 18px");
 assert(String(healthTitle.children[1].props?.className || "").includes("git-comments-health-dot healthy"), "healthy green indicator must render immediately right of its title");
 const healthTop = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-health-top")[0];
-assert(healthTop && String(healthTop.children[0]?.props?.className || "") === "git-comments-health-title" && String(healthTop.children[1]?.props?.className || "").includes("git-comments-button export-html"), "Briefs-style EXPORT HTML must be the right-hand control in the health card's top row");
+assert(healthTop && String(healthTop.children[0]?.props?.className || "") === "git-comments-health-title" && String(healthTop.children[1]?.props?.className || "") === "git-comments-health-actions" && nodes(healthTop.children[1], (node) => String(node.props?.className || "").includes("git-comments-button export-html")).length === 1, "health actions must retain the Briefs-style HTML control at top-right");
 assert(source.includes('.git-comments-health-top{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}'), "export control must be pinned to the health card's top-right");
 assert(source.includes('.git-comments-button.export-html{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:54px;padding:0 24px;border:1px solid #FFE6CB;border-radius:0;background:#0b1324;color:#FFE6CB;font-size:18px;letter-spacing:.08em}'), "Git Comments export must match the pictured Briefs outlined HTML control");
 assert(source.includes('.git-comments-watch-state{font-size:18.75px;line-height:1.1;font-weight:800'), "WATCHING must remain 25% larger and bold");
@@ -240,11 +242,24 @@ assert(source.includes('.git-comments-watch-state.closed{color:#ef4444}'), "clos
 assert(source.includes('.git-comments-watch-state.merged{color:#a78bfa}'), "merged WATCHING must be purple");
 assert(source.includes('.git-comments-number-link{font-size:25px'), "issue number must be 25% larger than 20px");
 assert(source.includes('health.status === "healthy"'), "green health requires an explicit healthy execution status");
+assert(checker.includes('for attempt in range(4):') && checker.includes('time.sleep(2 ** attempt)') && checker.includes('code not in {429, 500, 502, 503, 504}'), "checker GitHub transport must retry transient connection and rate-limit failures");
+assert(api.includes('for attempt in range(4):') && api.includes('time.sleep(2 ** attempt)') && api.includes('code not in {429, 500, 502, 503, 504}') && api.includes('@router.post("/refresh")'), "immediate hydration and manual recovery must share bounded retry semantics");
 const issue58510 = nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-issue") && text(node).includes("#58510"))[0];
-const importantTimelineIndex = issue58510.children.findIndex((node) => String(node?.props?.className || "") === "git-comments-events");
 const commentsIndex = issue58510.children.findIndex((node) => String(node?.props?.className || "") === "git-comments-comments");
-assert(importantTimelineIndex > commentsIndex, "lifecycle/tag timeline must render at the end of the issue card after comments");
+const activityToggleIndex = issue58510.children.findIndex((node) => String(node?.props?.className || "") === "git-comments-button activity-toggle");
+assert(activityToggleIndex > commentsIndex && issue58510.children.findIndex((node) => String(node?.props?.className || "") === "git-comments-events") === -1, "collapsed activity control must follow comments while the timeline remains hidden");
 assert(source.includes('.git-comments-repo-primary{font-size:20.8px;color:#fff;font-weight:900}'), "repository name must be exactly 30% larger than 16px and extra bold");
+
+const healthyFixture = fixture;
+fixture = { ...healthyFixture, watcher_health: { ok: false, stale: false, status: "failed", checked_at: "2026-07-19T04:01:00Z", error: "HTTPError: HTTP Error 503" } };
+tree = registered();
+rendered = text(tree);
+const retryButton = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-button retry-connection")[0];
+assert(rendered.includes("BROKEN") && retryButton && text(retryButton).trim() === "RETRY CONNECTION" && typeof retryButton.props?.onClick === "function", "broken health must expose an explicit connection recovery action");
+assert(source.includes('fetchJSON(`${API}/refresh`, { method: "POST" })') && source.includes('showSuccess("CONNECTION RESTORED!", 3000, "green")'), "retry action must call the dedicated refresh endpoint and confirm only successful recovery");
+fixture = healthyFixture;
+tree = registered();
+rendered = text(tree);
 
 const primaryFixture = fixture;
 fixture = {
@@ -336,12 +351,12 @@ const archiveViewLabel = vm.runInNewContext(`(function archivedViewLabel(entry, 
 assert(archiveViewLabel({ kind: "issue", url: "https://github.com/o/r/issues/1" }) === "VIEW ISSUE", "issue button must read VIEW ISSUE");
 assert(archiveViewLabel({ kind: "pull", url: "https://github.com/o/r/pull/2" }) === "VIEW PR", "pull-request button must read VIEW PR");
 assert(source.includes('.git-comments-success{position:fixed;left:50%;top:50%;') && !source.includes('.git-comments-success.top{') && !source.includes('.git-comments-success.bottom{'), "all completion popups must use one unified center-screen position");
-assert(source.includes('.git-comments-success.cyan{border-color:#22d3ee;background:rgba(8,51,68,.8);color:#cffafe}'), "archive success must retain cyan styling with an 80%-opaque background");
-assert(source.includes('.git-comments-success.red{border-color:#ef4444;background:rgba(74,21,27,.8);color:#fecaca}'), "delete success must retain red styling with an 80%-opaque background");
+assert(source.includes('.git-comments-success.cyan{border-color:#22d3ee;background:rgba(8,51,68,.8);color:rgba(255,255,255,.9)}'), "archive success must retain cyan surface styling with 90%-opaque white text");
+assert(source.includes('.git-comments-success.red{border-color:#ef4444;background:rgba(74,21,27,.8);color:rgba(255,255,255,.9)}'), "delete success must retain red surface styling with 90%-opaque white text");
 assert(source.includes('showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan")'), "archive success must use the unified cyan 3-second popup");
 assert(source.includes('showSuccess("SUCCESSFULLY DELETED!", 3000, "red")'), "both delete paths must use the red SUCCESSFULLY DELETED popup");
 assert(source.match(/showSuccess\("SUCCESSFULLY DELETED!", 3000, "red"\)/g)?.length === 2, "main-watch and archived delete paths must each publish red success");
-assert(!source.includes('showSuccess("URL ADDED SUCCESSFULLY!", 5000)') && source.match(/showSuccess\([^\n]+3000/g)?.length === 5, "all five successful mutation paths must use one 3000ms dwell");
+assert(!source.includes('showSuccess("URL ADDED SUCCESSFULLY!", 5000)') && source.match(/showSuccess\([^\n]+3000/g)?.length === 6, "all six successful action paths must use one 3000ms dwell");
 assert(source.includes('showSuccess("SUCCESSFULLY UNARCHIVED!", 3000, "green")'), "unarchive must publish the exact green unified-center success popup");
 assert(!source.includes('SUCCESSFULLY UNARCHIVED!!'), "obsolete double-exclamation unarchive text must be removed");
 assert(source.includes('git-comments-success ${successTone}') && source.includes('setSuccessTone(tone)') && !source.includes('successPlacement'), "success renderer must apply only tone because every action shares one center position");

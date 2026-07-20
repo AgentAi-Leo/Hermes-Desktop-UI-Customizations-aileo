@@ -14,7 +14,7 @@ export GIT_COMMENTS_WATCHLIST_FILE="$WATCHLIST_FILE"
 
 python3 - <<'PY'
 from __future__ import annotations
-import json, os, tempfile, urllib.parse, urllib.request
+import json, os, tempfile, time, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -61,8 +61,19 @@ def github(path: str):
     if token:
         headers["Authorization"] = f"Bearer {token}"
     request = urllib.request.Request(f"https://api.github.com{path}", headers=headers)
-    with urllib.request.urlopen(request, timeout=30) as response:
-        return json.load(response)
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as reason:
+            code = int(reason.code)
+            if attempt == 3 or code not in {429, 500, 502, 503, 504}:
+                raise
+        except (urllib.error.URLError, TimeoutError, OSError):
+            if attempt == 3:
+                raise
+        time.sleep(2 ** attempt)
+    raise RuntimeError("GitHub request retry loop exhausted")
 
 
 def actor(value: dict | None) -> dict:
