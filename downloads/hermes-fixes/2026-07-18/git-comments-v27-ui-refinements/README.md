@@ -1,4 +1,6 @@
-# GIT WATCH V27 UI Refinements — Revision 44
+# GIT WATCH V27 UI Refinements — Revision 45
+
+Revision 45 keeps every success message on one line and reduces the popup typography, target minimum geometry, padding, viewport margin, shadow, and backdrop blur by exactly 35%. The longest message is allowed to expand the content-width box beyond the 523.25px scaled minimum so it cannot wrap or clip. Every green, cyan, and red success surface now uses a thin white border with an exact 7px corner radius while retaining 90%-opaque white text, 80%-opaque action colors, viewport-center placement, the 3-second dwell, and the 500ms fade.
 
 Revision 44 repairs transient GitHub connectivity with four bounded attempts and 1/2/4-second exponential backoff in both the background checker and immediate hydration API. A broken health card now exposes `RETRY CONNECTION`, uses the dedicated `/refresh` endpoint without changing watchlist membership, reports the real failure when recovery is unsuccessful, and displays `CONNECTION RESTORED!` only after explicit checker success. `Last successful check` now prefers the last valid normalized snapshot timestamp instead of a failed-attempt timestamp.
 

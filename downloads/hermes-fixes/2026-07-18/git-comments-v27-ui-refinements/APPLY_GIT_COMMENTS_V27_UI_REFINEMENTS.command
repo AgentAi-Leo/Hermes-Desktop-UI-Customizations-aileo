@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=315" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=316" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -310,13 +310,13 @@ required = [
     'showSuccess("CONNECTION RESTORED!", 3000, "green")',
     'fetchJSON(`${API}/refresh`, { method: "POST" })',
     'className: "git-comments-button retry-connection"',
-    '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:min(805px,calc(100vw - 96px));min-height:min(176px,calc(100vh - 96px));box-sizing:border-box;transform:translate(-50%,-50%);',
-    'display:flex;align-items:center;justify-content:center;margin:0;padding:60px 96px',
-    'border:1px solid #4ade80;border-radius:27px;background:rgba(18,60,43,.8);color:rgba(255,255,255,.9)',
-    'font-size:47px;line-height:1.25;font-weight:800;text-align:center',
-    'box-shadow:0 24px 64px rgba(0,0,0,.6),0 8px 24px rgba(0,0,0,.36);backdrop-filter:blur(8px)',
-    '.git-comments-success.cyan{border-color:#22d3ee;background:rgba(8,51,68,.8);color:rgba(255,255,255,.9)}',
-    '.git-comments-success.red{border-color:#ef4444;background:rgba(74,21,27,.8);color:rgba(255,255,255,.9)}',
+    '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;min-width:min(523.25px,calc(100vw - 62.4px));max-width:calc(100vw - 62.4px);min-height:min(114.4px,calc(100vh - 62.4px));box-sizing:border-box;transform:translate(-50%,-50%);',
+    'display:flex;align-items:center;justify-content:center;margin:0;padding:39px 62.4px',
+    'border:1px solid #fff;border-radius:7px;background:rgba(18,60,43,.8);color:rgba(255,255,255,.9)',
+    'font-size:30.55px;line-height:1.25;font-weight:800;text-align:center;white-space:nowrap',
+    'box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36);backdrop-filter:blur(5.2px)',
+    '.git-comments-success.cyan{border-color:#fff;background:rgba(8,51,68,.8);color:rgba(255,255,255,.9)}',
+    '.git-comments-success.red{border-color:#fff;background:rgba(74,21,27,.8);color:rgba(255,255,255,.9)}',
     '.git-comments-archived-row{display:flex;align-items:flex-start;',
     '.git-comments-archived-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex:0 0 auto}',
     '.git-comments-archived-actions .git-comments-button{min-height:32px;height:32px;padding:5px 11px;font-size:12px}',
@@ -393,7 +393,7 @@ assert 'SUCCESSFULLY UNARCHIVED!!' not in source, "obsolete double-exclamation u
 assert 'successPlacement' not in source and '.git-comments-success.top{' not in source and '.git-comments-success.bottom{' not in source, "per-action popup placement remains instead of one unified center position"
 assert source.count('showSuccess("SUCCESSFULLY DELETED!", 3000, "red")') == 2, "both active and archived delete paths must publish red success"
 assert source.count('showSuccess("') == 6 and 'showSuccess("URL ADDED SUCCESSFULLY!", 5000)' not in source, "all six successful action paths must use the three-second popup contract"
-assert 'width:min(1020px' not in source and 'font-size:43.2px' not in source and 'font-size:35px' not in source, "superseded popup geometry or typography remains"
+assert 'width:min(1020px' not in source and 'font-size:43.2px' not in source and 'font-size:35px' not in source and 'width:min(805px' not in source and 'font-size:47px' not in source, "superseded popup geometry or typography remains"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
 health_start = source.index('e("section", { className: "git-comments-health" }')
 health_top = source.index('className: "git-comments-health-top"', health_start)
@@ -445,4 +445,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=315"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=316"
