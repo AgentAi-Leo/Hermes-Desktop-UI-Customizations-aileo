@@ -36,7 +36,7 @@ const verifierRun = spawnSync("python3", ["-", rendererPath, path.join(packageDi
 assert.strictEqual(verifierRun.status, 0, `embedded live verifier failed:\n${verifierRun.stdout}${verifierRun.stderr}`);
 assert(source.includes('for destination in "$LAUNCH_API" "$PROFILE_API"'), "updater must install the API into both candidate roots");
 assert(source.includes('allowed = {"opened", "closed", "reopened", "labeled", "unlabeled"}'), "updater must verify lifecycle and label/tag event data");
-assert(source.includes('ui=316'), "Revision 45 cache-busting marker missing");
+assert(source.includes('ui=322'), "Revision 51 cache-busting marker missing");
 assert(source.includes('PRODUCTION_GIT_COMMENTS_RUNTIME=UNTOUCHED') && source.includes('PRODUCTION_GIT_COMMENTS_SIDEBAR_LABEL=GIT WATCH') && source.includes('PRODUCTION_9119=NOT_RESTARTED'), "updater status must distinguish untouched production runtime from the intentional sidebar-label update");
 assert(source.indexOf('GIT_COMMENTS_V27_UI_REFINEMENTS=PASS') < source.indexOf('open -a "Brave Browser"'), "Brave must open only after every verification passes");
 console.log("GIT_COMMENTS_UI_UPDATER_AUTH_REGRESSION=PASS");

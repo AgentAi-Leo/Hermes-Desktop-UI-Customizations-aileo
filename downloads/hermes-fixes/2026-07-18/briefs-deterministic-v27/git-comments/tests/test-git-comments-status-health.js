@@ -17,24 +17,34 @@ let removedExportControls = 0;
 let chimeOscillators = [];
 let chimeGains = [];
 class MockAudioParam {
-  constructor() { this.events = []; }
+  constructor() { this.events = []; this.value = 0; }
   setValueAtTime(value, time) { this.events.push(["set", value, time]); }
   exponentialRampToValueAtTime(value, time) { this.events.push(["ramp", value, time]); }
 }
 class MockOscillator {
   constructor() { this.frequency = new MockAudioParam(); this.type = ""; this.starts = []; this.stops = []; chimeOscillators.push(this); }
-  connect(node) { this.connected = node; }
+  connect(node) { this.connected = node; return node; }
   start(time) { this.starts.push(time); }
   stop(time) { this.stops.push(time); }
 }
 class MockGain {
   constructor() { this.gain = new MockAudioParam(); chimeGains.push(this); }
-  connect(node) { this.connected = node; }
+  connect(node) { this.connected = node; return node; }
+  disconnect() {}
+}
+class MockAudioNode {
+  constructor() { this.delayTime = new MockAudioParam(); this.frequency = new MockAudioParam(); this.Q = { value: 0 }; }
+  connect(node) { this.connected = node; return node; }
+  disconnect() {}
 }
 class MockAudioContext {
-  constructor() { this.currentTime = 10; this.state = "running"; this.destination = {}; }
+  constructor() { this.currentTime = 10; this.state = "running"; this.destination = {}; this.sampleRate = 48000; }
   createOscillator() { return new MockOscillator(); }
   createGain() { return new MockGain(); }
+  createDelay() { return new MockAudioNode(); }
+  createBiquadFilter() { return new MockAudioNode(); }
+  createBuffer(_channels, length) { return { getChannelData() { return new Float32Array(length); } }; }
+  createBufferSource() { return { connect(node) { return node; }, start() {}, stop() {} }; }
   resume() { this.state = "running"; return Promise.resolve(); }
 }
 const React = {
@@ -66,20 +76,21 @@ const exportClone = {
   },
 };
 const exportDocument = {
+  addEventListener() {},
   querySelector(selector) { assert.strictEqual(selector, ".git-comments-page"); return { cloneNode() { return exportClone; } }; },
   createElement(tag) { assert.strictEqual(tag, "a"); return { href: "", download: "", click() { exportedDownload = { href: this.href, download: this.download }; } }; },
 };
 class ExportBlob { constructor(parts, options) { this.parts = parts; this.type = options.type; exportedBlob = this; } }
-const context = { window: { confirm: () => true, document: exportDocument, Blob: ExportBlob, URL: { createObjectURL: () => "blob:git-comments-export", revokeObjectURL() {} }, AudioContext: MockAudioContext, addEventListener() {}, removeEventListener() {}, __HERMES_PLUGIN_SDK__: sdk, __HERMES_PLUGINS__: { register(_name, component) { registered = component; } } }, console };
+const context = { window: { confirm: () => true, document: exportDocument, Blob: ExportBlob, URL: { createObjectURL: () => "blob:git-comments-export", revokeObjectURL() {} }, AudioContext: MockAudioContext, addEventListener() {}, removeEventListener() {}, __HERMES_PLUGIN_SDK__: sdk, __HERMES_PLUGINS__: { register(_name, component) { registered = component; } } }, document: exportDocument, setTimeout: () => 0, clearTimeout() {}, console };
 vm.createContext(context);
 vm.runInContext(source, context);
 assert(registered, "plugin must register");
-assert(typeof sdk.testing.playSuccessChime === "function", "renderer must expose the success chime only through the supplied test hook");
-sdk.testing.playSuccessChime();
-assert(chimeOscillators.length === 2 && chimeGains.length === 2, "one success chime must schedule exactly two notes");
-assert(chimeOscillators[0].type === "sine" && chimeOscillators[1].type === "sine", "success chime must use gentle sine oscillators");
-assert(chimeOscillators[0].frequency.events.some((event) => event[0] === "set" && event[1] === 523.25) && chimeOscillators[1].frequency.events.some((event) => event[0] === "set" && event[1] === 659.25), "success chime must use the contracted C5/E5 two-note frequencies");
-assert(chimeOscillators.every((oscillator) => oscillator.starts.length === 1 && oscillator.stops.length === 1), "both chime notes must be bounded and start/stop exactly once");
+assert(typeof sdk.testing.cuelume?.play === "function", "renderer must expose the official Cuelume API only through the supplied test hook");
+sdk.testing.cuelume.play("success");
+assert(chimeOscillators.length === 3 && chimeGains.length >= 4, "Cuelume success must schedule its official three-note recipe plus gain graph");
+assert(chimeOscillators.every((oscillator) => oscillator.type === "sine"), "Cuelume success must use its official sine oscillators");
+assert([880, 1108.73, 1318.51].every((frequency, index) => chimeOscillators[index].frequency.events.some((event) => event[0] === "set" && event[1] === frequency)), "Cuelume success must retain the official 880/1108.73/1318.51Hz recipe");
+assert(chimeOscillators.every((oscillator) => oscillator.starts.length === 1 && oscillator.stops.length === 1), "all three Cuelume success notes must be bounded and start/stop exactly once");
 
 function text(node) {
   if (typeof node === "string" || typeof node === "number") return String(node);
@@ -152,7 +163,7 @@ const exportedStyles = exportedHtml.match(/<style>([\s\S]*?)<\/style>/)?.[1] || 
 assert(exportedHtml.endsWith("</body></html>") && !exportedHtml.includes('<link rel="stylesheet"') && !exportedHtml.includes('<script src=') && !exportedHtml.includes("/api/plugins/"), "export must be self-contained and independent of Hermes APIs");
 assert.doesNotThrow(() => new vm.Script(exportedScript), "exported inline JavaScript must parse");
 const exportLink = { setAttribute(name, value) { this[name] = value; } };
-const exportedDocument = { documentElement: { dataset: {} }, querySelectorAll(selector) { if (selector === "a") return [exportLink]; if (selector === ".git-comments-button.activity-toggle") return []; return []; }, querySelector() { return null; } };
+const exportedDocument = { documentElement: { dataset: {} }, addEventListener() {}, querySelectorAll(selector) { if (selector === "a") return [exportLink]; if (selector === ".git-comments-button.activity-toggle") return []; return []; }, querySelector() { return null; } };
 assert.doesNotThrow(() => new vm.Script(exportedScript).runInNewContext({ document: exportedDocument }), "exported inline JavaScript must execute without Hermes");
 assert(exportedDocument.documentElement.dataset.gitCommentsExport === "ready" && exportLink.rel === "noreferrer noopener", "exported controller must initialize and harden links");
 const exportActivityRegion = { hidden: false };
@@ -169,14 +180,15 @@ assert(exportActivityRegion.hidden === false && exportActivityButton.attributes[
 exportKeyboard.keydown({ key: "Escape" });
 assert(exportBackdrop.removed === true, "standalone archive viewer must close on Escape");
 assert(sourceStyles && exportedStyles.endsWith(sourceStyles), "export must embed the complete dashboard CSS byte-for-byte");
-assert(exportedHtml.includes(exportClone.outerHTML) && exportedHtml.includes('<meta name="git-watch-export-version" content="50">') && exportedHtml.includes('<meta name="git-watch-visual-baseline" content="50">'), "export must embed the exact current HTML snapshot, export format 50, and the locked Revision 50 visual baseline");
-assert(exportedHtml.includes("<!-- GIT WATCH OFFLINE FILE GUIDE") && exportedHtml.includes("API-DEPENDENT CONTROLS OMITTED") && exportedHtml.includes("SUCCESS POPUP TOKENS (Revision 50)") && exportedHtml.includes("font: embedded Alumni Sans SC ExtraBold 800") && exportedHtml.includes("border radius: 25px") && exportedHtml.includes("minimum width: 589.7103px") && exportedHtml.includes("minimum height: 245.1429px") && exportedHtml.includes("padding: 83.5714px 70.3257px") && exportedHtml.includes("text size: 48.43px") && exportedHtml.includes("background fill alpha: 95%") && exportedHtml.includes("live-only sound: embedded two-note C5/E5 success chime"), "export must explain offline scope and the final Revision 50 popup/font/opacity/chime tokens for readable future modification");
+assert(exportedHtml.includes(exportClone.outerHTML) && exportedHtml.includes('<meta name="git-watch-export-version" content="51">') && exportedHtml.includes('<meta name="git-watch-visual-baseline" content="51">'), "export must embed the exact current HTML snapshot, export format 51, and the locked Revision 51 visual baseline");
+assert(exportedHtml.includes("<!-- GIT WATCH OFFLINE FILE GUIDE") && exportedHtml.includes("API-DEPENDENT CONTROLS OMITTED") && exportedHtml.includes("SUCCESS POPUP TOKENS (Revision 51)") && exportedHtml.includes("font: embedded Alumni Sans SC ExtraBold 800") && exportedHtml.includes("border radius: 25px") && exportedHtml.includes("minimum width: 589.7103px") && exportedHtml.includes("minimum height: 245.1429px") && exportedHtml.includes("padding: 83.5714px 70.3257px") && exportedHtml.includes("text size: 60.54px") && exportedHtml.includes("letter spacing: 0.01em") && exportedHtml.includes("background fill alpha: 95%") && exportedHtml.includes("inline sound: Cuelume 0.1.2 success and data-cuelume-press"), "export must explain offline scope and the final Revision 51 popup/font/opacity/Cuelume tokens for readable future modification");
 assert(exportedHtml.includes("<!-- EXACT RENDERED DASHBOARD SNAPSHOT") && exportedHtml.includes("<!-- END EXACT RENDERED DASHBOARD SNAPSHOT -->"), "export must label the exact cloned HTML region for offline readers");
 assert(exportedStyles.includes("/* EXPORT SHELL:") && exportedStyles.includes("/* DASHBOARD CSS: byte-identical") && exportedStyles.endsWith(sourceStyles), "export must annotate CSS ownership without changing the byte-identical dashboard stylesheet");
 assert(exportedScript.includes("GIT WATCH OFFLINE CONTROLLER") && exportedScript.includes("1. Harden every exported link") && exportedScript.includes("2. Preserve activity disclosure") && exportedScript.includes("3. Close an exported archive viewer") && exportedScript.includes("4. Publish a ready marker"), "exported inline JavaScript must contain readable responsibility comments");
 assert(exportedScript.includes('.git-comments-button.activity-toggle') && exportedScript.includes('aria-controls') && exportedScript.includes('aria-expanded') && exportedScript.includes('.git-comments-archive-modal') && exportedScript.includes('event.key === "Escape"'), "export must inline self-contained activity and archive-view interactions");
+assert(exportedScript.includes("CuelumeOfficial") && exportedScript.includes("data-cuelume-press") && exportedScript.includes("Cuelume.bind()"), "standalone export must inline Cuelume and preserve press sound on retained buttons without a package or network request");
 assert(!exportedScript.includes("fetch(") && !exportedScript.includes("fetchJSON") && removedExportControls === 1, "export must strip only API-dependent controls and keep its controller network-independent");
-assert(!exportedHtml.includes('<meta name="git-watch-export-version" content="49">') && !exportedHtml.includes('<meta name="git-watch-visual-baseline" content="49">'), "export must not retain superseded Revision 49 markers");
+assert(!exportedHtml.includes('<meta name="git-watch-export-version" content="50">') && !exportedHtml.includes('<meta name="git-watch-visual-baseline" content="50">'), "export must not retain superseded Revision 50 markers");
 assert(exportedHtml.includes("GIT WATCH Export"), "export must identify itself as GIT WATCH");
 assert(source.includes('"Loading GIT WATCH…"') && source.includes('`GIT WATCH failed: ${state.error}`'), "dashboard loading and failure copy must use the exact GIT WATCH name");
 assert(!source.includes("Git Comments"), "dashboard-facing renderer copy must not retain the former Git Comments name");
@@ -274,16 +286,19 @@ assert(source.includes('target.closest("a,button,input,textarea,select,[contente
 assert(source.includes('setActionError(""); setAddOpen(true);'), "eligible Enter must open the Add URL form");
 assert(source.includes('showSuccess("URL ADDED SUCCESSFULLY!", 3000)'), "URL-added notice must remain for three seconds before fading");
 assert(source.includes('showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan")'), "archive success must publish the exact requested cyan text at unified center for three seconds before fading");
-assert(source.includes('const showSuccess = (message, duration, tone = "green") => { playSuccessChime();'), "every successful popup path must play exactly one shared chime before publishing the notice");
-assert(source.includes('window.addEventListener("pointerdown", unlockSuccessChime, { capture: true })') && source.includes('window.addEventListener("keydown", unlockSuccessChime, { capture: true })') && source.includes('window.removeEventListener("pointerdown", unlockSuccessChime, { capture: true })') && source.includes('window.removeEventListener("keydown", unlockSuccessChime, { capture: true })'), "success audio must unlock on user interaction and clean up both listeners");
-assert(source.includes('const frequencies = [523.25, 659.25]') && source.includes('oscillator.type = "sine"') && source.includes('gain.gain.exponentialRampToValueAtTime(.0001'), "success chime must be a bounded gentle inline Web Audio C5/E5 pair");
-assert(!source.includes('data:audio/') && !source.includes('.mp3') && !source.includes('.wav'), "success chime must have no external or embedded binary audio asset dependency");
+assert(source.includes('const showSuccess = (message, duration, tone = "green") => { Cuelume.play("success");'), "every successful popup path must play exactly one official Cuelume success cue before publishing the notice");
+assert(source.includes('Cuelume.bind();') && source.includes('type === "button" ? { ...(props || {}), "data-cuelume-press": props?.["data-cuelume-press"] ?? "" } : props'), "Cuelume must bind once and every rendered button must automatically receive data-cuelume-press");
+const cuelumeBundle = source.match(/\/\* CUELUME_OFFICIAL_IIFE_BEGIN \*\/\n([\s\S]*?)\/\* CUELUME_OFFICIAL_IIFE_END \*\//);
+assert(cuelumeBundle && crypto.createHash("sha256").update(cuelumeBundle[1]).digest("hex") === "c0f6785fd6d36cadbdb5dd762dc83bc708ffc09c8677866f41af86f7bd771d73", "vendored Cuelume runtime must byte-match the pinned 0.1.2 bundle");
+assert(source.includes("cuelume@0.1.2") && source.includes("sha512-VxL0k9l1fyKGot3VKM+wm5Xd2K75fVeBHdNTrR1EHiqKRtD6S5Dxy/vY7hwl9gXp3QT/TIywFXUos77n39YZVQ==") && source.includes("MIT License") && source.includes("Copyright (c) 2026 Daniel Belyi"), "renderer must retain pinned package provenance and MIT attribution");
+assert(!source.includes('playSuccessChime') && !source.includes('unlockSuccessChime') && !source.includes('const frequencies = [523.25, 659.25]'), "superseded custom two-note success implementation must be removed");
+assert(!source.includes('data:audio/') && !/["'`]([^"'`]*\\.(?:mp3|wav))(?:[?#][^"'`]*)?["'`]/i.test(source) && !source.includes('from "cuelume"') && !source.includes("from 'cuelume'"), "Cuelume must remain synthesized inline with no external or embedded binary audio asset dependency");
 assert(source.includes('window.setTimeout(() => setSuccessFading(true), successDuration)'), "success notice must enter its fade state after the requested duration");
 assert(source.includes('window.setTimeout(() => setActionSuccess(""), successDuration + 500)'), "success notice must be removed after its 500ms fade transition");
 assert(source.includes('className: `git-comments-success ${successTone}${successFading ? " fading" : ""}`'), "success popup must render tone and fading-state classes without per-action placement");
 assert(source.includes('.git-comments-success{') && source.includes('transition:opacity .5s ease') && source.includes('.git-comments-success.fading{opacity:0;pointer-events:none}'), "success notice CSS must visibly fade over 500ms without intercepting controls");
 assert(source.includes('role: "status", "aria-live": "polite"'), "success status must render as an accessible polite live message");
-assert(source.includes('.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;min-width:min(589.7103px,calc(100vw - 70.3257px));max-width:calc(100vw - 70.3257px);min-height:min(245.1429px,calc(100vh - 70.3257px));box-sizing:border-box;transform:translate(-50%,-50%);') && source.includes('display:flex;align-items:center;justify-content:center') && source.includes('padding:83.5714px 70.3257px') && source.includes('font-family:"Alumni Sans SC",sans-serif;font-size:48.43px') && !source.includes('font-size:30.55px') && !source.includes('font-size:38.1875px') && source.includes('color:rgba(255,255,255,.9)') && source.includes('border:1px solid rgba(187,247,208,.9);border-radius:25px') && source.includes('white-space:nowrap') && source.includes('box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(134,239,172,.22),inset 0 1px 0 rgba(255,255,255,.16)') && source.includes('backdrop-filter:blur(5.2px)') && source.includes('transition:opacity .5s ease'), "center popup must match the yellow guide geometry, use 48.43px Alumni Sans SC, and retain the 25px rounded-rectangle radius");
+assert(source.includes('.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;min-width:min(589.7103px,calc(100vw - 70.3257px));max-width:calc(100vw - 70.3257px);min-height:min(245.1429px,calc(100vh - 70.3257px));box-sizing:border-box;transform:translate(-50%,-50%);') && source.includes('display:flex;align-items:center;justify-content:center') && source.includes('padding:83.5714px 70.3257px') && source.includes('font-family:"Alumni Sans SC",sans-serif;font-size:60.54px;line-height:1.25;font-weight:800;letter-spacing:.01em') && !source.includes('font-size:48.43px') && source.includes('color:rgba(255,255,255,.9)') && source.includes('border:1px solid rgba(187,247,208,.9);border-radius:25px') && source.includes('white-space:nowrap') && source.includes('box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(134,239,172,.22),inset 0 1px 0 rgba(255,255,255,.16)') && source.includes('backdrop-filter:blur(5.2px)') && source.includes('transition:opacity .5s ease'), "center popup must retain yellow-guide geometry, use the exact 25%-larger 60.54px Alumni Sans SC text with restrained 0.01em tracking, and retain the 25px radius");
 const alumniFont = source.match(/@font-face\{font-family:"Alumni Sans SC";font-style:normal;font-weight:800;font-display:swap;src:url\(data:font\/woff2;base64,([A-Za-z0-9+/=]+)\) format\("woff2"\)\}/);
 assert(alumniFont, "Alumni Sans SC ExtraBold Latin WOFF2 must be embedded inline rather than loaded from the network");
 assert(crypto.createHash("sha256").update(Buffer.from(alumniFont[1], "base64")).digest("hex") === "e8c408a847fe29097bf5d6c2ca70e2dacd973e915903ef0870673ce8889c5ba9", "embedded Alumni Sans SC WOFF2 must match the official Google Fonts payload");
@@ -369,6 +384,8 @@ fixture = {
 tree = registered();
 const ownerStars = nodes(tree, (node) => String(node.props?.className || "") === "git-comments-owner-star" && text(node).trim() === "★");
 assert(ownerStars.length === 1 && ownerStars[0].props?.title === "Watchlist profile owner" && ownerStars[0].props?.["aria-label"] === "Watchlist profile owner", "payload author matching the configured watchlist profile must show an accessible star beside the avatar");
+const ownerTreeButtons = nodes(tree, (node) => node.type === "button");
+assert(ownerTreeButtons.length > 0 && ownerTreeButtons.every((button) => button.props?.["data-cuelume-press"] === ""), "every rendered live button must automatically carry data-cuelume-press");
 assert(source.includes('.git-comments-owner-star{color:#facc15;') && source.includes('issueAuthor.toLowerCase() === String(owner || "").toLowerCase()'), "owner-star styling and profile comparison missing");
 fixture = {
   ...primaryFixture,
@@ -394,7 +411,7 @@ rendered = text(tree);
 assert(rendered.includes("BROKEN"), "stale watcher must read BROKEN even if its last execution succeeded");
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-health-dot broken")).length === 1, "stale watcher must render red broken dot");
 
-fixture = { ...fixture, watchlist: { ...fixture.watchlist, active: [], archived: [{ id: "nousresearch/hermes-agent/issues/58510", url: "https://github.com/NousResearch/hermes-agent/issues/58510", repo: "NousResearch/hermes-agent", number: 58510, kind: "issue", archived_at: "2026-07-19T05:00:00Z", presentation: { at_a_glance: "One persisted summary follows this item into archive without another summarization pass." }, snapshot: { title: "Archive summary rendering", body: "The complete archived body remains available.", at_a_glance: "One persisted summary follows this item into archive without another summarization pass." } }] }, issues: [] };
+fixture = { ...fixture, watchlist: { ...fixture.watchlist, active: [], archived: [{ id: "nousresearch/hermes-agent/issues/58510", url: "https://github.com/NousResearch/hermes-agent/issues/58510", repo: "NousResearch/hermes-agent", number: 58510, kind: "issue", archived_at: "2026-07-19T05:00:00Z", presentation: { author: { login: "AgentAi-Leo", avatar_url: "owner-avatar" }, at_a_glance: "One persisted summary follows this item into archive without another summarization pass." }, snapshot: { title: "Archive summary rendering", body: "The complete archived body remains available.", author: { login: "AgentAi-Leo", avatar_url: "owner-avatar" }, at_a_glance: "One persisted summary follows this item into archive without another summarization pass." } }] }, issues: [] };
 tree = registered();
 rendered = text(tree);
 assert(rendered.includes("UNARCHIVE"), "archived entry unarchive control missing");
@@ -404,7 +421,8 @@ assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node
 assert(archivedRows.length === 1 && nodes(archivedRows[0], (node) => String(node.props?.className || "").includes("git-comments-button view-archived") && text(node).trim() === "VIEW ISSUE").length === 1, "archived issue row must contain a small VIEW ISSUE button");
 assert(String(archivedRows[0].children[0]?.props?.className || "") === "git-comments-archived-content", "archived identity and summary must occupy the left flexible content column");
 const archivedPrimary = archivedRows[0].children[0]?.children?.[0];
-assert(String(archivedPrimary?.props?.className || "") === "git-comments-archived-primary" && String(archivedPrimary.children[2]?.props?.className || "") === "git-comments-time" && String(archivedPrimary.children[3]?.props?.className || "").includes("git-comments-button view-archived"), "archived VIEW must be inline immediately after repository, number, and archive timestamp data");
+assert(String(archivedPrimary?.props?.className || "") === "git-comments-archived-primary" && nodes(archivedPrimary, (node) => String(node.props?.className || "") === "git-comments-issue-author" && text(node).trim() === "by AgentAi-Leo").length === 1 && nodes(archivedPrimary, (node) => String(node.props?.className || "") === "git-comments-issue-avatar" && node.props?.src === "owner-avatar").length === 1 && nodes(archivedPrimary, (node) => String(node.props?.className || "") === "git-comments-owner-star" && text(node).trim() === "★").length === 1 && nodes(archivedPrimary, (node) => String(node.props?.className || "") === "git-comments-time").length === 1 && nodes(archivedPrimary, (node) => String(node.props?.className || "").includes("git-comments-button view-archived")).length === 1, "archived row must preserve the post author, avatar, and owner star before its timestamp and inline VIEW control");
+assert(source.includes('const archivedAuthor = entry.presentation?.author || entry.snapshot?.author || hydratedIssue?.author || {}') && source.includes('archivedAuthorLogin.toLowerCase() === String(owner || "").toLowerCase()'), "archived owner star must derive from persisted presentation/snapshot author data with legacy hydration fallback");
 const archivedActions = archivedRows[0].children[1];
 assert(String(archivedActions?.props?.className || "") === "git-comments-archived-actions" && String(archivedActions.children[0]?.props?.className || "").includes("git-comments-button unarchive") && String(archivedActions.children[1]?.props?.className || "").includes("git-comments-button delete"), "UNARCHIVE and DELETE must share one right-side action group");
 assert(source.includes('.git-comments-archived-row{display:flex;align-items:flex-start;') && source.includes('.git-comments-archived-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex:0 0 auto}') && source.includes('.git-comments-archived-actions .git-comments-button{min-height:32px;height:32px;padding:5px 11px;font-size:12px}'), "archived actions must move up, remain right-aligned, and match the 32px VIEW height");
@@ -422,7 +440,7 @@ assert(archiveViewLabel({ kind: "pull", url: "https://github.com/o/r/pull/2" }) 
 assert(source.includes('.git-comments-success{position:fixed;left:50%;top:50%;') && !source.includes('.git-comments-success.top{') && !source.includes('.git-comments-success.bottom{'), "all completion popups must use one unified center-screen position");
 assert(source.includes('.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;min-width:min(589.7103px,calc(100vw - 70.3257px));max-width:calc(100vw - 70.3257px);min-height:min(245.1429px,calc(100vh - 70.3257px));'), "success popup box geometry must match the measured yellow guide");
 assert(source.includes('padding:83.5714px 70.3257px;border:1px solid rgba(187,247,208,.9);border-radius:25px;'), "success popup must use guide-derived padding with the retained 25px rounded-rectangle radius and pale green edge");
-assert(source.includes('font-family:"Alumni Sans SC",sans-serif;font-size:48.43px;line-height:1.25;font-weight:800;text-align:center;white-space:nowrap;') && !source.includes('font-size:30.55px') && !source.includes('font-size:38.1875px'), "success text must use Alumni Sans SC at the yellow-guide-derived 48.43px size");
+assert(source.includes('font-family:"Alumni Sans SC",sans-serif;font-size:60.54px;line-height:1.25;font-weight:800;letter-spacing:.01em;text-align:center;white-space:nowrap;') && !source.includes('font-size:48.43px') && !source.includes('font-size:38.1875px'), "success text must use Alumni Sans SC at the exact 25%-larger 60.54px size with restrained 0.01em spacing");
 assert(source.includes('box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(134,239,172,.22),inset 0 1px 0 rgba(255,255,255,.16);backdrop-filter:blur(5.2px)'), "success shadow and blur must retain Revision 45 values plus a subtle matching outer glow and very light inner highlight");
 assert(source.includes('.git-comments-success.cyan{border-color:rgba(165,243,252,.9);background:rgba(8,51,68,.95);color:rgba(255,255,255,.9);box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(103,232,249,.22),inset 0 1px 0 rgba(255,255,255,.16)}'), "archive success must use 95% cyan fill and white text with a matching pale cyan edge glow");
 assert(source.includes('.git-comments-success.red{border-color:rgba(254,202,202,.9);background:rgba(74,21,27,.95);color:rgba(255,255,255,.9);box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(252,165,165,.22),inset 0 1px 0 rgba(255,255,255,.16)}'), "delete success must use 95% red fill and white text with a matching pale red edge glow");
