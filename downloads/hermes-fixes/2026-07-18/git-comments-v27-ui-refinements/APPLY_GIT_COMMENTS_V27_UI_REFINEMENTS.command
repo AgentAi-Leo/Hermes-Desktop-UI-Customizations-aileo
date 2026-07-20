@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=309" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=310" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -300,11 +300,13 @@ required = [
     'showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan")',
     'showSuccess("SUCCESSFULLY DELETED!", 3000, "red")',
     'showSuccess("SUCCESSFULLY UNARCHIVED!", 3000, "green")',
-    '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;max-width:min(720px,calc(100vw - 64px));transform:translate(-50%,-50%);',
-    'padding:15px 24px;border:1px solid #4ade80;border-radius:13.5px',
-    'font-size:24px;line-height:1.25;font-weight:800;text-align:center',
-    '.git-comments-success.cyan{border-color:#22d3ee;background:#083344;color:#cffafe}',
-    '.git-comments-success.red{border-color:#ef4444;background:#4a151b;color:#fecaca}',
+    '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:min(1200px,calc(100vw - 96px));min-height:min(280px,calc(100vh - 96px));box-sizing:border-box;transform:translate(-50%,-50%);',
+    'display:flex;align-items:center;justify-content:center;margin:0;padding:60px 96px',
+    'border:1px solid #4ade80;border-radius:27px;background:rgba(18,60,43,.8)',
+    'font-size:48px;line-height:1.25;font-weight:800;text-align:center',
+    'box-shadow:0 24px 64px rgba(0,0,0,.6),0 8px 24px rgba(0,0,0,.36);backdrop-filter:blur(8px)',
+    '.git-comments-success.cyan{border-color:#22d3ee;background:rgba(8,51,68,.8);color:#cffafe}',
+    '.git-comments-success.red{border-color:#ef4444;background:rgba(74,21,27,.8);color:#fecaca}',
     '.git-comments-archived-row{display:flex;align-items:flex-start;',
     '.git-comments-archived-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex:0 0 auto}',
     '.git-comments-archived-actions .git-comments-button{min-height:32px;height:32px;padding:5px 11px;font-size:12px}',
@@ -413,4 +415,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=309"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=310"

@@ -1,4 +1,6 @@
-# GIT WATCH V27 UI Refinements — Revision 39
+# GIT WATCH V27 UI Refinements — Revision 40
+
+Revision 40 strengthens separation between success feedback and dashboard content while preserving the unified center position and all established dwell/fade timings. Popup text doubles from 24px to 48px; padding expands from 15px/24px to 60px/96px; the viewport-constrained target box is up to 1200px wide with a 280px minimum height. Green, cyan, and red backgrounds use 80% opacity while text remains fully opaque. A medium two-layer soft drop shadow and 8px backdrop blur improve readability over busy cards.
 
 Revision 39 places every successful-action message in one exact viewport-center popup, increases its 16px text and 10px/16px padding by 50% to 24px and 15px/24px, and caps it at 720px or the available viewport so it remains narrower than a watch card. Existing 5000/3000 ms dwell times and the 500 ms fade remain unchanged. Delete feedback is red; archive remains cyan; add and unarchive remain green. Archived `UNARCHIVE` and `DELETE` now share a top-aligned right-side action group with the same 32px height as `VIEW ISSUE` / `VIEW PR`. Duplicate URLs remain rejected at client and API layers across active and archived entries, with executable normalization coverage for case, trailing slash, query, and fragment variants.
 
