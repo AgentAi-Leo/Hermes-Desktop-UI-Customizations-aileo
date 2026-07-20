@@ -118,6 +118,41 @@ def _actor(value: object) -> dict:
     return {"login": str(source.get("login") or "unknown"), "avatar_url": str(source.get("avatar_url") or "")}
 
 
+def _clean_markdown(value: object) -> str:
+    text = str(value or "")
+    text = re.sub(r"```[\s\S]*?```", " ", text)
+    text = re.sub(r"`([^`]+)`", r"\1", text)
+    text = re.sub(r"!\[[^\]]*\]\([^)]+\)", " ", text)
+    text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
+    text = re.sub(r"^\s{0,3}#{1,6}\s+", " ", text, flags=re.MULTILINE)
+    text = re.sub(r"^\s*[-*+]\s+", " ", text, flags=re.MULTILINE)
+    text = re.sub(r"[>*_|~]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _one_time_summary(title: object, body: object) -> str:
+    title = str(title or "")
+    body = str(body or "")
+    match = re.search(r"(?:^|\n)#{1,6}\s+Summary\s*\n([\s\S]*?)(?=\n#{1,6}\s+|$)", body, flags=re.IGNORECASE)
+    summary_section = match.group(1) if match else ""
+    source_words = _clean_markdown(summary_section or body or title).split()[:100]
+    if not source_words:
+        return ""
+    context = " ".join(source_words)
+    sentences = re.findall(r"[^.!?]+[.!?]?", context) or [context]
+    title_keywords = {word.lower() for word in _clean_markdown(title).split() if len(word) > 3}
+    selected = max(enumerate(sentences), key=lambda pair: (sum(10 for word in _clean_markdown(pair[1]).lower().split() if word in title_keywords) - pair[0]))[1]
+    candidate = _clean_markdown(selected) or context
+    words = candidate.split()[:30]
+    rendered = " ".join(words)
+    while len(rendered) > 160 and words:
+        words.pop()
+        rendered = " ".join(words)
+    if len(rendered) <= 160:
+        return rendered
+    return ""
+
+
 def _sanitize_snapshot(value: object) -> dict:
     source = value if isinstance(value, dict) else {}
     labels = [{"name": str(item.get("name") or ""), "color": str(item.get("color") or "")} for item in source.get("labels", []) if isinstance(item, dict)]
@@ -130,6 +165,17 @@ def _sanitize_snapshot(value: object) -> dict:
         "author_association": str(item.get("author_association") or "NONE"),
         "author": _actor(item.get("author") or item.get("user")),
     } for item in source.get("comments", []) if isinstance(item, dict)]
+    status_events = [{
+        "id": item.get("id"),
+        "event": str(item.get("event") or ""),
+        "created_at": item.get("created_at"),
+        "state_reason": item.get("state_reason"),
+        "actor": _actor(item.get("actor")),
+        "label": {
+            "name": str((item.get("label") or {}).get("name") or ""),
+            "color": str((item.get("label") or {}).get("color") or ""),
+        } if isinstance(item.get("label"), dict) else None,
+    } for item in source.get("status_events", []) if isinstance(item, dict)]
     return {
         "watch_id": str(source.get("watch_id") or ""), "repo": str(source.get("repo") or ""),
         "kind": str(source.get("kind") or "issue"), "number": int(source.get("number") or source.get("issue_number") or 0),
@@ -138,6 +184,8 @@ def _sanitize_snapshot(value: object) -> dict:
         "state_reason": source.get("state_reason"), "merged_at": source.get("merged_at"),
         "merged": source.get("merged") is True or bool(source.get("merged_at")), "author": _actor(source.get("author") or source.get("user")),
         "created_at": source.get("created_at"), "updated_at": source.get("updated_at"), "labels": labels, "comments": comments,
+        "status_events": status_events, "received_count": int(source.get("received_count") or 0),
+        "new_received_count": int(source.get("new_received_count") or 0), "at_a_glance": str(source.get("at_a_glance") or ""),
     }
 
 
@@ -151,20 +199,51 @@ def _github_json(path: str) -> Any:
         return json.load(response)
 
 
-def _live_archived_snapshot(entry: dict) -> dict:
+def _live_entry_snapshot(entry: dict, comment_owner: str) -> dict:
     owner, repository = str(entry["repo"]).split("/", 1)
     base = f"/repos/{urllib.parse.quote(owner, safe='')}/{urllib.parse.quote(repository, safe='')}"
     number = int(entry["number"])
     issue = _github_json(f"{base}/issues/{number}")
     comments = _github_json(f"{base}/issues/{number}/comments?per_page=100")
+    timeline = _github_json(f"{base}/issues/{number}/timeline?per_page=100")
+    if not isinstance(issue, dict):
+        raise ValueError("GitHub issue response is not an object")
+    comments = comments if isinstance(comments, list) else []
+    timeline = timeline if isinstance(timeline, list) else []
+    normalized_comments = [{
+        "id": comment.get("id"), "body": comment.get("body") or "", "created_at": comment.get("created_at"),
+        "updated_at": comment.get("updated_at"), "html_url": comment.get("html_url"),
+        "author_association": comment.get("author_association") or "NONE", "author": _actor(comment.get("user")),
+    } for comment in comments if isinstance(comment, dict)]
+    received = [comment for comment in normalized_comments if str(comment["author"]["login"]).lower() != str(comment_owner).lower()]
+    status_events = [{
+        "id": f"opened-{issue.get('id') or entry['id']}", "event": "opened", "created_at": issue.get("created_at"),
+        "actor": _actor(issue.get("user")), "state_reason": None, "label": None,
+    }]
+    for item in timeline:
+        if not isinstance(item, dict) or item.get("event") not in {"closed", "reopened", "labeled", "unlabeled"}:
+            continue
+        event = str(item.get("event"))
+        status_events.append({
+            "id": item.get("id") or item.get("node_id") or f"{event}-{item.get('created_at')}", "event": event,
+            "created_at": item.get("created_at"), "actor": _actor(item.get("actor")),
+            "state_reason": issue.get("state_reason") if event == "closed" else None,
+            "label": {"name": str((item.get("label") or {}).get("name") or ""), "color": str((item.get("label") or {}).get("color") or "")} if event in {"labeled", "unlabeled"} else None,
+        })
     merged_at = (issue.get("pull_request") or {}).get("merged_at")
     return _sanitize_snapshot({
         "watch_id": entry["id"], "repo": entry["repo"], "kind": entry.get("kind"), "number": number,
         "title": issue.get("title"), "body": issue.get("body"), "html_url": issue.get("html_url") or entry.get("url"),
         "state": issue.get("state"), "state_reason": issue.get("state_reason"), "merged_at": merged_at,
         "author": issue.get("user"), "created_at": issue.get("created_at"), "updated_at": issue.get("updated_at"),
-        "labels": issue.get("labels") or [], "comments": comments if isinstance(comments, list) else [],
+        "labels": issue.get("labels") or [], "comments": normalized_comments, "status_events": status_events,
+        "received_count": len(received), "new_received_count": len(received),
+        "at_a_glance": _one_time_summary(issue.get("title"), issue.get("body")),
     })
+
+
+def _live_archived_snapshot(entry: dict, comment_owner: str = "") -> dict:
+    return _live_entry_snapshot(entry, comment_owner)
 
 
 def _run_checker() -> dict:
@@ -204,6 +283,10 @@ def add_watch_url(payload: dict[str, Any]) -> dict:
     all_entries = [*watchlist["active"], *watchlist["archived"]]
     if any(str(item.get("id") or "").lower() == entry["id"] for item in all_entries):
         raise HTTPException(status_code=409, detail="That GitHub URL is already in the watchlist")
+    try:
+        entry["presentation"] = _live_entry_snapshot(entry, str(watchlist.get("comment_owner") or ""))
+    except Exception as reason:
+        raise HTTPException(status_code=502, detail=f"Unable to load GitHub item before adding it: {reason}") from reason
     watchlist["active"].insert(0, entry)
     _atomic_write(_WATCHLIST_PATH, watchlist)
     refresh = _run_checker()
@@ -223,6 +306,11 @@ def archive_watch_url(payload: dict[str, Any]) -> dict:
     snapshot = payload.get("snapshot")
     if isinstance(snapshot, dict):
         entry["snapshot"] = _sanitize_snapshot(snapshot)
+    elif isinstance(entry.get("presentation"), dict):
+        entry["snapshot"] = _sanitize_snapshot(entry["presentation"])
+    summary = str(((entry.get("presentation") or {}).get("at_a_glance")) or "")
+    if summary and isinstance(entry.get("snapshot"), dict):
+        entry["snapshot"]["at_a_glance"] = summary
     entry["archived_at"] = _now_iso()
     watchlist["archived"].append(entry)
     _atomic_write(_WATCHLIST_PATH, watchlist)
@@ -243,10 +331,13 @@ def view_archived_watch_url(payload: dict[str, Any]) -> dict:
     if isinstance(snapshot, dict):
         return {"read_only": True, "source": "archive_snapshot", "archived_at": entry.get("archived_at"), "issue": _sanitize_snapshot(snapshot)}
     try:
-        issue = _live_archived_snapshot(entry)
+        issue = _live_archived_snapshot(entry, str(watchlist.get("comment_owner") or ""))
     except Exception as reason:
         raise HTTPException(status_code=502, detail=f"Unable to load archived GitHub item: {reason}") from reason
-    return {"read_only": True, "source": "github_live", "archived_at": entry.get("archived_at"), "issue": issue}
+    entry["presentation"] = issue
+    entry["snapshot"] = issue
+    _atomic_write(_WATCHLIST_PATH, watchlist)
+    return {"read_only": True, "source": "github_live_migrated", "archived_at": entry.get("archived_at"), "issue": issue}
 
 
 @router.post("/watchlist/delete")

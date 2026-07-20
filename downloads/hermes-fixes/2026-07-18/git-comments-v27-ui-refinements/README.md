@@ -1,4 +1,6 @@
-# GIT WATCH V27 UI Refinements — Revision 41
+# GIT WATCH V27 UI Refinements — Revision 42
+
+Revision 42 hydrates each GitHub issue or pull request before Add succeeds and persists one allowlisted `presentation` snapshot containing its title, author/avatar, dates, state, body, comments, lifecycle events, and a one-time cyan `AT A GLANCE` summary. Newly added items therefore render the complete established card immediately—including status-aware COMMENTS and STATUS pills—even when the later full watcher refresh fails. Dynamic watcher data overlays the snapshot without regenerating its summary. Archive and unarchive carry the same summary forward; the former client-side archive summarizer is removed, and legacy archived rows migrate once through the server-side read-only endpoint.
 
 Revision 41 matches the user-marked yellow guide by reducing the centered popup target from 1200×280px to 1020×208px. Popup text is reduced exactly 10%, from 48px to 43.2px. Center positioning, 80%-opaque colored backgrounds, fully opaque text, padding, border radius, shadow, backdrop blur, action colors, duplicate protection, and all established dwell/fade timings remain unchanged.
 

@@ -154,7 +154,7 @@ const watchStates = nodes(tree, (node) => String(node.props?.className || "").st
 assert(watchStates.includes("git-comments-watch-state open"), "open WATCHING text must use the open state class");
 assert(watchStates.includes("git-comments-watch-state closed"), "closed WATCHING text must use the closed state class");
 assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-issue-title" && node.props?.href === "https://github.com/NousResearch/hermes-agent/issues/58130").length === 1, "issue title must link to its canonical GitHub URL");
-for (const payloadMarker of ['"body": issue.get("body") or ""', '"author": actor(issue.get("user"))', '"created_at": issue.get("created_at")', '"updated_at": issue.get("updated_at")', '"labels": normalized_labels', '"merged_at": merged_at', '"merged": bool(merged_at)']) assert(checker.includes(payloadMarker), `checker missing issue context payload: ${payloadMarker}`);
+for (const payloadMarker of ['"body": issue.get("body") or ""', '"at_a_glance": str((entry.get("presentation") or {}).get("at_a_glance") or old_issue.get("at_a_glance") or "")', '"author": actor(issue.get("user"))', '"created_at": issue.get("created_at")', '"updated_at": issue.get("updated_at")', '"labels": normalized_labels', '"merged_at": merged_at', '"merged": bool(merged_at)']) assert(checker.includes(payloadMarker), `checker missing issue context payload: ${payloadMarker}`);
 assert(!rendered.includes("COMMENTS RECEIVED"), "received text must be removed from the comment pill");
 assert(!rendered.includes("View on GitHub"), "redundant source-link text must be absent everywhere");
 assert(rendered.includes("Contributor"), "commenter association missing");
@@ -248,6 +248,36 @@ assert(source.includes('.git-comments-repo-primary{font-size:20.8px;color:#fff;f
 const primaryFixture = fixture;
 fixture = {
   ...primaryFixture,
+  watchlist: {
+    ...primaryFixture.watchlist,
+    active: [{
+      id: "owner/repo/issues/42", url: "https://github.com/Owner/Repo/issues/42", repo: "Owner/Repo", number: 42, kind: "issue",
+      presentation: {
+        watch_id: "owner/repo/issues/42", repo: "Owner/Repo", kind: "issue", number: 42,
+        title: "Immediately hydrated issue title", body: "The complete initial issue body remains readable before the background checker finishes.",
+        html_url: "https://github.com/Owner/Repo/issues/42", state: "open", author: { login: "issue-author", avatar_url: "author-avatar" },
+        created_at: "2026-07-18T18:00:00Z", updated_at: "2026-07-19T03:30:00Z",
+        at_a_glance: "Newly watched items immediately show complete GitHub context while one durable summary follows them through their lifecycle.",
+        comments: [{ id: 42, body: "Initial maintainer comment", html_url: "https://github.com/Owner/Repo/issues/42#issuecomment-42", author: { login: "maintainer", avatar_url: "maintainer-avatar" } }],
+        status_events: [{ id: "opened-42", event: "opened", created_at: "2026-07-18T18:00:00Z", actor: { login: "issue-author", avatar_url: "author-avatar" } }],
+        received_count: 1, new_received_count: 1,
+      },
+    }],
+  },
+  issues: [],
+};
+tree = registered();
+rendered = text(tree);
+assert(rendered.includes("Immediately hydrated issue title") && rendered.includes("The complete initial issue body remains readable") && rendered.includes("by issue-author"), "newly added item must render its persisted title, body, and author before a full checker result exists");
+assert(rendered.includes("Newly watched items immediately show complete GitHub context") && nodes(tree, (node) => String(node.props?.className || "") === "git-comments-at-a-glance").length === 1, "newly added item must render its one-time cyan AT A GLANCE summary");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-comment-label open" && text(node).trim() === "COMMENTS (1)").length === 1, "immediately hydrated open item must render the required opaque green comment pill");
+assert(nodes(tree, (node) => String(node.props?.className || "") === "git-comments-current-state open" && text(node).trim() === "STATUS: OPEN").length === 1, "immediately hydrated open item must render the required translucent green status pill");
+assert(!rendered.includes("Waiting for the first successful GitHub check."), "a persisted presentation must never regress to the unknown/never placeholder");
+assert(source.includes('.git-comments-at-a-glance{margin-top:10px;color:#22d3ee;') && source.includes('"AT A GLANCE:"'), "active one-time summary must use explicit cyan styling and label");
+assert(source.includes('const presentation = entry.presentation || {};') && source.includes('at_a_glance: presentation.at_a_glance || liveIssue?.at_a_glance || ""'), "active rendering must overlay dynamic checker data onto the persisted presentation without replacing its summary");
+fixture = primaryFixture;
+fixture = {
+  ...primaryFixture,
   watchlist: { ...primaryFixture.watchlist, active: [primaryFixture.watchlist.active[0]] },
   issues: [{ ...primaryFixture.issues[0], author: { login: "AgentAi-Leo", avatar_url: "owner-avatar" } }],
 };
@@ -279,7 +309,7 @@ rendered = text(tree);
 assert(rendered.includes("BROKEN"), "stale watcher must read BROKEN even if its last execution succeeded");
 assert(nodes(tree, (node) => String(node.props?.className || "").includes("git-comments-health-dot broken")).length === 1, "stale watcher must render red broken dot");
 
-fixture = { ...fixture, watchlist: { ...fixture.watchlist, active: [], archived: [{ id: "nousresearch/hermes-agent/issues/58510", url: "https://github.com/NousResearch/hermes-agent/issues/58510", repo: "NousResearch/hermes-agent", number: 58510, kind: "issue", archived_at: "2026-07-19T05:00:00Z", snapshot: { title: "Archive summary rendering", body: "## Summary\nAdds archived summaries beneath repository details without cutting partial words unexpectedly while keeping controls aligned." } }] }, issues: [] };
+fixture = { ...fixture, watchlist: { ...fixture.watchlist, active: [], archived: [{ id: "nousresearch/hermes-agent/issues/58510", url: "https://github.com/NousResearch/hermes-agent/issues/58510", repo: "NousResearch/hermes-agent", number: 58510, kind: "issue", archived_at: "2026-07-19T05:00:00Z", presentation: { at_a_glance: "One persisted summary follows this item into archive without another summarization pass." }, snapshot: { title: "Archive summary rendering", body: "The complete archived body remains available.", at_a_glance: "One persisted summary follows this item into archive without another summarization pass." } }] }, issues: [] };
 tree = registered();
 rendered = text(tree);
 assert(rendered.includes("UNARCHIVE"), "archived entry unarchive control missing");
@@ -294,15 +324,10 @@ const archivedActions = archivedRows[0].children[1];
 assert(String(archivedActions?.props?.className || "") === "git-comments-archived-actions" && String(archivedActions.children[0]?.props?.className || "").includes("git-comments-button unarchive") && String(archivedActions.children[1]?.props?.className || "").includes("git-comments-button delete"), "UNARCHIVE and DELETE must share one right-side action group");
 assert(source.includes('.git-comments-archived-row{display:flex;align-items:flex-start;') && source.includes('.git-comments-archived-actions{display:flex;align-items:center;gap:12px;margin-left:auto;flex:0 0 auto}') && source.includes('.git-comments-archived-actions .git-comments-button{min-height:32px;height:32px;padding:5px 11px;font-size:12px}'), "archived actions must move up, remain right-aligned, and match the 32px VIEW height");
 const archivedSummary = nodes(archivedRows[0], (node) => String(node.props?.className || "") === "git-comments-archived-summary")[0];
-assert(text(archivedSummary).trim() === "Adds archived summaries beneath repository details without", "archive summary must prefer the source Summary section and stop at the last complete word within 65 characters");
-assert(text(archivedSummary).trim().length <= 65 && text(archivedSummary).trim().split(/\s+/).length <= 11, "archive summary must not exceed 65 characters or 11 words");
+assert(text(archivedSummary).trim() === "One persisted summary follows this item into archive without another summarization pass.", "archive row must reuse the exact persisted one-time summary");
 assert(source.includes('.git-comments-archived-summary{margin-top:7px;color:#22d3ee;font-size:15.6px;'), "archived issue summary must be cyan and exactly 20% larger than the 13px archive timestamp");
-const archivedSummaryFunction = source.match(/function archivedSummary\(entry, hydratedIssue\) \{([\s\S]*?)\n  \}/);
-assert(archivedSummaryFunction, "archived summary helper missing");
-const summarizeArchive = vm.runInNewContext(`(function archivedSummary(entry, hydratedIssue) {${archivedSummaryFunction[1]}\n})`);
-assert(summarizeArchive({ kind: "issue", snapshot: { title: "Issue title", body: "## Summary\none two three four five six seven eight nine ten eleven twelve" } }) === "one two three four five six seven eight nine ten eleven", "archived issue summary must stop at 11 complete words");
-assert(summarizeArchive({ kind: "pull" }, { title: "Cron scope contract", body: "## Summary\nAdds a vitest contract test locking every desktop cron helper to profileScoped so multi-profile routing cannot regress." }) === "Adds a vitest contract test locking every desktop cron helper to", "hydrated pull-request Summary section must render within 65 characters");
-assert(source.includes('.slice(0, 100)') && source.includes('.slice(0, 40)'), "archive summarizer must inspect no more than 100 source words and condense the selected source sentence to at most 40 words before display limiting");
+assert(!source.includes("function archivedSummary"), "client-side archive summarization must be removed");
+assert(source.includes('entry.presentation?.at_a_glance || entry.snapshot?.at_a_glance || hydratedIssue?.at_a_glance || ""'), "archive must reuse the persisted summary and allow only server-migrated legacy fallback data");
 assert(source.includes('fetchJSON(`${API}/watchlist/view-archived`') && source.includes('setArchiveHydration'), "legacy archived rows must hydrate summaries through the existing read-only endpoint");
 const archivedViewLabelFunction = source.match(/function archivedViewLabel\(entry, hydratedIssue\) \{([\s\S]*?)\n  \}/);
 assert(archivedViewLabelFunction, "archived VIEW label helper missing");
@@ -354,6 +379,12 @@ assert(checker.includes('GIT_COMMENTS_WATCHLIST_FILE'), "watcher must read the p
 assert(!checker.includes('watched = ['), "watcher must not contain a hardcoded issue list");
 assert(!checker.includes('58130') && !checker.includes('58510'), "migrated issue numbers must not remain in checker source");
 assert(api.includes('@router.post("/watchlist/add")'), "API add endpoint missing");
+assert(api.includes('entry["presentation"] = _live_entry_snapshot(entry, str(watchlist.get("comment_owner") or ""))'), "Add must hydrate and persist one complete presentation before insertion");
+assert(api.includes('raise HTTPException(status_code=502, detail=f"Unable to load GitHub item before adding it: {reason}")'), "Add must reject rather than persist an unknown/never placeholder when hydration fails");
+assert(api.includes('summary = str(((entry.get("presentation") or {}).get("at_a_glance")) or "")'), "archive must take summary ownership from the persisted presentation");
+assert(api.includes('entry["presentation"] = issue') && api.includes('"source": "github_live_migrated"'), "legacy archive hydration must persist a one-time server-side presentation migration");
+assert(api.includes('source_words = _clean_markdown(summary_section or body or title).split()[:100]') && api.includes('words = candidate.split()[:30]') && api.includes('if len(rendered) <= 160'), "server summary generation must inspect at most 100 source words and display at most 30 words within 160 characters");
+assert(!api.includes('entry.pop("presentation", None)'), "unarchive must retain the one-time presentation snapshot");
 assert(api.includes('@router.post("/watchlist/view-archived")'), "read-only archived-item API endpoint missing");
 assert(api.includes('entry["snapshot"] = _sanitize_snapshot(snapshot)'), "archive mutation must retain a sanitized read-only snapshot");
 assert(api.includes('@router.post("/watchlist/archive")'), "API archive endpoint missing");

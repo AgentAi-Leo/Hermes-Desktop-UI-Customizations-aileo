@@ -149,6 +149,7 @@ try:
             "number": number,
             "title": issue.get("title") or "",
             "body": issue.get("body") or "",
+            "at_a_glance": str((entry.get("presentation") or {}).get("at_a_glance") or old_issue.get("at_a_glance") or ""),
             "html_url": issue.get("html_url") or entry.get("url"),
             "state": issue.get("state"),
             "state_reason": issue.get("state_reason"),

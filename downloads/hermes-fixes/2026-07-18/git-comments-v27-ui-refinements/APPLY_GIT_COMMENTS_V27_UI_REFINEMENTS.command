@@ -199,7 +199,7 @@ allowed = {"opened", "closed", "reopened", "labeled", "unlabeled"}
 assert all({event.get("event") for event in issue.get("status_events", [])} <= allowed for issue in issues)
 assert all(any(event.get("event") == "opened" for event in issue.get("status_events", [])) for issue in issues)
 assert any(event.get("event") in {"labeled", "unlabeled"} and (event.get("label") or {}).get("name") for issue in issues for event in issue.get("status_events", []))
-context_keys = {"title", "body", "state", "author", "created_at", "updated_at", "labels"}
+context_keys = {"title", "body", "at_a_glance", "state", "author", "created_at", "updated_at", "labels"}
 assert all(context_keys <= set(issue) for issue in issues), "issue context fields missing"
 assert all(issue.get("title") and (issue.get("author") or {}).get("login") and issue.get("created_at") and issue.get("updated_at") for issue in issues), "issue context not hydrated"
 print("V27_PROFILE_HEALTH_LIFECYCLE_AND_CONTEXT=PASS")
@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=311" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=312" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -327,10 +327,11 @@ required = [
     'window.removeEventListener("keydown", closeArchiveViewOnEscape, true)',
     'fetchJSON(`${API}/watchlist/view-archived`',
     'snapshot: issue',
-    'function archivedSummary(entry, hydratedIssue)',
-    '.slice(0, 100)',
-    '.slice(0, 40)',
-    'if (candidate.length > 65) break',
+    '.git-comments-at-a-glance{margin-top:10px;color:#22d3ee;font-size:16px;',
+    '"AT A GLANCE:"',
+    'const presentation = entry.presentation || {};',
+    'at_a_glance: presentation.at_a_glance || liveIssue?.at_a_glance || ""',
+    'entry.presentation?.at_a_glance || entry.snapshot?.at_a_glance || hydratedIssue?.at_a_glance || ""',
     'function archivedViewLabel(entry, hydratedIssue)',
     'return isPull ? "VIEW PR" : "VIEW ISSUE"',
     'setArchiveHydration',
@@ -350,19 +351,21 @@ assert 'className: "git-comments-current-labels"' not in source, "duplicated cur
 assert 'className: "git-comments-current-label"' not in source, "duplicated current-label pills remain"
 assert 'className: "git-comments-issue-meta"' not in source, "old separate comments row remains"
 assert 'if (entry?.kind !== "issue")' not in source, "archive summaries must not exclude pull requests"
+assert 'function archivedSummary' not in source, "client-side archive summarizer remains"
 issue_main = source.index('className: "git-comments-issue-main"')
 issue_number = source.index('className: "git-comments-number-link"', issue_main)
 issue_author = source.index('className: "git-comments-issue-author"', issue_number)
 repo_line = source.index('className: "git-comments-repo-line"', issue_author)
 watch_state = source.index('className: `git-comments-watch-state ${status}`', repo_line)
 issue_title = source.index('className: "git-comments-issue-title"', watch_state)
-context_row = source.index('className: "git-comments-issue-context-meta"', issue_title)
+at_a_glance = source.index('className: "git-comments-at-a-glance"', issue_title)
+context_row = source.index('className: "git-comments-issue-context-meta"', at_a_glance)
 comment_pill = source.index('className: `git-comments-comment-label ${status}`', context_row)
 status_cluster = source.index('className: "git-comments-status-cluster"', comment_pill)
 current_state = source.index('className: `git-comments-current-state ${status}`', status_cluster)
 status_text = source.index('className: "git-comments-status-text"', current_state)
 updated = source.index('`Updated ${fmt(issue.updated_at)}`', status_text)
-assert issue_main < issue_number < issue_author < repo_line < watch_state < issue_title < context_row < comment_pill < status_cluster < current_state < status_text < updated, "number/author first line, repository/WATCHING second line, then title; COMMENTS must sit left of one inline STATUS and metadata cluster"
+assert issue_main < issue_number < issue_author < repo_line < watch_state < issue_title < at_a_glance < context_row < comment_pill < status_cluster < current_state < status_text < updated, "number/author first line, repository/WATCHING second line, title and AT A GLANCE next; COMMENTS must sit left of one inline STATUS and metadata cluster"
 issue_avatar = source.index('className: "git-comments-issue-avatar"', issue_author)
 owner_star = source.index('className: "git-comments-owner-star"', issue_avatar)
 assert issue_author < issue_avatar < owner_star < repo_line, "profile-owner star must follow the payload-author avatar before the repository line"
@@ -396,12 +399,19 @@ for path in map(Path, sys.argv[2:4]):
     assert 'watchlist["active"].insert(0, entry)' in api, path
     assert '@router.post("/watchlist/view-archived")' in api, path
     assert 'entry["snapshot"] = _sanitize_snapshot(snapshot)' in api, path
-    assert '"source": "github_live"' in api, path
+    assert 'entry["presentation"] = _live_entry_snapshot(entry, str(watchlist.get("comment_owner") or ""))' in api, path
+    assert 'Unable to load GitHub item before adding it' in api, path
+    assert 'summary = str(((entry.get("presentation") or {}).get("at_a_glance")) or "")' in api, path
+    assert 'entry["presentation"] = issue' in api and '"source": "github_live_migrated"' in api, path
+    assert 'source_words = _clean_markdown(summary_section or body or title).split()[:100]' in api, path
+    assert 'words = candidate.split()[:30]' in api and 'if len(rendered) <= 160' in api, path
+    assert 'entry.pop("presentation", None)' not in api, path
 for path in map(Path, sys.argv[4:6]):
     checker = path.read_text(encoding="utf-8")
     assert 'merged_at = (issue.get("pull_request") or {}).get("merged_at")' in checker, path
     assert '"merged_at": merged_at' in checker, path
     assert '"merged": bool(merged_at)' in checker, path
+    assert '"at_a_glance": str((entry.get("presentation") or {}).get("at_a_glance") or old_issue.get("at_a_glance") or "")' in checker, path
 print("V27_UI_REFINEMENTS_LIVE_BUNDLE=PASS")
 PY
 rm -f "$LIVE_BUNDLE"
@@ -415,4 +425,4 @@ echo "PRODUCTION_9119=NOT_RESTARTED"
 echo "CANDIDATE_DATA_SOURCE=PROFILE_LINKED"
 echo "BACKUP=$BACKUP"
 echo "GIT_COMMENTS_V27_UI_REFINEMENTS=PASS"
-open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=311"
+open -a "Brave Browser" "http://127.0.0.1:$PORT/git-comments-v27-review?profile=$PROFILE&ui=312"
