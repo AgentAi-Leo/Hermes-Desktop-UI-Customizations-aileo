@@ -1,4 +1,6 @@
-# GIT WATCH V27 UI Refinements — Revision 40
+# GIT WATCH V27 UI Refinements — Revision 41
+
+Revision 41 matches the user-marked yellow guide by reducing the centered popup target from 1200×280px to 1020×208px. Popup text is reduced exactly 10%, from 48px to 43.2px. Center positioning, 80%-opaque colored backgrounds, fully opaque text, padding, border radius, shadow, backdrop blur, action colors, duplicate protection, and all established dwell/fade timings remain unchanged.
 
 Revision 40 strengthens separation between success feedback and dashboard content while preserving the unified center position and all established dwell/fade timings. Popup text doubles from 24px to 48px; padding expands from 15px/24px to 60px/96px; the viewport-constrained target box is up to 1200px wide with a 280px minimum height. Green, cyan, and red backgrounds use 80% opacity while text remains fully opaque. A medium two-layer soft drop shadow and 8px backdrop blur improve readability over busy cards.
 
