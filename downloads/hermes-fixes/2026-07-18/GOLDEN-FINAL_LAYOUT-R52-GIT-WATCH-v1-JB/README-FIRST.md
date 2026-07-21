@@ -1,6 +1,6 @@
-# GIT WATCH Golden Release — Revision 52
+# GOLDEN-FINAL_LAYOUT-R52-GIT-WATCH-v1-JB
 
-This ZIP is a clean, independent installation and recovery kit for **GIT WATCH**. It does not install or modify Briefs AI, Briefs Stocks, or the production `git-comments` plugin.
+This is the final-layout Golden Release package for **GIT WATCH**, derived from frozen Revision 52. It does not install or modify Briefs AI, Briefs Stocks, or the production `git-comments` plugin.
 
 ## Which file should I use?
 

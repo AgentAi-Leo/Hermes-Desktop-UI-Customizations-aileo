@@ -6,6 +6,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const pkg = path.resolve(__dirname, '..');
+const PACKAGE_NAME = 'GOLDEN-FINAL_LAYOUT-R52-GIT-WATCH-v1-JB';
 const manager = path.join(pkg, 'scripts', 'git-watch-golden-manager.sh');
 const renderer = path.join(pkg, 'payload', 'dashboard', 'dist', 'index.js');
 const api = path.join(pkg, 'payload', 'dashboard', 'plugin_api.py');
@@ -25,8 +26,13 @@ for (const required of [manager, renderer, api, checker, manifest, demo, readme,
   assert(fs.existsSync(required), `Golden Release file missing: ${required}`);
 }
 const provenance = JSON.parse(fs.readFileSync(releaseManifest, 'utf8'));
+assert.equal(provenance.release_name, PACKAGE_NAME);
+assert.equal(provenance.package_folder, PACKAGE_NAME);
+assert.equal(provenance.package_zip, `${PACKAGE_NAME}.zip`);
 assert.equal(provenance.source.commit, 'b09c990e4b19cc18c6932d58e9340c59c77d6e39');
 assert.equal(provenance.source.revision_zip_sha256, '6acc841439f55f578b7a7b578e56dfc95e250a3fdcb75231c7bae35c49bb4569');
+assert(fs.readFileSync(readme, 'utf8').startsWith(`# ${PACKAGE_NAME}\n`), 'README must use the exact package name');
+assert(fs.readFileSync(manager, 'utf8').includes(`"release": "${PACKAGE_NAME}"`), 'install receipt must use the exact package name');
 assert(fs.readFileSync(verifier, 'utf8').includes('CHECKSUMS.sha256') && fs.readFileSync(verifier, 'utf8').includes('GIT_WATCH_GOLDEN_PACKAGE_VERIFICATION=PASS'), 'beginner package verifier contract missing');
 for (const [name, mode] of wrappers) {
   const file = path.join(pkg, name);
@@ -70,7 +76,9 @@ let watchlist = readJSON(path.join(profilePlugin, 'data', 'watchlist.json'));
 assert.equal(watchlist.comment_owner, 'ExampleUser');
 assert.deepEqual(watchlist.active, []);
 assert.deepEqual(watchlist.archived, []);
-assert(fs.existsSync(path.join(profileHome, 'git-watch-golden-install.json')), 'install receipt missing');
+const receiptPath = path.join(profileHome, 'git-watch-golden-install.json');
+assert(fs.existsSync(receiptPath), 'install receipt missing');
+assert.equal(readJSON(receiptPath).release, PACKAGE_NAME, 'installed receipt must use the exact package name');
 
 watchlist.active.push({ id: 'owner/repo/issues/7', url: 'https://github.com/owner/repo/issues/7', repo: 'owner/repo', number: 7, kind: 'issue' });
 fs.writeFileSync(path.join(profilePlugin, 'data', 'watchlist.json'), JSON.stringify(watchlist, null, 2) + '\n');
@@ -118,6 +126,10 @@ assert.equal(result.status, 0, result.stdout + result.stderr);
 assert(fs.existsSync(path.join(defaultHome, '.hermes', 'plugins', 'git-comments-v27-review', 'dashboard', 'dist', 'index.js')), 'default-profile install path incorrect');
 
 const html = fs.readFileSync(demo, 'utf8');
+assert(html.includes(`<title>${PACKAGE_NAME} — Offline Demo</title>`) && html.includes(`<strong>${PACKAGE_NAME}</strong>`), 'offline demo must use the exact package name');
+for (const retired of ['Git Watch Golden Release R52', 'GIT WATCH Golden Release — Revision 52', 'git-watch-golden-release-r52']) {
+  assert(![fs.readFileSync(readme, 'utf8'), fs.readFileSync(releaseManifest, 'utf8'), fs.readFileSync(manager, 'utf8'), html].some(source => source.includes(retired)), `retired package identity remains: ${retired}`);
+}
 assert(html.startsWith('<!doctype html>') && html.endsWith('</body></html>'), 'offline demo must be a complete HTML document');
 assert((html.match(/<style>/g) || []).length === 1 && (html.match(/<script>/g) || []).length === 1, 'offline demo must contain exactly one inline style and script');
 assert(html.includes('git-watch-export-version" content="52') && html.includes('git-watch-visual-baseline" content="52'), 'offline demo must retain Revision 52 export metadata');

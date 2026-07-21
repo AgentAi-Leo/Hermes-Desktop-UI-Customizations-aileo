@@ -1,6 +1,8 @@
 {
   "schema_version": 1,
-  "release_name": "Git Watch Golden Release R52",
+  "release_name": "GOLDEN-FINAL_LAYOUT-R52-GIT-WATCH-v1-JB",
+  "package_folder": "GOLDEN-FINAL_LAYOUT-R52-GIT-WATCH-v1-JB",
+  "package_zip": "GOLDEN-FINAL_LAYOUT-R52-GIT-WATCH-v1-JB.zip",
   "display_name": "GIT WATCH",
   "runtime_identity": "git-comments-v27-review",
   "release_date_local": "2026-07-20",

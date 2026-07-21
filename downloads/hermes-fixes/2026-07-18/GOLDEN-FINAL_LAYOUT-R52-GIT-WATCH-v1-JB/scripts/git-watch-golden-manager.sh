@@ -265,7 +265,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 payload = {
   "schema_version": 1,
-  "release": "Git Watch Golden Release R52",
+  "release": "GOLDEN-FINAL_LAYOUT-R52-GIT-WATCH-v1-JB",
   "profile": sys.argv[2],
   "profile_home": sys.argv[3],
   "installed_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
