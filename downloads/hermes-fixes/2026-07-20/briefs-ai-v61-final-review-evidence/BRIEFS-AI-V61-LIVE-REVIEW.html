@@ -1,0 +1,1039 @@
+<!doctype html><html lang="en" data-hermes-canonical-ai="v26"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Morning Brief</title><style id="hermes-v25-ai-base-style">
+:root{color-scheme:dark;--bg:#0b1020;--card:#121a33;--text:#eef3ff;--muted:#aab6d3;--accent:#8bd3ff;--line:#263456;--hot:#ffd166}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg)}body{color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:24px;line-height:1.5}main{width:100%;padding:24px clamp(18px,4vw,64px) 56px}.hero{padding:28px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(135deg,#182345,#10182f)}.pill{display:inline-block;padding:9px 20px;border-radius:999px;background:var(--hot);color:var(--bg);font-size:21px;font-weight:900}.hero h1{margin:16px 0 4px;font-size:64px;line-height:1.05}.date{margin:0;color:var(--accent)}.takeaways{margin:12px 0;padding:22px 26px;background:var(--card);border:1px solid var(--line);border-radius:18px}.takeaways h2{margin:0 0 20px;color:var(--hot);font-size:38px}.takeaways li{margin:0 0 22px}.takeaways li::marker,.takeaways strong{color:var(--accent)}.takeaways strong{display:block;font-size:34px;line-height:1.16}.takeaway-detail{display:block;margin-top:7px;font-size:27px;line-height:1.34}.topics{display:grid;gap:18px;margin-top:22px}.card{padding:24px;background:rgba(18,26,51,.55);border:1px solid var(--line);border-radius:18px}.card h2{margin:0 0 16px;color:var(--hot);font-size:34px}.card p{margin:12px 0;font-size:23px;line-height:1.52}.label,a{color:var(--accent)}.label{font-weight:750}.sources{color:var(--muted);font-size:20px!important}@media(max-width:720px){body{font-size:20px}.hero h1{font-size:42px}.takeaways,.card{padding:22px}.takeaways h2,.card h2{font-size:30px}.takeaways strong{font-size:26px}.takeaway-detail,.card p{font-size:20px}}
+</style><style id="hermes-brief-player-style">
+html, body { width: 100% !important; max-width: none !important; overflow-x: hidden !important; }
+.wrap { width: 100% !important; max-width: none !important; margin: 0 !important; }
+.hermes-brief-player-sticky {
+  position: fixed !important;
+  inset: 0 0 auto 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  z-index: 2147483647 !important;
+  margin: 0 !important;
+  border-radius: 0 0 14px 14px !important;
+  background: var(--bg, #0f1117) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .42), 0 1px 0 rgba(255, 255, 255, .12) !important;
+  padding-top: max(10px, env(safe-area-inset-top)) !important;
+  isolation: isolate;
+}
+.hermes-brief-player-placeholder { display: block !important; width: 100% !important; }
+.hermes-brief-player-sticky input[type="range"] { width: 137.5px !important; min-width: 137.5px !important; height: 28px !important; cursor: pointer !important; }
+.hermes-brief-player-sticky button { min-width: 38px !important; min-height: 38px !important; }
+.hermes-brief-player-sticky button.hermes-command-active,
+.hermes-brief-player-sticky button:active {
+  border-color: var(--accent, var(--link, #8ab4ff)) !important;
+  color: var(--accent, var(--link, #8ab4ff)) !important;
+  box-shadow: 0 0 0 2px var(--accent, var(--link, #8ab4ff)) !important;
+}
+.hermes-brief-player-status { color: var(--muted, #93a4bd); font-size: 12px; white-space: nowrap; }
+#hermes-brief-player .hermes-player-shell { position: relative !important; display: flex; min-height: 50px; align-items: center; gap: 9px; padding: 8px 16px 10px; color: var(--text, #f4f7fb); }
+#hermes-brief-player .hermes-player-volume { display: inline-flex; align-items: center; gap: 7px; color: var(--muted, #aab8ca); font-size: 12px; white-space: nowrap; }
+#hermes-brief-player .hermes-date-nav { position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; display: inline-flex !important; align-items: center !important; gap: 18px !important; margin: 0 !important; vertical-align: middle !important; }
+#hermes-brief-player .hermes-date-nav-label { display: inline-flex !important; min-height: 42px !important; align-items: center !important; color: #67e8f9 !important; font-size: 42px !important; line-height: 42px !important; font-weight: 400 !important; letter-spacing: .04em !important; white-space: nowrap !important; }
+#hermes-brief-player .hermes-date-nav button { width: 42px !important; height: 42px !important; min-width: 42px !important; min-height: 42px !important; margin: 0 !important; border: 1px solid #67e8f9 !important; border-radius: 999px !important; background: rgba(103, 232, 249, .08) !important; color: #67e8f9 !important; font-size: 26px !important; line-height: 1 !important; }
+#hermes-brief-player + .hero, #hermes-brief-player ~ .hero { scroll-margin-top: var(--hermes-player-height, 10rem); }
+header .tts, header .player { display: none !important; }
+.card, .hermes-playable-card { width: 100% !important; max-width: none !important; scroll-margin-top: var(--hermes-player-height, 10rem) !important; }
+.card[role="button"], .hermes-playable-card[role="button"] { cursor: pointer !important; }
+.card[role="button"]:hover, .hermes-playable-card[role="button"]:hover { border-color: var(--accent, var(--link, #8ab4ff)) !important; }
+.card[role="button"]:focus-visible, .hermes-playable-card[role="button"]:focus-visible { outline: 2px solid var(--accent, var(--link, #8ab4ff)) !important; outline-offset: 2px; }
+.hermes-playable-card.active,
+.hermes-playable-card[aria-current="true"],
+.hermes-playable-card.active:hover,
+.hermes-playable-card[aria-current="true"]:hover,
+.hermes-playable-card.active:focus-visible,
+.hermes-playable-card[aria-current="true"]:focus-visible {
+  border-color: #ffd166 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+/* AI topic headlines use the concise July 14 visual hierarchy. */
+.hermes-playable-card h2, .hermes-playable-card h3 { color: var(--hot, #ffd166) !important; }
+.hermes-playable-card.takeaways h2 { color: #67e8f9 !important; text-transform: uppercase !important; letter-spacing: .035em !important; }
+.hermes-playable-card.takeaways ol { margin: 1.25rem 0 0 !important; padding-left: 2.15rem !important; }
+.hermes-playable-card.takeaways li { font-size: 1.2em !important; line-height: 1.58 !important; margin: 0 0 1.15rem !important; }
+.hermes-playable-card.takeaways li > strong:first-child { display: block !important; color: #67e8f9 !important; font-size: 1.35em !important; line-height: 1.25 !important; margin: 0 0 .32rem !important; }
+.hermes-playable-card.takeaways li::marker { color: #67e8f9 !important; font-size: 1.35em !important; font-weight: 850 !important; }
+.hermes-takeaways-heading-row { display: flex !important; align-items: center !important; gap: 18px !important; flex-wrap: wrap !important; margin: 0 0 1.25rem !important; }
+.hermes-takeaways-heading-row h2 { margin: 0 !important; }
+.hermes-ai-sources-row { display: flex !important; align-items: center !important; gap: 14px !important; flex-wrap: wrap !important; }
+.hermes-ai-sources-row .sources, .hermes-ai-sources-row .source { margin: 0 !important; }
+.hermes-ai-active-date-pill { display: inline-flex !important; align-items: center !important; min-height: 34px !important; padding: 6px 14px !important; border-radius: 999px !important; background: #ffd166 !important; color: #0b1020 !important; font-size: 16px !important; font-weight: 850 !important; line-height: 1.2 !important; letter-spacing: .02em !important; white-space: nowrap !important; }
+.hermes-takeaways-heading-row .hermes-ai-active-date-pill { transform: translateY(-5px) !important; }
+.hermes-ai-sources-row .hermes-ai-active-date-pill { transform: none !important; }
+/* Cron dates are metadata, not a secondary hierarchy. Keep them consistently cyan. */
+header .date, header .sub { color: #67e8f9 !important; }
+.hermes-portfolio-comparison { margin: 18px 0 22px; padding: 18px; border: 1px solid rgba(138, 180, 255, .45); border-radius: 14px; background: rgba(10, 24, 42, .72); color: var(--text, #f4f7fb); }
+.hermes-portfolio-comparison h2 { color: #ffd166 !important; margin: 0 0 4px; font-size: clamp(28px, 3.08vw, 39px); }
+.hermes-portfolio-comparison .hermes-portfolio-note { margin: 0 0 14px; color: var(--muted, #aab8ca); font-size: 18px; }
+.hermes-portfolio-table-wrap { width: 100%; overflow-x: auto; }
+.hermes-portfolio-table { width: 100%; min-width: 1480px; table-layout: fixed; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.hermes-portfolio-table th, .hermes-portfolio-table td { padding: 8px 9px; border-bottom: 1px solid rgba(255, 255, 255, .12); text-align: right; white-space: nowrap; }
+.hermes-portfolio-table th { font-size: 14.7px; }
+.hermes-portfolio-table td { font-size: 18.2px; }
+.hermes-portfolio-table th:first-child, .hermes-portfolio-table td:first-child { width: 20%; min-width: 230px; }
+/* Stock quote cards are intentionally transformed into concise full-width rows. */
+[aria-label="Stock price cards"] { display: flex !important; flex-direction: column !important; gap: 10px !important; }
+[aria-label="Stock price cards"] .card { display: grid !important; grid-template-columns: minmax(210px, 1.45fr) repeat(5, minmax(92px, 1fr)) !important; grid-template-rows: auto auto; gap: 4px 14px !important; align-items: center !important; margin: 0 !important; padding: 16px 18px !important; }
+[aria-label="Stock price cards"] .card h2 { grid-column: 1; grid-row: 1 / span 2; margin: 0 !important; }
+.hermes-card-daily-change { display: inline-block; margin-left: 10px; font-size: .9em; font-weight: 760; }
+[aria-label="Stock price cards"] .card > .change,
+[aria-label="Stock price cards"] .card > p.positive,
+[aria-label="Stock price cards"] .card > p.negative { display: none !important; }
+[aria-label="Stock price cards"] .card .stats { display: contents !important; }
+[aria-label="Stock price cards"] .card .stats > * { min-width: 0; margin: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(n+6) { display: none !important; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(1) { grid-column: 2; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(2) { grid-column: 3; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(3) { grid-column: 4; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(4) { grid-column: 5; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(5) { grid-column: 6; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats .label { display: block; margin-bottom: 2px; font-size: 10px; letter-spacing: .07em; text-transform: uppercase; }
+[aria-label="Stock price cards"] .card .stats strong { font-size: 1rem; }
+@media (max-width: 840px) { [aria-label="Stock price cards"] .card { grid-template-columns: minmax(190px, 1fr) repeat(3, minmax(88px, 1fr)) !important; } [aria-label="Stock price cards"] .card .stats > *:nth-child(1) { grid-column: 2; grid-row: 1; } [aria-label="Stock price cards"] .card .stats > *:nth-child(2) { grid-column: 3; grid-row: 1; } [aria-label="Stock price cards"] .card .stats > *:nth-child(3) { grid-column: 4; grid-row: 1; } [aria-label="Stock price cards"] .card .stats > *:nth-child(4) { grid-column: 2; grid-row: 2; } [aria-label="Stock price cards"] .card .stats > *:nth-child(5) { grid-column: 3; grid-row: 2; } }
+@media (max-width: 620px) { [aria-label="Stock price cards"] .card { grid-template-columns: 1fr 1fr !important; } [aria-label="Stock price cards"] .card h2 { grid-column: 1 / -1; grid-row: auto; } [aria-label="Stock price cards"] .card .stats > * { grid-column: auto !important; grid-row: auto !important; } }
+.hermes-portfolio-table th:first-child, .hermes-portfolio-table td:first-child { text-align: left; }
+.hermes-portfolio-table thead th { color: var(--muted, #aab8ca); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.hermes-portfolio-table tbody tr:hover { background: rgba(138, 180, 255, .07); }
+.hermes-portfolio-position { display: block; font-weight: 750; }
+.hermes-portfolio-meta { display: block; margin-top: 3px; color: var(--muted, #aab8ca); font-size: 15.25px; font-weight: 500; }
+.hermes-portfolio-shares { color: #ffd766; font-weight: 800; }
+.hermes-portfolio-table thead .hermes-portfolio-shares { color: #ffd766; }
+.hermes-portfolio-purchase { color: #ffd766; font-weight: 800; }
+.hermes-portfolio-table thead .hermes-portfolio-purchase { color: #ffd766; }
+.hermes-portfolio-positive { color: #4ade80; font-weight: 750; }
+.hermes-portfolio-negative { color: #fb7185; font-weight: 750; }
+.hermes-card-inline-price { display: block; margin-top: .2rem; font-size: 1.35rem; font-weight: 850; white-space: nowrap; }
+/* Preserve each archived brief's original card/grid layout.  Only the price moves beneath the ticker. */
+.card h2 { display: block !important; }
+.hermes-portfolio-unavailable { color: var(--muted, #aab8ca); }
+.hermes-portfolio-table tfoot td { border-top: 2px solid rgba(138, 180, 255, .55); border-bottom: 0; font-weight: 800; }
+@media (max-width: 700px) {
+  .wrap { padding: 10px 8px 28px !important; }
+  .hermes-brief-player-sticky { padding: max(8px, env(safe-area-inset-top)) 8px 8px !important; }
+  #hermes-brief-player .hermes-player-shell { display: grid !important; grid-template-columns: repeat(3, auto) minmax(96px, 1fr) !important; grid-template-rows: auto auto !important; gap: 8px !important; padding: 6px !important; }
+  #hermes-brief-player .hermes-player-volume { min-width: 0 !important; justify-self: stretch !important; }
+  #hermes-brief-player .hermes-date-nav { position: static !important; grid-column: 1 / -1 !important; grid-row: 2 !important; justify-self: center !important; gap: 12px !important; transform: none !important; }
+  #hermes-brief-player .hermes-date-nav-label { min-height: 34px !important; font-size: 30px !important; line-height: 34px !important; }
+  #hermes-brief-player .hermes-date-nav button { width: 36px !important; height: 36px !important; min-width: 36px !important; min-height: 36px !important; font-size: 22px !important; }
+  .hermes-brief-player-sticky button { min-width: 36px !important; min-height: 36px !important; }
+  .hermes-brief-player-sticky input[type="range"] { width: 100% !important; min-width: 0 !important; max-width: 160px !important; }
+  .hermes-portfolio-comparison { margin: 10px 0 16px; padding: 12px; }
+}
+/* V26: archive-independent full-width Stock rows. */
+.hermes-stock-row { grid-column: 1 / -1 !important; width: 100% !important; max-width: none !important; display: grid !important; grid-template-columns: minmax(280px, 1.45fr) repeat(5, minmax(118px, 1fr)) !important; grid-template-rows: auto auto !important; gap: 6px 22px !important; align-items: center !important; margin: 0 !important; padding: 15px 20px !important; }
+.hermes-stock-row h2 { grid-column: 1 !important; grid-row: 1 / span 2 !important; margin: 0 !important; }
+.hermes-stock-row .hermes-card-company { display: inline !important; margin-left: 9px !important; color: var(--muted, #aab8ca) !important; font-size: .68em !important; font-weight: 550 !important; }
+.hermes-stock-row .hermes-card-daily-change { display: inline !important; margin-left: 10px !important; font-size: .78em !important; }
+.hermes-stock-row .hermes-card-inline-price { display: block !important; margin-top: 5px !important; font-size: 1.42rem !important; }
+.hermes-stock-row > .change, .hermes-stock-row > p.positive, .hermes-stock-row > p.negative, .hermes-stock-row > .company { display: none !important; }
+.hermes-stock-row .stats { display: contents !important; }
+.hermes-stock-row .stats > * { min-width: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; }
+.hermes-stock-row .stats > *:nth-child(n+6) { display: none !important; }
+.hermes-stock-row .stats > *:nth-child(1) { grid-column: 2 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(2) { grid-column: 3 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(3) { grid-column: 4 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(4) { grid-column: 5 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(5) { grid-column: 6 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats .label { display: block !important; margin-bottom: 3px !important; font-size: 11px !important; letter-spacing: .08em !important; text-transform: uppercase !important; }
+.hermes-stock-row .stats strong { font-size: 1.08rem !important; }
+@media (max-width: 940px) { .hermes-stock-row { grid-template-columns: minmax(230px, 1fr) repeat(3, minmax(100px, 1fr)) !important; } .hermes-stock-row .stats > *:nth-child(1) { grid-column: 2 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(2) { grid-column: 3 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(3) { grid-column: 4 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(4) { grid-column: 2 !important; grid-row: 2 !important; } .hermes-stock-row .stats > *:nth-child(5) { grid-column: 3 !important; grid-row: 2 !important; } }
+@media (max-width: 680px) { .hermes-stock-row { grid-template-columns: 1fr 1fr !important; } .hermes-stock-row h2 { grid-column: 1 / -1 !important; grid-row: auto !important; } .hermes-stock-row .stats > * { grid-column: auto !important; grid-row: auto !important; } }
+/* Stock archives are rewritten to a stable, canonical row markup rather than restyled opportunistically. */
+.hermes-stock-today-date-pill { display: inline-flex !important; width: max-content !important; max-width: 100% !important; align-items: center !important; margin: 6.6px 0 9.9px !important; padding: 5.5px 12.1px !important; border-radius: 999px !important; background: #ffffff !important; color: #0b1020 !important; font-family: inherit !important; font-size: clamp(12.1px, 1.43vw, 18.7px) !important; font-weight: 850 !important; line-height: 1.1 !important; letter-spacing: .02em !important; white-space: nowrap !important; }
+main.grid { display: flex !important; flex-direction: column !important; gap: 8px !important; }
+.hermes-stock-row { grid-column: 1 / -1 !important; width: 100% !important; max-width: none !important; min-width: 0 !important; box-sizing: border-box !important; display: grid !important; grid-template-columns: minmax(220px, 280px) minmax(150px, 190px) minmax(0, 1fr) !important; gap: 14px !important; align-items: center !important; margin: 0 !important; padding: 10px 20px !important; border: 1px solid var(--line, #334155) !important; border-radius: 16px !important; background: var(--panel, #111827) !important; box-shadow: none !important; }
+.hermes-stock-identity { grid-column: 1 !important; display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; justify-content: center !important; }
+.hermes-stock-title { display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; gap: 5px !important; }
+.hermes-stock-ticker { color: #ffe08a !important; font-size: 1.55rem !important; font-weight: 850 !important; letter-spacing: .02em !important; }
+.hermes-stock-company { min-width: 0 !important; color: var(--text, #f4f7fb) !important; font-size: 1.35rem !important; font-weight: 750 !important; line-height: 1.2 !important; letter-spacing: .025em !important; text-transform: uppercase !important; overflow-wrap: anywhere !important; }
+.hermes-stock-change { display: block !important; margin-top: 12px !important; font-size: 1.22rem !important; font-weight: 800 !important; line-height: 1.2 !important; white-space: nowrap !important; }
+.hermes-stock-current-price { grid-column: 2 !important; display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; justify-content: center !important; }
+.hermes-stock-current-label { color: var(--muted, #aab8ca) !important; font-size: clamp(.82rem, 1vw, 1.15rem) !important; font-weight: 700 !important; letter-spacing: .055em !important; line-height: 1.2 !important; }
+.hermes-stock-price { display: block !important; margin-top: 7px !important; color: #ffe08a !important; font-size: 2.3rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums !important; }
+.hermes-stock-metrics { grid-column: 3 !important; display: grid !important; min-width: 0 !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 12px !important; align-items: center !important; margin: 0 !important; }
+.hermes-stock-metrics > div { min-width: 0 !important; }
+.hermes-stock-metrics dt { max-width: 100% !important; color: var(--muted, #aab8ca) !important; font-size: clamp(.82rem, 1vw, 1.15rem) !important; font-weight: 700 !important; letter-spacing: .055em !important; line-height: 1.2 !important; text-transform: uppercase !important; overflow-wrap: anywhere !important; }
+.hermes-stock-metrics dd { max-width: 100% !important; margin: 7px 0 0 !important; color: var(--text, #f4f7fb) !important; font-size: clamp(1.05rem, 1.55vw, 1.9rem) !important; font-weight: 800 !important; line-height: 1.15 !important; font-variant-numeric: tabular-nums !important; white-space: nowrap !important; }
+.hermes-stock-row time, .hermes-stock-row [class*="timestamp"], .hermes-stock-row [class*="as-of"] { display: none !important; }
+@media (max-width: 1200px) { .hermes-stock-company { font-size: 1.05rem !important; } .hermes-stock-metrics { gap: 8px !important; } }
+@media (max-width: 900px) { .hermes-stock-today-date-pill { font-size: 14.3px !important; } }
+@media (max-width: 1100px) { .hermes-stock-row { grid-template-columns: minmax(0, 1fr) minmax(150px, 190px) !important; gap: 10px 16px !important; } .hermes-stock-identity { grid-column: 1 !important; } .hermes-stock-current-price { grid-column: 2 !important; } .hermes-stock-metrics { grid-column: 1 / -1 !important; grid-row: 2 !important; width: 100% !important; } }
+@media (max-width: 760px) { .hermes-stock-row { grid-template-columns: 1fr !important; gap: 12px !important; padding: 14px !important; } .hermes-stock-identity, .hermes-stock-current-price, .hermes-stock-metrics { grid-column: 1 !important; } .hermes-stock-current-price { grid-row: 2 !important; } .hermes-stock-metrics { grid-row: 3 !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px 22px !important; } }
+</style><style id="hermes-ai-restored-style">
+:root { --bg: #0b1020; --card: #121a33; --text: #eef3ff; --muted: #aab6d3; --accent: #8bd3ff; --line: #263456; --hot: #ffd166; }
+html, body { width: 100% !important; max-width: none !important; min-height: 100% !important; margin: 0 !important; background: #0b1020 !important; color: #eef3ff !important; }
+body { box-sizing: border-box !important; padding: 40px 22px 64px !important; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important; font-size: 32px !important; line-height: 1.6 !important; }
+.wrap, body > main { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
+body > header, body > main > header, .wrap > header, .hero { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 0 0 22px !important; padding: 28px !important; border: 1px solid #263456 !important; border-radius: 22px !important; background: linear-gradient(135deg, #182345, #10182f) !important; color: #eef3ff !important; box-shadow: 0 20px 60px rgba(0,0,0,.25) !important; }
+body > header::before, body > main > header::before, .wrap > header::before, .hero::before { content: none !important; display: none !important; }
+html body .hero .tag, html body header .tag, html body .tag { display: none !important; visibility: hidden !important; }
+html body .hero .pill, html body header .pill { display: inline-block !important; visibility: visible !important; margin: 0 0 18px !important; padding: 10px 22px !important; border-radius: 999px !important; background: #ffd166 !important; color: #0b1020 !important; font-size: 22px !important; font-weight: 800 !important; line-height: 1.2 !important; letter-spacing: .02em !important; }
+.hermes-date-nav { position: relative !important; top: 10px !important; display: inline-flex !important; align-items: center !important; gap: 18px !important; margin: 0 0 18px 22px !important; vertical-align: middle !important; }
+.hermes-date-nav button { display: inline-grid !important; width: 46px !important; height: 46px !important; place-items: center !important; padding: 0 !important; border: 1px solid #67e8f9 !important; border-radius: 999px !important; background: rgba(103,232,249,.10) !important; color: #67e8f9 !important; font-size: 32px !important; font-weight: 800 !important; line-height: 1 !important; cursor: pointer !important; }
+.hermes-date-nav button:hover, .hermes-date-nav button:focus-visible { background: #67e8f9 !important; color: #0b1020 !important; outline: none !important; }
+body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { margin: 0 0 10px !important; color: #eef3ff !important; font-size: 64px !important; line-height: 1.05 !important; letter-spacing: .015em !important; }
+.hermes-ai-title-row { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 16px !important; margin: 0 0 10px !important; }
+.hermes-ai-title-row h1 { margin: 0 !important; }
+#hermes-ai-fullscreen-button { display: inline-grid !important; width: 44px !important; height: 44px !important; flex: 0 0 44px !important; place-items: center !important; padding: 0 !important; border: 1px solid #67e8f9 !important; border-radius: 10px !important; background: rgba(103,232,249,.10) !important; color: #67e8f9 !important; cursor: pointer !important; }
+#hermes-ai-fullscreen-button:hover, #hermes-ai-fullscreen-button:focus-visible { background: #67e8f9 !important; color: #0b1020 !important; outline: none !important; }
+#hermes-ai-fullscreen-button svg { width: 26px !important; height: 26px !important; fill: none !important; stroke: currentColor !important; stroke-width: 2 !important; stroke-linecap: round !important; stroke-linejoin: round !important; }
+html:fullscreen { overflow-y: auto !important; background: #0b1020 !important; }
+body > header p, body > main > header p, .wrap > header p, html body .hero p, body > header .date, body > main > header .date, .wrap > header .date, html body .hero .date, body > header strong, body > main > header strong, .wrap > header strong, html body .hero strong { margin: 0 !important; color: #eef3ff !important; font-size: 27px !important; line-height: 1.35 !important; }
+.takeaways, body > main > .takeaways, .hermes-playable-card.takeaways { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 12px 0 !important; padding: 22px 26px !important; border: 1px solid #263456 !important; border-radius: 18px !important; background: #121a33 !important; color: #eef3ff !important; box-shadow: none !important; }
+.takeaways h2, .hermes-playable-card.takeaways h2 { margin: 0 0 14px !important; padding: 0 !important; border: 0 !important; color: #ffd166 !important; font-size: 38px !important; font-weight: 700 !important; line-height: 1.15 !important; letter-spacing: .015em !important; text-transform: uppercase !important; }
+.takeaways ol, .hermes-playable-card.takeaways ol { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 0 !important; padding-left: 1.5em !important; }
+.takeaways li, .hermes-playable-card.takeaways li { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 0 0 10px !important; color: #eef3ff !important; font-size: 36px !important; font-weight: 400 !important; line-height: 1.34 !important; }
+.takeaways li > *, .hermes-playable-card.takeaways li > * { box-sizing: border-box !important; width: 100% !important; max-width: none !important; }
+.takeaways .hermes-takeaway-detail, .hermes-playable-card.takeaways .hermes-takeaway-detail { display: block !important; width: auto !important; max-width: min(92ch, 100%) !important; margin: .16em 0 0 !important; text-align: left !important; text-align-last: auto !important; text-wrap: pretty !important; word-spacing: normal !important; letter-spacing: -.01em !important; line-height: 1.42 !important; }
+.takeaways li:last-child, .hermes-playable-card.takeaways li:last-child { margin-bottom: 0 !important; }
+.takeaways li > strong:first-child, .hermes-playable-card.takeaways li > strong:first-child { display: block !important; margin: 0 0 2px !important; color: #8bd3ff !important; font-size: 42px !important; font-weight: 700 !important; line-height: 1.16 !important; letter-spacing: -.02em !important; }
+.takeaways li::marker, .hermes-playable-card.takeaways li::marker { color: #8bd3ff !important; font-size: 38px !important; font-weight: 700 !important; }
+.topics { display: grid !important; gap: 22px !important; }
+.topics > .card, .hermes-playable-card:not(.takeaways), body > main > article, body > main > section.hermes-generated-topic { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 0 0 22px !important; padding: 24px !important; border: 1px solid #67e8f9 !important; border-radius: 18px !important; background: rgba(18,26,51,.55) !important; color: #eef3ff !important; font-size: 32px !important; line-height: 1.6 !important; box-shadow: none !important; }
+body .hermes-topic-container { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+.topics > .card h2, .hermes-playable-card:not(.takeaways) h2, .hermes-playable-card:not(.takeaways) h3 { margin: 0 0 28px !important; padding: 0 !important; border: 0 !important; color: #ffd166 !important; font-size: 44px !important; line-height: 1.25 !important; }
+.topics > .card p, .hermes-playable-card:not(.takeaways) p, .topics > .card li, .hermes-playable-card:not(.takeaways) li, .topics > .card a, .hermes-playable-card:not(.takeaways) a { font-size: 32px !important; line-height: 1.6 !important; }
+.topics > .card a, .hermes-playable-card:not(.takeaways) a { color: #8bd3ff !important; text-decoration-thickness: .08em !important; text-underline-offset: .18em !important; }
+.sources { margin-top: 28px !important; color: #aab6d3 !important; }
+#hermes-brief-player { font-size: 16px !important; }
+@media (max-width: 900px) {
+  body { padding: 20px 12px 36px !important; font-size: 26px !important; }
+  body > header, body > main > header, .wrap > header, .hero { padding: 34px !important; }
+  .takeaways, body > main > .takeaways, .hermes-playable-card.takeaways { padding: 24px !important; }
+  .topics > .card, .hermes-playable-card:not(.takeaways), body > main > article, body > main > section.hermes-generated-topic { padding: 30px !important; }
+  body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { font-size: 48px !important; }
+  .takeaways h2, .hermes-playable-card.takeaways h2 { font-size: 32px !important; }
+  .takeaways li > strong:first-child, .hermes-playable-card.takeaways li > strong:first-child { font-size: 30px !important; }
+  .takeaways li, .hermes-playable-card.takeaways li { font-size: 24px !important; }
+  .topics > .card h2, .hermes-playable-card:not(.takeaways) h2, .hermes-playable-card:not(.takeaways) h3 { font-size: 36px !important; }
+  .topics > .card, .hermes-playable-card:not(.takeaways), .topics > .card p, .hermes-playable-card:not(.takeaways) p, .topics > .card li, .hermes-playable-card:not(.takeaways) li, .topics > .card a, .hermes-playable-card:not(.takeaways) a { font-size: 26px !important; }
+}
+@media (max-width: 560px) {
+  body { padding: 12px 8px 28px !important; font-size: 20px !important; overflow-x: hidden !important; }
+  body > header, body > main > header, .wrap > header, .hero { padding: 18px !important; border-radius: 16px !important; }
+  body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { font-size: 38px !important; overflow-wrap: anywhere !important; }
+  .hermes-ai-title-row { gap: 10px !important; }
+  #hermes-ai-fullscreen-button { width: 40px !important; height: 40px !important; flex-basis: 40px !important; }
+  .takeaways, body > main > .takeaways, .hermes-playable-card.takeaways, .topics > .card, .hermes-playable-card:not(.takeaways), body > main > article, body > main > section.hermes-generated-topic { padding: 16px !important; border-radius: 15px !important; }
+  .takeaways ol, .hermes-playable-card.takeaways ol { padding-left: 1.8em !important; }
+  .takeaways li::marker, .hermes-playable-card.takeaways li::marker { font-size: 25px !important; }
+  .takeaways h2, .hermes-playable-card.takeaways h2 { font-size: 27px !important; overflow-wrap: anywhere !important; }
+  .takeaways li > strong:first-child, .hermes-playable-card.takeaways li > strong:first-child { font-size: 25px !important; }
+  .takeaways li, .hermes-playable-card.takeaways li, .topics > .card, .hermes-playable-card:not(.takeaways), .topics > .card p, .hermes-playable-card:not(.takeaways) p, .topics > .card li, .hermes-playable-card:not(.takeaways) li, .topics > .card a, .hermes-playable-card:not(.takeaways) a { font-size: 20px !important; overflow-wrap: anywhere !important; }
+  .topics > .card h2, .hermes-playable-card:not(.takeaways) h2, .hermes-playable-card:not(.takeaways) h3 { margin-bottom: 18px !important; font-size: 29px !important; overflow-wrap: anywhere !important; }
+}
+@media (max-height: 900px) and (min-width: 1100px) {
+  body { padding: 18px 18px 40px !important; }
+  body > header, body > main > header, .wrap > header, .hero { margin-bottom: 16px !important; padding: 20px 24px !important; }
+  body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { font-size: 48px !important; }
+}
+</style></head><body><main id="hermes-ai-canonical"><header class="hero" data-hermes-date-normalized="true"><span class="pill">July 16, 2026</span><div class="hermes-ai-title-row"><h1>AI Morning Brief</h1><button id="hermes-ai-fullscreen-button" type="button" aria-label="Enter AI Morning Brief fullscreen" title="Enter fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M9 21H3v-6"></path><path d="m21 3-7 7"></path><path d="m3 21 7-7"></path></svg></button></div></header><section class="takeaways"><div class="hermes-takeaways-heading-row"><h2>FOUNDER TAKEAWAYS</h2><span class="hermes-ai-active-date-pill" role="status" aria-label="AI brief date: July 16, 2026">July 16, 2026</span></div><ol>
+      <li>
+        <strong>Treat geography as a product requirement</strong>
+        <p>A new intergovernmental AI organization could add another governance layer, so map data, model, and deployment exposure by jurisdiction now.</p>
+      </li>
+      <li>
+        <strong>Expect hyperscalers to own more silicon</strong>
+        <p>Apple’s reported acquisition search reinforces that differentiated AI economics increasingly depend on control of chips, servers, and model optimization together.</p>
+      </li>
+      <li>
+        <strong>Test customization before buying a larger model</strong>
+        <p>Inkling’s positioning suggests that domain adaptation, controllable reasoning effort, and private deployment may beat raw benchmark leadership for production workloads.</p>
+      </li>
+      <li>
+        <strong>Give every agent a verifiable identity</strong>
+        <p>Before agents transact across company boundaries, attach durable ownership, scoped authority, cryptographic credentials, and an auditable activity record.</p>
+      </li>
+      <li>
+        <strong>Keep your model layer portable</strong>
+        <p>Microsoft’s reported pivot toward its own models shows that strategic partners can become direct competitors and alter routing, pricing, or distribution priorities.</p>
+      </li>
+      <li>
+        <strong>Budget for stateful agent infrastructure</strong>
+        <p>Google’s agent-first API makes background execution and managed sandboxes easier, but operators still need explicit limits for cost, credentials, tools, and retention.</p>
+      </li>
+      <li>
+        <strong>Fund adoption, not just licenses</strong>
+        <p>Anthropic’s Claude Corps structure highlights the value of pairing AI access with embedded operators, training, measurement, and real workflow ownership.</p>
+      </li>
+    </ol></section><section class="topics" aria-label="Canonical AI news topics"><article class="card">
+      <h2>1. Twenty-nine countries establish a global AI cooperation body</h2>
+      <p>Twenty-nine countries signed an agreement in Shanghai to establish the World Artificial Intelligence Cooperation Organization, an intergovernmental body that China says will promote international AI cooperation and global governance. The signing occurred ahead of the World AI Conference and adds a new institution to an already fragmented landscape of national rules, regional regulation, standards groups, and multilateral initiatives.</p>
+      <p><span class="label">Why it matters for founders/operators:</span> Cross-border AI businesses may face more—not less—policy complexity as competing governance blocs develop expectations for model access, data handling, safety evaluations, infrastructure, and local participation. Even a cooperation-focused body can influence procurement criteria and the direction of future technical or reporting standards.</p>
+      <p><span class="label">Actionable implication:</span> Create a jurisdiction matrix covering where users, data, models, and compute reside; assign an owner to monitor this organization’s membership and published frameworks; and avoid architectures that make regional model or data separation prohibitively expensive.</p>
+      <p><span class="label">Sources:</span> <a href="https://www.reuters.com/world/china/twenty-nine-countries-sign-agreement-establish-global-ai-cooperation-body-2026-07-16" target="_blank" rel="noopener noreferrer">Reuters</a></p>
+    </article><article class="card">
+      <h2>2. Apple reportedly shops for AI chip acquisitions</h2>
+      <p>Apple is looking at chip-company acquisitions to strengthen its effort to build server processors for AI, Reuters reported, citing The Information. The report says Apple has encountered performance constraints with servers based on its M2 Ultra chips, delayed a future server-chip project known internally as Baltra, and had to run portions of its revamped, Gemini-powered Siri workload on Nvidia hardware in Google’s cloud after its internal systems could not handle the large model.</p>
+      <p><span class="label">Why it matters for founders/operators:</span> AI competition is extending from models into vertically integrated infrastructure. If Apple expands its server-silicon capabilities through acquisition, the result could reshape the economics and privacy posture of AI features distributed across its device ecosystem while increasing strategic demand for specialized chip teams and inference technology.</p>
+      <p><span class="label">Actionable implication:</span> Companies serving Apple users should benchmark on-device, private-cloud, and external-cloud execution separately. Infrastructure startups should package measurable gains in latency, memory use, energy efficiency, and model compression rather than presenting undifferentiated “AI chip” claims.</p>
+      <p><span class="label">Sources:</span> <a href="https://www.reuters.com/business/apple-chasing-ai-chip-company-deals-information-reports-2026-07-15" target="_blank" rel="noopener noreferrer">Reuters</a>; <a href="https://www.macrumors.com/2026/07/15/apple-looking-to-acquire-ai-chip-companies" target="_blank" rel="noopener noreferrer">MacRumors</a></p>
+    </article><article class="card">
+      <h2>3. Thinking Machines releases open-weight Inkling</h2>
+      <p>Thinking Machines Lab, founded by former OpenAI CTO Mira Murati, released its first proprietary model, Inkling, as open weights. TechCrunch reports that the mixture-of-experts system has 975 billion total parameters while activating about 41 billion per task, was trained on 45 trillion multimodal tokens, can signal uncertainty, and lets users vary reasoning effort. The company explicitly describes it as a customizable starting point rather than the strongest model available.</p>
+      <p><span class="label">Why it matters for founders/operators:</span> Inkling advances a commercial thesis that enterprise-specific adaptation can create more value than renting a universal frontier model. That shifts competitive advantage toward proprietary workflow data, evaluation sets, fine-tuning operations, and inference control—and away from thin interfaces wrapped around a single closed API.</p>
+      <p><span class="label">Actionable implication:</span> Select one high-volume domain workflow and compare a customized open model against your current closed model on quality, abstention behavior, latency, and fully loaded cost. Retain the evaluation set and routing layer so the test remains portable across vendors.</p>
+      <p><span class="label">Sources:</span> <a href="https://techcrunch.com/2026/07/15/thinking-machines-amps-up-its-bet-against-one-size-fits-all-ai-with-its-first-open-model-inkling" target="_blank" rel="noopener noreferrer">TechCrunch</a></p>
+    </article><article class="card">
+      <h2>4. Vint Cerf backs a DNS-based identity plan for AI agents</h2>
+      <p>Internet pioneer Vint Cerf has joined Innovation Labs as an adviser while it develops DNSid, a proposed vendor-neutral identity mechanism for agents operating across the open internet. The proposal links an agent to an existing domain, combines DNS ownership with public-key proof, and preserves registration history for auditing. The underlying document is currently an individual Internet-Draft and is not endorsed by the IETF.</p>
+      <p><span class="label">Why it matters for founders/operators:</span> Agents cannot safely negotiate, purchase, retrieve sensitive information, or invoke one another across organizations without a durable way to establish ownership and accountability. A broadly adopted identity layer could become foundational infrastructure for agent authorization, reputation, insurance, compliance, and incident response.</p>
+      <p><span class="label">Actionable implication:</span> Design agent identity as a replaceable standards layer. Maintain a registry tying every production agent to an accountable legal entity, cryptographic credential, permitted tools, spending and data scopes, software version, and revocation path—without assuming DNSid itself will become the standard.</p>
+      <p><span class="label">Sources:</span> <a href="https://techcrunch.com/2026/07/15/vint-cerf-is-working-on-a-plan-to-unleash-ai-agents-on-the-open-internet" target="_blank" rel="noopener noreferrer">TechCrunch</a>; <a href="https://datatracker.ietf.org/doc/draft-ihsanullah-dnsid/" target="_blank" rel="noopener noreferrer">IETF Datatracker</a>; <a href="https://dnsid.ai/" target="_blank" rel="noopener noreferrer">DNSid</a></p>
+    </article><article class="card">
+      <h2>5. Microsoft reportedly turns its AI sales pitch against model partners</h2>
+      <p>Microsoft executives reportedly instructed salespeople to emphasize the efficiency, cost, security integration, and end-to-end advantages of Microsoft’s own AI products when competing with OpenAI, Anthropic, and Google. TechCrunch, citing Bloomberg, says the shift follows Microsoft’s increased use of in-house models in products such as Word and Excel and an April revision to its OpenAI relationship that removed API and model exclusivity.</p>
+      <p><span class="label">Why it matters for founders/operators:</span> The frontier-model market is becoming a contest between integrated platforms, not a stable chain of complementary partners. A cloud provider can simultaneously invest in a model company, distribute its models, develop substitutes, and train its sales force to displace them—creating concentration risk for startups tied to one provider.</p>
+      <p><span class="label">Actionable implication:</span> Separate model calls from business logic, maintain at least one tested fallback provider, and track quality-adjusted cost by workload. Partners selling through Microsoft should also clarify who owns the customer relationship, telemetry, marketplace listing, and renewal motion.</p>
+      <p><span class="label">Sources:</span> <a href="https://techcrunch.com/2026/07/15/microsoft-is-reportedly-training-salespeople-to-talk-down-openai-and-anthropic" target="_blank" rel="noopener noreferrer">TechCrunch</a>; <a href="https://www.bloomberg.com/news/articles/2026-07-15/microsoft-gives-salespeople-tips-to-knock-down-anthropic-openai" target="_blank" rel="noopener noreferrer">Bloomberg</a></p>
+    </article><article class="card">
+      <h2>6. Google makes the Interactions API its primary Gemini interface</h2>
+      <p>Google has moved its Interactions API to general availability and designated it the primary interface for Gemini models and agents. The stable API combines server-side state, asynchronous background execution, built-in and custom tools, multimodal generation, and Managed Agents that can provision remote Linux sandboxes for code execution, browsing, and file operations. Google says new long-running and agent capabilities will increasingly arrive through this interface, while the legacy generateContent API remains supported.</p>
+      <p><span class="label">Why it matters for founders/operators:</span> Agent infrastructure is consolidating into cloud primitives that hide orchestration and sandbox provisioning. This can accelerate development, but state retention, remote execution, tool access, and vendor-specific agent abstractions also deepen operational and switching dependencies.</p>
+      <p><span class="label">Actionable implication:</span> Use the GA interface for new Gemini work, but wrap it behind an internal adapter. Set explicit ceilings for runtime, tokens, tool calls, network destinations, and retries; isolate credentials; log every state transition; and test migration before relying on capabilities unavailable through portable APIs.</p>
+      <p><span class="label">Sources:</span> <a href="https://blog.google/innovation-and-ai/technology/developers-tools/interactions-api-general-availability/" target="_blank" rel="noopener noreferrer">Google</a>; <a href="https://ai.google.dev/gemini-api/docs/interactions" target="_blank" rel="noopener noreferrer">Gemini API documentation</a></p>
+    </article><article class="card">
+      <h2>7. Anthropic pairs AI adoption with a paid national fellowship</h2>
+      <p>Anthropic’s Claude Corps will train 1,000 early-career fellows and place them full-time with at least 400 U.S. nonprofits for 12-month assignments. Anthropic has committed an initial $150 million; fellows receive an $85,000 salary and benefits, intensive onboarding, ongoing weekly training, technical office hours, and a substantial Claude token budget. CodePath will employ the fellows, while Social Finance will lead measurement and evaluation.</p>
+      <p><span class="label">Why it matters for founders/operators:</span> The program treats the scarce input in AI transformation as embedded implementation capacity rather than software access alone. Its combination of trained operators, workflow ownership, support, and outcome measurement offers a deployment model that commercial AI vendors and enterprise leaders can adapt.</p>
+      <p><span class="label">Actionable implication:</span> For each major AI rollout, appoint a named workflow owner with protected implementation time, training, usage budget, and baseline metrics. Run a 90-day embedded-operator pilot and measure cycle time, quality, adoption, and avoided work before expanding licenses.</p>
+      <p><span class="label">Sources:</span> <a href="https://www.anthropic.com/news/claude-corps" target="_blank" rel="noopener noreferrer">Anthropic</a>; <a href="https://www.anthropic.com/policy-on-the-ai-exponential" target="_blank" rel="noopener noreferrer">Anthropic policy framework</a></p>
+    </article></section></main><script id="hermes-brief-player-controller">
+(() => {
+  const MESSAGE_TYPE = "hermes-brief-player-command";
+  const DATE_NAV_MESSAGE_TYPE = "hermes-brief-date-navigation";
+
+  const PLAYER_CLASS = "hermes-brief-player-sticky";
+  const PLACEHOLDER_CLASS = "hermes-brief-player-placeholder";
+  const synth = window.speechSynthesis;
+  const preferredVoiceNames = [
+    "Samantha", "Ava", "Allison", "Susan", "Victoria", "Karen", "Moira",
+    "Tessa", "Serena", "Kate", "Fiona", "Veena", "Zira", "Jenny", "Aria",
+    "Google US English"
+  ];
+  const blockedVoiceNames = [
+    "Bad News", "Bahh", "Bells", "Boing", "Bubbles", "Cellos", "Deranged",
+    "Good News", "Hysterical", "Pipe Organ", "Trinoids", "Whisper", "Zarvox"
+  ];
+
+  let cards = [];
+  let index = 0;
+  let activeCardIndex = 0;
+  let navigationStarted = false;
+  let playing = false;
+  let paused = false;
+  let currentUtterance = null;
+  let volumeDirty = false;
+  let volumeRestartTimer = null;
+  let takeawayQueue = [];
+  let takeawayQueueIndex = 0;
+  let takeawayQueueToken = 0;
+  let takeawayQueueTimer = null;
+  let speakingTakeaways = false;
+  let root = null;
+  let previousButton = null;
+  let playButton = null;
+  let nextButton = null;
+  let volumeInput = null;
+  let statusElement = null;
+  let placeholder = null;
+  let founderTakeaways = null;
+  let fullscreenButton = null;
+  let fullscreenActive = Boolean(document.fullscreenElement);
+
+  function updateFullscreenButton(active = fullscreenActive) {
+    if (!fullscreenButton) return;
+    fullscreenActive = active;
+    fullscreenButton.setAttribute("aria-label", active ? "Exit AI Morning Brief fullscreen" : "Enter AI Morning Brief fullscreen");
+    fullscreenButton.setAttribute("title", active ? "Exit fullscreen" : "Enter fullscreen");
+  }
+
+  async function toggleFullscreen() {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: "hermes-ai-fullscreen-toggle" }, "*");
+      return;
+    }
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch (_reason) {
+      // Browser fullscreen denial leaves audio and layout state unchanged.
+    }
+    updateFullscreenButton(Boolean(document.fullscreenElement));
+  }
+
+  function captureViewportPosition() {
+    return { scrollX: window.scrollX, scrollY: window.scrollY, topicIndex: activeCardIndex };
+  }
+
+  function publishViewportState() {
+    if (window.parent === window) return;
+    window.parent.postMessage({ type: "hermes-ai-viewport-state", position: captureViewportPosition() }, "*");
+  }
+
+  function restoreActiveCard(topicIndex) {
+    const requestedIndex = Math.trunc(topicIndex);
+    let target = null;
+    if (requestedIndex === -1 && founderTakeaways) {
+      activeCardIndex = -1;
+      cards.forEach((card) => {
+        card.classList.remove("active");
+        card.removeAttribute("aria-current");
+        applyCardVisualState(card, false);
+      });
+      founderTakeaways.classList.add("hermes-playable-card", "active");
+      founderTakeaways.setAttribute("aria-current", "true");
+      applyCardVisualState(founderTakeaways, true);
+      target = founderTakeaways;
+    } else {
+      index = Math.max(0, Math.min(cards.length - 1, requestedIndex));
+      activeCardIndex = index;
+      navigationStarted = true;
+      mark({ behavior: "auto", scroll: false });
+      target = cards[index];
+    }
+    if (!target) return;
+    let framesRemaining = 8;
+    const alignCard = () => {
+      target.scrollIntoView({ behavior: "auto", block: "start" });
+      framesRemaining -= 1;
+      if (framesRemaining > 0) requestAnimationFrame(alignCard);
+      else publishViewportState();
+    };
+    requestAnimationFrame(() => requestAnimationFrame(alignCard));
+  }
+
+  function restoreViewportPosition(position) {
+    if (Number.isInteger(position?.topicIndex)) {
+      restoreActiveCard(position.topicIndex);
+      return;
+    }
+    const targetX = Number.isFinite(position?.scrollX) ? Math.max(0, position.scrollX) : 0;
+    const targetY = Number.isFinite(position?.scrollY) ? Math.max(0, position.scrollY) : 0;
+    let framesRemaining = 8;
+    const applyPosition = () => {
+      window.scrollTo(targetX, targetY);
+      framesRemaining -= 1;
+      if (framesRemaining > 0) requestAnimationFrame(applyPosition);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(applyPosition));
+  }
+
+  function ensureHermesPlayer() {
+    let player = document.getElementById("hermes-brief-player");
+    if (player) return player;
+    player = document.createElement("nav");
+    player.id = "hermes-brief-player";
+    player.setAttribute("aria-label", "Brief playback controls");
+    player.innerHTML = '<div class="hermes-player-shell"><button id="tts-prev" type="button" aria-label="Previous topic" title="Previous topic">←</button><button id="tts-toggle" type="button" aria-label="Play reading" aria-pressed="false" title="Play or pause">▶</button><button id="tts-next" type="button" aria-label="Next topic" title="Next topic">→</button><label class="hermes-player-volume"><input id="tts-volume" type="range" min="0" max="1" step="0.05" value="1" aria-label="Volume" title="Volume"></label></div>';
+    document.body.insertBefore(player, document.body.firstChild);
+    return player;
+  }
+
+  function normalizeAiVisualStructure() {
+    document.querySelectorAll(".tag").forEach((label) => label.remove());
+    const header = document.querySelector(".hero, body > header, body > main > header, .wrap > header, header");
+    if (!header) return;
+    const dateParagraph = header.querySelector(".date");
+    const dateLine = dateParagraph?.textContent?.trim();
+    const pill = header.querySelector(".pill");
+    const alreadyNormalized = header.dataset.hermesDateNormalized === "true";
+    if (dateLine && !alreadyNormalized) {
+      const [pillDate, ...metadataParts] = dateLine.split("·").map((part) => part.trim());
+      if (pillDate && pill) pill.textContent = pillDate;
+      const archiveMetadata = metadataParts.filter(Boolean).join(" · ");
+      const metadataLine = archiveMetadata;
+      if (dateParagraph && metadataLine) dateParagraph.textContent = metadataLine;
+      else dateParagraph?.remove();
+    }
+    header.querySelectorAll(".meta").forEach((metadata) => metadata.remove());
+    const heading = header.querySelector("h1");
+    if (heading) {
+      heading.textContent = heading.textContent.replace(/\s*(?:—|-)\s*\d{4}-\d{2}-\d{2}\s*$/, "");
+      let titleRow = heading.closest(".hermes-ai-title-row");
+      if (!titleRow) {
+        titleRow = document.createElement("div");
+        titleRow.className = "hermes-ai-title-row";
+        heading.parentElement?.insertBefore(titleRow, heading);
+        titleRow.appendChild(heading);
+      }
+      let fullscreenButton = document.getElementById("hermes-ai-fullscreen-button");
+      if (!fullscreenButton) {
+        fullscreenButton = document.createElement("button");
+        fullscreenButton.id = "hermes-ai-fullscreen-button";
+        fullscreenButton.setAttribute("type", "button");
+        fullscreenButton.setAttribute("aria-label", "Enter AI Morning Brief fullscreen");
+        fullscreenButton.setAttribute("title", "Enter fullscreen");
+        fullscreenButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg>';
+      }
+      titleRow.appendChild(fullscreenButton);
+    }
+  }
+
+  function normalizeTakeawayDetails() {
+    document.querySelectorAll(".takeaways li").forEach((item) => {
+      Array.from(item.childNodes).forEach((node) => {
+        if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) return;
+        const detail = document.createElement("span");
+        detail.className = "hermes-takeaway-detail";
+        node.replaceWith(detail);
+        detail.appendChild(node);
+      });
+      Array.from(item.children).forEach((element) => {
+        if (element.matches("strong:first-child, h3:first-child, h4:first-child")) return;
+        element.classList.add("hermes-takeaway-detail");
+      });
+    });
+  }
+
+  function ensureDateNavigator() {
+    const shell = document.querySelector("#hermes-brief-player .hermes-player-shell");
+    if (!shell) return;
+    const header = document.querySelector(".hero, body > header, body > main > header, .wrap > header, header");
+    let navigator = document.querySelector(".hermes-date-nav");
+    if (!navigator) navigator = document.createElement("span");
+    navigator.className = "hermes-date-nav";
+    navigator.setAttribute("role", "group");
+    navigator.setAttribute("aria-label", "Cron date navigation");
+    navigator.innerHTML = '<button id="hermes-date-newer" type="button" aria-label="Load newer cron date" title="Newer cron date">‹</button><span class="hermes-date-nav-label">DATE</span><button id="hermes-date-older" type="button" aria-label="Load older cron date" title="Older cron date">›</button>';
+    shell.appendChild(navigator);
+    header?.querySelectorAll(".hermes-date-nav").forEach((element) => {
+      if (element !== navigator) element.remove();
+    });
+    navigator.querySelector("#hermes-date-newer")?.addEventListener("click", () => {
+      window.parent?.postMessage({ type: DATE_NAV_MESSAGE_TYPE, direction: "newer", position: captureViewportPosition() }, "*");
+    });
+    navigator.querySelector("#hermes-date-older")?.addEventListener("click", () => {
+      window.parent?.postMessage({ type: DATE_NAV_MESSAGE_TYPE, direction: "older", position: captureViewportPosition() }, "*");
+    });
+  }
+
+  function isNumberedTopicHeading(element) {
+    return /^\s*\d+\s*[.)]\s+/.test(element.textContent || "");
+  }
+
+  function wrapSiblingTopic(heading) {
+    const parent = heading.parentElement;
+    if (!parent) return heading;
+    const wrapper = document.createElement("section");
+    wrapper.className = "hermes-playable-card hermes-generated-topic";
+    parent.insertBefore(wrapper, heading);
+    let node = heading;
+    while (node) {
+      const next = node.nextSibling;
+      if (node !== heading && node instanceof Element && node.matches("h2, h3") && isNumberedTopicHeading(node)) break;
+      wrapper.appendChild(node);
+      node = next;
+    }
+    return wrapper;
+  }
+
+  function playableCards() {
+    const numberedHeadings = Array.from(document.querySelectorAll("main h2, main h3, body > h2, body > h3"))
+      .filter(isNumberedTopicHeading);
+    if (numberedHeadings.length) {
+      return numberedHeadings.map((heading) => {
+        const container = heading.closest(".card, article, section");
+        const numberedInside = container
+          ? Array.from(container.querySelectorAll("h2, h3")).filter(isNumberedTopicHeading)
+          : [];
+        if (container && numberedInside.length > 1) container.classList.add("hermes-topic-container");
+        const card = container && numberedInside.length === 1 ? container : wrapSiblingTopic(heading);
+        card.classList.add("hermes-playable-card");
+        return card;
+      }).filter((element, position, all) => all.indexOf(element) === position)
+        .filter((element) => !element.matches(".agenda, [data-hermes-exclude-from-player]"));
+    }
+    const explicit = Array.from(document.querySelectorAll(".card, article.card"))
+      .filter((element) => !element.matches(".takeaways, .agenda, [data-hermes-exclude-from-player]"));
+    const fallback = explicit.length
+      ? explicit
+      : Array.from(document.querySelectorAll("main article, main section, article, section"))
+        .filter((element) => element.querySelector("h2, h3"))
+        .filter((element) => !element.closest("#hermes-brief-player"))
+        .filter((element) => !element.matches(".takeaways, .agenda, [data-hermes-exclude-from-player]"));
+    return fallback;
+  }
+
+  function controls() {
+    root = ensureHermesPlayer();
+    previousButton = document.getElementById("tts-prev");
+    playButton = document.getElementById("tts-toggle");
+    nextButton = document.getElementById("tts-next");
+    volumeInput = document.getElementById("tts-volume");
+    founderTakeaways = document.querySelector(".takeaways");
+    fullscreenButton = document.getElementById("hermes-ai-fullscreen-button");
+    cards = playableCards();
+    return Boolean(root && previousButton && playButton && nextButton && volumeInput && cards.length);
+  }
+
+  function focusPlayerRoot() {
+    if (!root) return;
+    root.setAttribute("tabindex", "-1");
+    root.dataset.hermesAiFocusRestore = "v26-ai-player-focus-restore";
+    root.focus({ preventScroll: true });
+  }
+
+  function normalizedIndex(value) {
+    if (!cards.length) return 0;
+    return ((value % cards.length) + cards.length) % cards.length;
+  }
+
+  function sentenceForSpeech(value) {
+    const text = String(value || "").replace(/\s+/g, " ").trim();
+    if (!text) return "";
+    return /[.!?;:]$/.test(text) ? text : text + ".";
+  }
+
+  function takeawaySpeechSegments(card) {
+    const heading = sentenceForSpeech(card.querySelector("h1, h2, h3")?.textContent);
+    const segments = heading ? [{ text: heading, pauseAfter: 300 }] : [];
+    Array.from(card.querySelectorAll("li")).forEach((item, itemIndex) => {
+      const clone = item.cloneNode(true);
+      clone.querySelectorAll(".sources, .source, script, style").forEach((element) => element.remove());
+      const titleElement = clone.querySelector("strong, h3, h4");
+      const title = sentenceForSpeech(titleElement?.textContent);
+      titleElement?.remove();
+      const detail = sentenceForSpeech(clone.textContent);
+      segments.push({ text: ["Takeaway " + (itemIndex + 1) + ".", title].filter(Boolean).join(" "), pauseAfter: 500 });
+      if (detail) segments.push({ text: detail, pauseAfter: 350 });
+    });
+    return segments;
+  }
+
+  function takeawaySpeechText(card) {
+    return takeawaySpeechSegments(card).map((segment) => segment.text).join(" ");
+  }
+
+  function textFor(card) {
+    const clone = card.cloneNode(true);
+    clone.querySelectorAll(".sources, .source, script, style").forEach((element) => element.remove());
+    if (card.classList.contains("takeaways")) return takeawaySpeechText(card);
+    const parts = Array.from(clone.querySelectorAll("h1, h2, h3, h4, p, li, blockquote, dt, dd"))
+      .map((element) => element.textContent.trim())
+      .filter(Boolean);
+    if (parts.length) return parts.join(". ");
+    return clone.textContent.trim();
+  }
+
+  function configureNaturalVoice(utterance) {
+    const voices = synth ? synth.getVoices() : [];
+    const usableVoices = voices.filter((voice) =>
+      /^en([-_]|$)/i.test(voice.lang || "") &&
+      !blockedVoiceNames.some((name) => voice.name.toLowerCase().includes(name.toLowerCase()))
+    );
+    const selectedVoice = preferredVoiceNames
+      .map((name) => usableVoices.find((voice) => voice.name.toLowerCase().includes(name.toLowerCase())))
+      .find(Boolean) || usableVoices.find((voice) => voice.localService) || usableVoices[0] || null;
+    if (selectedVoice) utterance.voice = selectedVoice;
+    utterance.lang = selectedVoice?.lang || "en-US";
+    utterance.pitch = 1;
+    utterance.rate = 1.15;
+    return Boolean(selectedVoice);
+  }
+
+  function speakWhenNaturalVoiceReady(utterance, attempt = 0) {
+    if (!synth || currentUtterance !== utterance) return;
+    if (configureNaturalVoice(utterance)) {
+      synth.speak(utterance);
+      return;
+    }
+    if (attempt >= 50) {
+      currentUtterance = null;
+      playing = false;
+      paused = false;
+      updateControls();
+      if (statusElement) statusElement.textContent = "Natural voice unavailable";
+      return;
+    }
+    if (statusElement) statusElement.textContent = "Loading natural voice…";
+    window.setTimeout(() => speakWhenNaturalVoiceReady(utterance, attempt + 1), 100);
+  }
+
+  function setStatus() {
+    if (!statusElement) return;
+    const state = paused ? " · paused" : playing ? " · playing" : "";
+    statusElement.textContent = "Topic " + (index + 1) + " of " + cards.length + state;
+  }
+
+  function updateControls() {
+    playButton.textContent = paused || !playing ? "▶" : "⏸";
+    playButton.setAttribute("aria-label", paused || !playing ? "Play reading" : "Pause reading");
+    playButton.setAttribute("aria-pressed", playing ? "true" : "false");
+    setStatus();
+  }
+
+  function applyCardVisualState(card, active) {
+    card.style.setProperty("border-color", active ? "#ffd166" : "#67e8f9", "important");
+    card.style.setProperty("outline", "none", "important");
+    card.style.setProperty("box-shadow", "none", "important");
+  }
+
+  function clearCardVisualState(card) {
+    card.style.removeProperty("border-color");
+    card.style.removeProperty("outline");
+    card.style.removeProperty("box-shadow");
+  }
+
+  function mark(options = {}) {
+    activeCardIndex = index;
+    if (founderTakeaways) {
+      founderTakeaways.classList.remove("active");
+      founderTakeaways.removeAttribute("aria-current");
+      clearCardVisualState(founderTakeaways);
+    }
+    cards.forEach((card, cardIndex) => {
+      const active = cardIndex === index;
+      card.classList.toggle("active", active);
+      card.setAttribute("aria-current", active ? "true" : "false");
+      applyCardVisualState(card, active);
+    });
+    const card = cards[index];
+    if (card && options.scroll === true) {
+      card.scrollIntoView({ behavior: options.behavior || "smooth", block: "start" });
+    }
+    setStatus();
+    publishViewportState();
+  }
+
+  function flash(button) {
+    button.classList.add("hermes-command-active");
+    window.setTimeout(() => button.classList.remove("hermes-command-active"), 220);
+  }
+
+  function clearTakeawayQueue() {
+    window.clearTimeout(takeawayQueueTimer);
+    takeawayQueueToken += 1;
+    takeawayQueue = [];
+    takeawayQueueIndex = 0;
+    speakingTakeaways = false;
+  }
+
+  function finishTakeawayQueue(queueToken) {
+    if (queueToken !== takeawayQueueToken) return;
+    currentUtterance = null;
+    takeawayQueue = [];
+    takeawayQueueIndex = 0;
+    speakingTakeaways = false;
+    playing = false;
+    paused = false;
+    updateControls();
+  }
+
+  function speakTakeawayQueue(segments, segmentIndex, queueToken) {
+    if (!synth || queueToken !== takeawayQueueToken || paused) return;
+    if (segmentIndex >= segments.length) {
+      finishTakeawayQueue(queueToken);
+      return;
+    }
+    takeawayQueueIndex = segmentIndex;
+    const segment = segments[segmentIndex];
+    const utterance = new SpeechSynthesisUtterance(segment.text);
+    utterance.volume = Math.max(0, Math.min(1, Number(volumeInput.value) || 0));
+    utterance.onend = () => {
+      if (currentUtterance !== utterance || queueToken !== takeawayQueueToken) return;
+      currentUtterance = null;
+      takeawayQueueIndex = segmentIndex + 1;
+      takeawayQueueTimer = window.setTimeout(
+        () => speakTakeawayQueue(segments, segmentIndex + 1, queueToken),
+        segment.pauseAfter,
+      );
+    };
+    utterance.onerror = () => finishTakeawayQueue(queueToken);
+    currentUtterance = utterance;
+    speakWhenNaturalVoiceReady(utterance);
+  }
+
+  function stopSpeech(options = {}) {
+    window.clearTimeout(volumeRestartTimer);
+    clearTakeawayQueue();
+    synth?.cancel();
+    currentUtterance = null;
+    playing = false;
+    paused = false;
+    if (options.clearHighlight) {
+      if (founderTakeaways) {
+        founderTakeaways.classList.remove("active");
+        founderTakeaways.removeAttribute("aria-current");
+        clearCardVisualState(founderTakeaways);
+      }
+      cards.forEach((card) => {
+        card.classList.remove("active");
+        card.removeAttribute("aria-current");
+        clearCardVisualState(card);
+      });
+    }
+    updateControls();
+  }
+
+  function speakCurrent(options = {}) {
+    if (!synth || !cards.length) return;
+    window.clearTimeout(volumeRestartTimer);
+    clearTakeawayQueue();
+    synth.cancel();
+    index = normalizedIndex(index);
+    navigationStarted = true;
+    const utterance = new SpeechSynthesisUtterance(textFor(cards[index]));
+    utterance.volume = Math.max(0, Math.min(1, Number(volumeInput.value) || 0));
+    utterance.onend = () => {
+      if (currentUtterance !== utterance) return;
+      currentUtterance = null;
+      playing = false;
+      paused = false;
+      updateControls();
+    };
+    utterance.onerror = () => {
+      if (currentUtterance !== utterance) return;
+      currentUtterance = null;
+      playing = false;
+      paused = false;
+      updateControls();
+    };
+    currentUtterance = utterance;
+    playing = true;
+    paused = false;
+    volumeDirty = false;
+    mark({ scroll: options.scroll === true });
+    updateControls();
+    speakWhenNaturalVoiceReady(utterance);
+  }
+
+  function selectAndPlay(selectedIndex, options = {}) {
+    index = normalizedIndex(selectedIndex);
+    const selectedCard = cards[index];
+    if (options.focus === true) selectedCard?.focus({ preventScroll: true });
+    speakCurrent({ scroll: options.scroll === true });
+  }
+
+  function selectFounderTakeaways(options = {}) {
+    if (!founderTakeaways) return false;
+    activeCardIndex = -1;
+    navigationStarted = false;
+    cards.forEach((card) => {
+      card.classList.remove("active");
+      card.removeAttribute("aria-current");
+      applyCardVisualState(card, false);
+    });
+    founderTakeaways.classList.add("hermes-playable-card", "active");
+    founderTakeaways.setAttribute("aria-current", "true");
+    applyCardVisualState(founderTakeaways, true);
+    if (options.scroll === true) founderTakeaways.scrollIntoView({ behavior: options.behavior || "smooth", block: "start" });
+    if (statusElement) statusElement.textContent = "Founder takeaways";
+    publishViewportState();
+    return true;
+  }
+
+  function playFounderTakeaways(options = {}) {
+    if (!founderTakeaways || !synth) {
+      selectAndPlay(0, options);
+      return;
+    }
+    window.clearTimeout(volumeRestartTimer);
+    clearTakeawayQueue();
+    synth.cancel();
+    selectFounderTakeaways(options);
+
+    takeawayQueue = takeawaySpeechSegments(founderTakeaways);
+    takeawayQueueIndex = 0;
+    takeawayQueueToken += 1;
+    const queueToken = takeawayQueueToken;
+    speakingTakeaways = true;
+    playing = true;
+    paused = false;
+    volumeDirty = false;
+    playButton.textContent = "⏸";
+    playButton.setAttribute("aria-label", "Pause reading");
+    playButton.setAttribute("aria-pressed", "true");
+    if (statusElement) statusElement.textContent = "Founder takeaways · playing";
+    speakTakeawayQueue(takeawayQueue, 0, queueToken);
+  }
+
+  function togglePlayback() {
+    if (!synth) return;
+    if (playing) {
+      if (currentUtterance) synth.pause();
+      else window.clearTimeout(takeawayQueueTimer);
+      playing = false;
+      paused = true;
+      updateControls();
+      return;
+    }
+    if (paused && !volumeDirty) {
+      playing = true;
+      paused = false;
+      if (currentUtterance) synth.resume();
+      else if (speakingTakeaways) speakTakeawayQueue(takeawayQueue, takeawayQueueIndex, takeawayQueueToken);
+      updateControls();
+      return;
+    }
+    if (activeCardIndex === -1) playFounderTakeaways();
+    else speakCurrent();
+  }
+
+  function setVolume(value) {
+    const normalized = Math.max(0, Math.min(1, Number(value)));
+    volumeInput.value = String(Number.isFinite(normalized) ? normalized : 1);
+    volumeDirty = true;
+    if (!playing) return;
+    window.clearTimeout(volumeRestartTimer);
+    const restartTakeaways = speakingTakeaways;
+    volumeRestartTimer = window.setTimeout(() => restartTakeaways ? playFounderTakeaways() : speakCurrent(), 120);
+  }
+
+  function runCommand(command) {
+    if (command === "toggle") {
+      togglePlayback();
+      flash(playButton);
+    } else if (command === "previous") {
+      if (!navigationStarted) selectAndPlay(0, { scroll: true });
+      else selectAndPlay(index - 1, { scroll: true });
+      flash(previousButton);
+    } else if (command === "next") {
+      if (!navigationStarted) selectAndPlay(0, { scroll: true });
+      else selectAndPlay(index + 1, { scroll: true });
+      flash(nextButton);
+    } else if (command === "first") {
+      playFounderTakeaways({ scroll: true });
+      flash(previousButton);
+    }
+  }
+
+  function commandForEvent(event) {
+    if (event.code === "Space" || event.key === " " || event.key === "Spacebar") return "toggle";
+    if (event.key === "ArrowLeft") return "previous";
+    if (event.key === "ArrowRight") return "next";
+    if (event.key === "ArrowUp") return "first";
+    return null;
+  }
+
+  function interactiveTarget(target) {
+    return target instanceof Element && Boolean(
+      target.closest('input, textarea, select, button, a, [contenteditable="true"]')
+    );
+  }
+
+  function textEditingTarget(target) {
+    return target instanceof Element && Boolean(
+      target.closest('input:not([type="range"]), textarea, select, [contenteditable="true"]')
+    );
+  }
+
+  function isVolumeControl(target) {
+    return target instanceof HTMLInputElement && target.id === "tts-volume" && target.type === "range";
+  }
+
+  function pinPlayer() {
+    root.classList.add(PLAYER_CLASS);
+    placeholder = root.previousElementSibling;
+    if (!placeholder || !placeholder.classList.contains(PLACEHOLDER_CLASS)) {
+      placeholder = document.createElement("div");
+      placeholder.className = PLACEHOLDER_CLASS;
+      root.parentElement?.insertBefore(placeholder, root);
+    }
+    const syncHeight = () => {
+      const height = Math.ceil(root.getBoundingClientRect().height);
+      placeholder.style.height = height + "px";
+      document.documentElement.style.setProperty("--hermes-player-height", height + 20 + "px");
+    };
+    syncHeight();
+    if ("ResizeObserver" in window) new ResizeObserver(syncHeight).observe(root);
+  }
+
+  function init() {
+    normalizeAiVisualStructure();
+    normalizeTakeawayDetails();
+    if (!controls()) return;
+    window.__hermesAiCaptureActiveCard = captureViewportPosition;
+    ensureDateNavigator();
+    synth.cancel();
+    synth.getVoices();
+    volumeInput.min = "0";
+    volumeInput.max = "1";
+    volumeInput.step = "0.05";
+    volumeInput.setAttribute("aria-label", "Volume");
+    volumeInput.setAttribute("title", "Volume");
+
+
+    cards.forEach((card, cardIndex) => {
+      card.classList.add("hermes-playable-card");
+      card.setAttribute("role", "button");
+      card.setAttribute("tabindex", "0");
+      card.setAttribute("aria-label", "Play topic " + (cardIndex + 1));
+      card.addEventListener("click", (event) => {
+        if (interactiveTarget(event.target)) return;
+        event.stopPropagation();
+        const selectedCard = event.currentTarget;
+        const selectedIndex = cards.indexOf(selectedCard);
+        if (selectedIndex < 0) return;
+        selectedCard.focus({ preventScroll: true });
+        selectAndPlay(selectedIndex, { focus: true, scroll: true });
+      });
+    });
+
+    previousButton.onclick = (event) => { event.preventDefault(); runCommand("previous"); };
+    playButton.onclick = (event) => { event.preventDefault(); runCommand("toggle"); };
+    nextButton.onclick = (event) => { event.preventDefault(); runCommand("next"); };
+    volumeInput.oninput = () => setVolume(volumeInput.value);
+    // The slider is pointer-only: preserve player keys and suppress every native range key.
+    volumeInput.tabIndex = -1;
+    volumeInput.addEventListener("keydown", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    });
+
+    fullscreenButton?.addEventListener("click", toggleFullscreen);
+    document.addEventListener("fullscreenchange", () => updateFullscreenButton(Boolean(document.fullscreenElement)));
+    updateFullscreenButton();
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        void toggleFullscreen();
+        return;
+      }
+      const command = commandForEvent(event);
+      if (!command) return;
+      if (textEditingTarget(event.target) && !isVolumeControl(event.target)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      focusPlayerRoot();
+      runCommand(command);
+    }, true);
+
+    window.addEventListener("message", (event) => {
+      if (event.source !== window.parent) return;
+      if (event.data?.type === "hermes-ai-fullscreen-state") {
+        updateFullscreenButton(Boolean(event.data.active));
+        return;
+      }
+      if (event.data?.type === "hermes-ai-stop-audio") {
+        stopSpeech({ clearHighlight: true });
+        return;
+      }
+      if (event.data?.type === "hermes-ai-viewport-restore") {
+        restoreViewportPosition(event.data.position);
+        return;
+      }
+      if (event.data?.type !== MESSAGE_TYPE) return;
+      focusPlayerRoot();
+      runCommand(event.data.command);
+    });
+    window.addEventListener("beforeunload", () => stopSpeech({ clearHighlight: true }));
+
+    pinPlayer();
+    index = 0;
+    if (!selectFounderTakeaways()) mark({ behavior: "auto", scroll: false });
+    updateControls();
+    window.parent?.postMessage({ type: "hermes-brief-player-ready" }, "*");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
+})();
+</script></body></html>

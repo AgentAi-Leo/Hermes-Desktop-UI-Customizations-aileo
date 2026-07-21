@@ -18,5 +18,6 @@ No Briefs source, installer, production service, Git Watch payload, or saved ref
 
 ## Files
 
+- `BRIEFS-AI-V61-LIVE-REVIEW.html` — self-contained live review page for Brave; no installation or backend required.
 - `BRIEFS-AI-V61-REAL-CONTENT-TOP-REVIEW.png` — player, hero, full Takeaways, and Topic 1 start.
 - `BRIEFS-AI-V61-REAL-CONTENT-FULL-REVIEW.png` — complete seven-topic page.
