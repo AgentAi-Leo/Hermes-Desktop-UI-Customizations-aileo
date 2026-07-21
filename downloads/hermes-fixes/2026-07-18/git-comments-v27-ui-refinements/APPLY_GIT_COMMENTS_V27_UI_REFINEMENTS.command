@@ -207,7 +207,7 @@ PY
 
 LIVE_BUNDLE="$(mktemp)"
 trap 'r=$?; rm -f "$LIVE_BUNDLE"; if [[ $r -ne 0 ]]; then restore; fi; exit $r' EXIT
-curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=322" -o "$LIVE_BUNDLE"
+curl -fsS "http://127.0.0.1:$PORT/dashboard-plugins/git-comments-v27-review/dist/index.js?ui=323" -o "$LIVE_BUNDLE"
 "$PY" - "$LIVE_BUNDLE" "$LAUNCH_API" "$PROFILE_API" "$LAUNCH_CHECKER" "$PROFILE_CHECKER" <<'PY'
 from pathlib import Path
 import sys
@@ -288,7 +288,7 @@ required = [
     '.git-comments-issue-content{display:flex;align-items:flex-start;gap:12px;flex:1 1 720px;min-width:0}',
     '.git-comments-card-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex:0 0 32px;line-height:1;font-size:22px}',
     'className: "git-comments-card-icon", "aria-hidden": "true"',
-    'showSuccess("URL ADDED SUCCESSFULLY!", 3000)',
+    'showSuccess("URL ADDED SUCCESSFULLY!", 2000)',
     'className: `git-comments-success ${successTone}${successFading ? " fading" : ""}`, role: "status", "aria-live": "polite"',
     '`STATUS: ${currentState}`',
     'function exportStandaloneHtml()',
@@ -296,18 +296,20 @@ required = [
     'new window.Blob([html], { type: "text/html;charset=utf-8" })',
     'link.download = `git-watch-${exportedAt.toISOString().slice(0, 10)}.html`',
     '<title>GIT WATCH Export</title>',
-    '<meta name="git-watch-export-version" content="51">',
-    '<meta name="git-watch-visual-baseline" content="51">',
+    '<meta name="git-watch-export-version" content="52">',
+    '<meta name="git-watch-visual-baseline" content="52">',
     'GIT WATCH OFFLINE FILE GUIDE',
     'API-DEPENDENT CONTROLS OMITTED',
-    'SUCCESS POPUP TOKENS (Revision 51)',
+    'SUCCESS POPUP TOKENS (Revision 52)',
     'font: embedded Alumni Sans SC ExtraBold 800',
     'text size: 60.54px',
-    'letter spacing: 0.01em',
+    'letter spacing: 0.04em',
     'background fill alpha: 95%',
+    'dwell: 2000ms, then fade: 500ms',
+    'press master gain: 0.4 → 1.2 (3x amplitude)',
     'inline sound: Cuelume 0.1.2 success and data-cuelume-press',
     'EXACT RENDERED DASHBOARD SNAPSHOT',
-    'DASHBOARD CSS: byte-identical to the live Revision 51 renderer',
+    'DASHBOARD CSS: byte-identical to the live Revision 52 renderer',
     'Cuelume 0.1.2 is bundled inline under the MIT License.',
     'GIT WATCH OFFLINE CONTROLLER',
     'document.querySelectorAll(".git-comments-button.activity-toggle")',
@@ -320,22 +322,25 @@ required = [
     '.git-comments-owner-star{color:#facc15;',
     'issueAuthor.toLowerCase() === String(owner || "").toLowerCase()',
     'className: "git-comments-owner-star", role: "img", "aria-label": "Watchlist profile owner"',
-    'showSuccess("URL ADDED SUCCESSFULLY!", 3000)',
-    'showSuccess("URL SUCCESSFULLY ARCHIVED!", 3000, "cyan")',
-    'showSuccess("SUCCESSFULLY DELETED!", 3000, "red")',
-    'showSuccess("SUCCESSFULLY UNARCHIVED!", 3000, "green")',
-    'showSuccess("CONNECTION RESTORED!", 3000, "green")',
+    'showSuccess("URL ADDED SUCCESSFULLY!", 2000)',
+    'showSuccess("URL SUCCESSFULLY ARCHIVED!", 2000, "cyan")',
+    'showSuccess("SUCCESSFULLY DELETED!", 2000, "red")',
+    'showSuccess("SUCCESSFULLY UNARCHIVED!", 2000, "green")',
+    'showSuccess("CONNECTION RESTORED!", 2000, "green")',
     'fetchJSON(`${API}/refresh`, { method: "POST" })',
     'className: "git-comments-button retry-connection"',
     '@font-face{font-family:"Alumni Sans SC";font-style:normal;font-weight:800;font-display:swap;src:url(data:font/woff2;base64,',
     '.git-comments-success{position:fixed;left:50%;top:50%;z-index:1100;width:max-content;min-width:min(589.7103px,calc(100vw - 70.3257px));max-width:calc(100vw - 70.3257px);min-height:min(245.1429px,calc(100vh - 70.3257px));box-sizing:border-box;transform:translate(-50%,-50%);',
     'display:flex;align-items:center;justify-content:center;margin:0;padding:83.5714px 70.3257px',
     'border:1px solid rgba(187,247,208,.9);border-radius:25px;background:rgba(18,60,43,.95);color:rgba(255,255,255,.9)',
-    'font-family:"Alumni Sans SC",sans-serif;font-size:60.54px;line-height:1.25;font-weight:800;letter-spacing:.01em;text-align:center;white-space:nowrap',
+    'font-family:"Alumni Sans SC",sans-serif;font-size:60.54px;line-height:1.25;font-weight:800;letter-spacing:.04em;text-align:center;white-space:nowrap',
     'box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(134,239,172,.22),inset 0 1px 0 rgba(255,255,255,.16);backdrop-filter:blur(5.2px)',
     '.git-comments-success.cyan{border-color:rgba(165,243,252,.9);background:rgba(8,51,68,.95);color:rgba(255,255,255,.9);box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(103,232,249,.22),inset 0 1px 0 rgba(255,255,255,.16)}',
     '.git-comments-success.red{border-color:rgba(254,202,202,.9);background:rgba(74,21,27,.95);color:rgba(255,255,255,.9);box-shadow:0 15.6px 41.6px rgba(0,0,0,.6),0 5.2px 15.6px rgba(0,0,0,.36),0 0 14px rgba(252,165,165,.22),inset 0 1px 0 rgba(255,255,255,.16)}',
     'cuelume@0.1.2',
+    'PRESS GAIN PATCH: masterGain 0.4 → 1.2 (3x amplitude); all other CueLume bytes and recipes remain pinned',
+    'Patched bundled IIFE SHA-256: 706a824f95451e52e60b2f03bf356f3042c35caa589f552edb54ab73d5191d21',
+    'press:{masterGain:1.2,layers:[{kind:"noise",filterType:"bandpass",filterFrequency:1700,filterQ:1.4,attack:.001,decay:.02,peak:.13}]}',
     'CUELUME_OFFICIAL_IIFE_BEGIN',
     'Cuelume.bind();',
     '"data-cuelume-press": props?.["data-cuelume-press"] ?? ""',
@@ -416,7 +421,7 @@ archived_delete = source.index('className: "git-comments-button delete"', archiv
 assert archived_map < archived_content < archived_primary < archived_time < archived_view < archived_summary < archived_actions < archived_unarchive < archived_delete, "VIEW must remain inline with metadata while UNARCHIVE and DELETE share the top-aligned right-side action group"
 assert 'SUCCESSFULLY UNARCHIVED!!' not in source, "obsolete double-exclamation unarchive text remains"
 assert 'successPlacement' not in source and '.git-comments-success.top{' not in source and '.git-comments-success.bottom{' not in source, "per-action popup placement remains instead of one unified center position"
-assert source.count('showSuccess("SUCCESSFULLY DELETED!", 3000, "red")') == 2, "both active and archived delete paths must publish red success"
+assert source.count('showSuccess("SUCCESSFULLY DELETED!", 2000, "red")') == 2, "both active and archived delete paths must publish red success"
 assert source.count('showSuccess("') == 6 and 'showSuccess("URL ADDED SUCCESSFULLY!", 5000)' not in source, "all six successful action paths must use the three-second popup contract"
 assert 'width:min(1020px' not in source and 'font-size:43.2px' not in source and 'font-size:35px' not in source and 'width:min(805px' not in source and 'font-size:47px' not in source, "superseded popup geometry or typography remains"
 assert 'className: "git-comments-state-stack"' not in source, "old vertical state stack remains"
