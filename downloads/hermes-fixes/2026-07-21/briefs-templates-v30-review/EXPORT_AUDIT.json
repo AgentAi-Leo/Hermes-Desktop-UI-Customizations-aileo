@@ -1,0 +1,125 @@
+{
+  "ai": {
+    "2026-07-15": {
+      "card_date_pills": 0,
+      "cyan": true,
+      "html_sha256": "31c9b190e858cf9f935729f22d2b3bed45ab5d817918e04561535282de564119",
+      "left_bracket": true,
+      "md_sha256": "fe3a73d364ed91a0b644fdbdea4478f2ec9c79e52952a7c353828f68aa741ee7",
+      "right_bracket": true,
+      "source_date_tokens": 0,
+      "speed_1_25": true
+    },
+    "2026-07-16": {
+      "card_date_pills": 0,
+      "cyan": true,
+      "html_sha256": "9f3cb0f121e402616ec260ba2c1cc75e417a75910cb71a5857257309e20cae31",
+      "left_bracket": true,
+      "md_sha256": "8f12ed03b4885493295ead4caa72c364204da9eb880d59939f1e52abadc129ba",
+      "right_bracket": true,
+      "source_date_tokens": 0,
+      "speed_1_25": true
+    },
+    "2026-07-17": {
+      "card_date_pills": 0,
+      "cyan": true,
+      "html_sha256": "2fbf41aa80041e4d0d02398d9b87b433366a062ec6222718bdb414022b01938a",
+      "left_bracket": true,
+      "md_sha256": "7bb3625614e8fbf4f1e10622566b60d2ba4d4c928be9908df3723008d3d8986b",
+      "right_bracket": true,
+      "source_date_tokens": 0,
+      "speed_1_25": true
+    },
+    "2026-07-18": {
+      "card_date_pills": 0,
+      "cyan": true,
+      "html_sha256": "88ca811514794239572bb1238308574c2112f42fd589877b08e6d1c8b354aa2b",
+      "left_bracket": true,
+      "md_sha256": "084252ea9d820136fc008fc59d3fcba2366ecc4a0cfcf934f2068bb25fae9912",
+      "right_bracket": true,
+      "source_date_tokens": 0,
+      "speed_1_25": true
+    },
+    "2026-07-20": {
+      "card_date_pills": 0,
+      "cyan": true,
+      "html_sha256": "fd3f61448cc40c3c717c5e001571addc9b5686b38a8a9c4f8e51bdae0d352e9b",
+      "left_bracket": true,
+      "md_sha256": "bad82536ae9710f819f62fbac827d12e417bd4b2037e37b3b8a0cf718360d1a3",
+      "right_bracket": true,
+      "source_date_tokens": 0,
+      "speed_1_25": true
+    }
+  },
+  "csv": {
+    "BRIEFS-STOCKS - 2026-07-15.csv": "23e6c90eccf7d30b72b6f970b8b584e467e1fb2ae303aa5779382de717bb4bec",
+    "BRIEFS-STOCKS - 2026-07-16.csv": "23e6c90eccf7d30b72b6f970b8b584e467e1fb2ae303aa5779382de717bb4bec",
+    "BRIEFS-STOCKS - 2026-07-17.csv": "23e6c90eccf7d30b72b6f970b8b584e467e1fb2ae303aa5779382de717bb4bec",
+    "BRIEFS-STOCKS - 2026-07-18.csv": "23e6c90eccf7d30b72b6f970b8b584e467e1fb2ae303aa5779382de717bb4bec",
+    "BRIEFS-STOCKS - 2026-07-20.csv": "23e6c90eccf7d30b72b6f970b8b584e467e1fb2ae303aa5779382de717bb4bec"
+  },
+  "errors": [],
+  "scope": "EXPORTS: dashboard-generated HTML/Markdown; REFERENCES/STOCK CSV unchanged",
+  "stock": {
+    "2026-07-15": {
+      "cyan": true,
+      "expected_date": "July 15, 2026 - Wed.",
+      "html_date_occurrences": 4,
+      "html_sha256": "9ac1d792547c844a087408715f72c221c3ae0a26fc8be85baacffb385392be1a",
+      "left_bracket": true,
+      "md_date_occurrences": 1,
+      "md_sha256": "1fb1f676ae53d3b02b675a83dad09d5369f8363fb44a87dd37b54a6c674bfeed",
+      "position_comparison": true,
+      "right_bracket": true,
+      "weekday_first_tokens": 0
+    },
+    "2026-07-16": {
+      "cyan": true,
+      "expected_date": "July 16, 2026 - Thu.",
+      "html_date_occurrences": 4,
+      "html_sha256": "eb767e934ff1c8b7226141cc40f1e64695d86585903bc1a9625f3e9826e7896e",
+      "left_bracket": true,
+      "md_date_occurrences": 1,
+      "md_sha256": "fb966be94c0320d0409d1a893a85338d20f97f1cc892cf1b1c9b694cf2c323d3",
+      "position_comparison": true,
+      "right_bracket": true,
+      "weekday_first_tokens": 0
+    },
+    "2026-07-17": {
+      "cyan": true,
+      "expected_date": "July 17, 2026 - Fri.",
+      "html_date_occurrences": 4,
+      "html_sha256": "36313fc0cf8c18a51533e9c53c506bdf801802f91431ea34edc124e9773cd8e5",
+      "left_bracket": true,
+      "md_date_occurrences": 1,
+      "md_sha256": "38ac40f962a7bae9e5d1b75631deeacc9200171676524efabef060147732a920",
+      "position_comparison": true,
+      "right_bracket": true,
+      "weekday_first_tokens": 0
+    },
+    "2026-07-18": {
+      "cyan": true,
+      "expected_date": "July 18, 2026 - Sat.",
+      "html_date_occurrences": 4,
+      "html_sha256": "7c085fd0ad115c9e7c0bbd73b17c19911706b50b236fe0f5462520f0e880276e",
+      "left_bracket": true,
+      "md_date_occurrences": 1,
+      "md_sha256": "51a42cee6097813ccb931dc322c87f53c8ebbab55b7f556aebbdd2ed77c7eeb9",
+      "position_comparison": true,
+      "right_bracket": true,
+      "weekday_first_tokens": 0
+    },
+    "2026-07-20": {
+      "cyan": true,
+      "expected_date": "July 20, 2026 - Mon.",
+      "html_date_occurrences": 4,
+      "html_sha256": "60ed4f7e77035ea9d690f0143dce06d045b8c06e0c37ab5db234a932a0044397",
+      "left_bracket": true,
+      "md_date_occurrences": 1,
+      "md_sha256": "68b6beaf671f720ba14d8ccdecbafb27dbcb166c61f8b7ae8983858a7940250a",
+      "position_comparison": true,
+      "right_bracket": true,
+      "weekday_first_tokens": 0
+    }
+  }
+}
