@@ -1,0 +1,161 @@
+{
+  "status": "PASS",
+  "checks": 31,
+  "results": [
+    {
+      "scope": "dashboard-ai",
+      "check": "starts on newest July 20 archive",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-ai",
+      "check": "visible newer arrow wraps newest to oldest",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-ai",
+      "check": "] wraps oldest to newest",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-ai",
+      "check": "legacy July 15 allows five topics",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-ai",
+      "check": "no browser page exceptions",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-ai",
+      "check": "no viewport-level horizontal clipping",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "starts on newest July 20 archive",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "newer arrow is cyan",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "older arrow is cyan",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "navigator date chip is cyan",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "visible newer arrow wraps newest to oldest",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "] wraps oldest to newest",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "seven quote rows render",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "Position Comparison renders",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "final Position Comparison columns are reachable by internal horizontal scroll",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "no browser page exceptions",
+      "status": "PASS"
+    },
+    {
+      "scope": "dashboard-stock",
+      "check": "no viewport-level horizontal clipping",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-ai",
+      "check": "inline guide exists",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-ai",
+      "check": "[ wraps newest to oldest",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-ai",
+      "check": "July 15 preserves five real topics",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-ai",
+      "check": "] wraps oldest to newest",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-ai",
+      "check": "player remains inline and active after wrap",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-ai",
+      "check": "no browser page exceptions",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-stock",
+      "check": "inline guide exists",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-stock",
+      "check": "[ wraps newest to oldest",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-stock",
+      "check": "] wraps oldest to newest",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-stock",
+      "check": "seven quote rows render",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-stock",
+      "check": "Position Comparison renders",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-stock",
+      "check": "final Position Comparison columns are reachable by internal horizontal scroll",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-stock",
+      "check": "no browser page exceptions",
+      "status": "PASS"
+    },
+    {
+      "scope": "standalone-stock",
+      "check": "no viewport-level horizontal clipping",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "status": "PASS",
+  "files": 25,
+  "results": [
+    {
+      "kind": "ai",
+      "date": "2026-07-20",
+      "format": "html",
+      "bytes": 89009,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "ai",
+      "date": "2026-07-20",
+      "format": "md",
+      "bytes": 10388,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "ai",
+      "date": "2026-07-18",
+      "format": "html",
+      "bytes": 86105,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "ai",
+      "date": "2026-07-18",
+      "format": "md",
+      "bytes": 7633,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "ai",
+      "date": "2026-07-17",
+      "format": "html",
+      "bytes": 87958,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "ai",
+      "date": "2026-07-17",
+      "format": "md",
+      "bytes": 9525,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "ai",
+      "date": "2026-07-16",
+      "format": "html",
+      "bytes": 89448,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "ai",
+      "date": "2026-07-16",
+      "format": "md",
+      "bytes": 10579,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "ai",
+      "date": "2026-07-15",
+      "format": "html",
+      "bytes": 86315,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "ai",
+      "date": "2026-07-15",
+      "format": "md",
+      "bytes": 8084,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-20",
+      "format": "html",
+      "bytes": 54311,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-20",
+      "format": "md",
+      "bytes": 3685,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-20",
+      "format": "csv",
+      "bytes": 1063,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-18",
+      "format": "html",
+      "bytes": 54311,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-18",
+      "format": "md",
+      "bytes": 3685,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-18",
+      "format": "csv",
+      "bytes": 1063,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-17",
+      "format": "html",
+      "bytes": 54311,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-17",
+      "format": "md",
+      "bytes": 3685,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-17",
+      "format": "csv",
+      "bytes": 1063,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-16",
+      "format": "html",
+      "bytes": 54311,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-16",
+      "format": "md",
+      "bytes": 3685,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-16",
+      "format": "csv",
+      "bytes": 1063,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-15",
+      "format": "html",
+      "bytes": 54311,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-15",
+      "format": "md",
+      "bytes": 3685,
+      "status": "BYTE_IDENTICAL"
+    },
+    {
+      "kind": "stock",
+      "date": "2026-07-15",
+      "format": "csv",
+      "bytes": 1063,
+      "status": "BYTE_IDENTICAL"
+    }
+  ]
+}
