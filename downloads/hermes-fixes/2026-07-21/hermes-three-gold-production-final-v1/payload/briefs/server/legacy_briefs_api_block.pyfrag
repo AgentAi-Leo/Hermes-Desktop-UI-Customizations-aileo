@@ -1,0 +1,148 @@
+@dataclass(frozen=True)
+class BriefArchive:
+    kind: str
+    label: str
+    env_var: str
+    default_directory: str
+    filename_stem: str
+
+
+_BRIEF_ARCHIVES: Dict[str, BriefArchive] = {
+    "ai": BriefArchive(
+        kind="ai",
+        label="AI Morning Briefs",
+        env_var="HERMES_AI_BRIEFS_ROOT",
+        default_directory="__AI-DAILY-BRIEFS",
+        filename_stem="AI Morning Brief",
+    ),
+    "stock": BriefArchive(
+        kind="stock",
+        label="Stock Briefs",
+        env_var="HERMES_STOCK_BRIEFS_ROOT",
+        default_directory="_STOCK-BRIEFS",
+        filename_stem="Stock Brief",
+    ),
+}
+_BRIEF_HTML_HEADERS = {
+    "Content-Security-Policy": (
+        "sandbox; default-src 'none'; style-src 'unsafe-inline'; "
+        "img-src data: https:; font-src data: https:"
+    ),
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+}
+
+
+def _brief_archive(kind: str) -> BriefArchive:
+    archive = _BRIEF_ARCHIVES.get(kind)
+    if archive is None:
+        raise HTTPException(status_code=404, detail="Unknown brief archive")
+    return archive
+
+
+def _brief_root(archive: BriefArchive) -> Path:
+    configured = os.environ.get(archive.env_var, "").strip()
+    root = (
+        Path(configured).expanduser()
+        if configured
+        else Path.home() / ".hermes" / "zDownloads" / archive.default_directory
+    )
+    try:
+        return root.resolve()
+    except (OSError, RuntimeError):
+        raise HTTPException(status_code=500, detail="Brief archive path is invalid")
+
+
+def _valid_brief_date(value: str) -> bool:
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value or ""):
+        return False
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").strftime("%Y-%m-%d") == value
+    except ValueError:
+        return False
+
+
+def _brief_paths(kind: str, date: str) -> tuple[BriefArchive, Path, Path, Path]:
+    archive = _brief_archive(kind)
+    if not _valid_brief_date(date):
+        raise HTTPException(status_code=400, detail="Expected a valid date as YYYY-MM-DD")
+    root = _brief_root(archive)
+    directory = (root / date).resolve()
+    if directory.parent != root:
+        raise HTTPException(status_code=400, detail="Invalid brief path")
+    stem = f"{archive.filename_stem} - {date}"
+    return archive, root, directory / f"{stem}.html", directory / f"{stem}.md"
+
+
+@app.get("/api/briefs/{kind}")
+async def list_briefs(kind: str):
+    archive = _brief_archive(kind)
+    root = _brief_root(archive)
+    items: List[Dict[str, Any]] = []
+    if root.exists():
+        if not root.is_dir():
+            raise HTTPException(status_code=500, detail="Brief archive root is not a directory")
+        try:
+            directories = sorted(
+                (path for path in root.iterdir() if path.is_dir() and _valid_brief_date(path.name)),
+                key=lambda path: path.name,
+                reverse=True,
+            )
+        except PermissionError:
+            raise HTTPException(status_code=403, detail="Brief archive is not readable")
+        except OSError as exc:
+            raise HTTPException(status_code=500, detail=f"Could not read brief archive: {exc}")
+
+        for directory in directories:
+            date = directory.name
+            _, _, html, markdown = _brief_paths(kind, date)
+            html_exists = html.is_file()
+            markdown_exists = markdown.is_file()
+            if not html_exists and not markdown_exists:
+                continue
+            items.append(
+                {
+                    "date": date,
+                    "html_exists": html_exists,
+                    "markdown_exists": markdown_exists,
+                    "html_route": f"/api/briefs/{kind}/html/{date}" if html_exists else None,
+                    "markdown_route": (
+                        f"/api/briefs/{kind}/markdown/{date}" if markdown_exists else None
+                    ),
+                }
+            )
+
+    return {
+        "kind": archive.kind,
+        "label": archive.label,
+        "root": str(root),
+        "count": len(items),
+        "briefs": items,
+    }
+
+
+@app.get("/api/briefs/{kind}/html/{date}")
+async def read_brief_html(kind: str, date: str):
+    _, _, html, _ = _brief_paths(kind, date)
+    if not html.is_file():
+        raise HTTPException(status_code=404, detail="HTML brief not found")
+    return FileResponse(
+        path=str(html),
+        media_type="text/html",
+        headers=_BRIEF_HTML_HEADERS,
+        content_disposition_type="inline",
+    )
+
+
+@app.get("/api/briefs/{kind}/markdown/{date}")
+async def download_brief_markdown(kind: str, date: str):
+    _, _, _, markdown = _brief_paths(kind, date)
+    if not markdown.is_file():
+        raise HTTPException(status_code=404, detail="Markdown brief not found")
+    return FileResponse(
+        path=str(markdown),
+        media_type="text/markdown",
+        filename=markdown.name,
+        content_disposition_type="attachment",
+        headers={"X-Content-Type-Options": "nosniff"},
+    )

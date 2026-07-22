@@ -195,6 +195,29 @@ class ProductionLifecycleTests(unittest.TestCase):
         self.assertIn('@app.get("/api/briefs/{kind}")', self.server.read_text())
         self.assertTrue((self.profile / "production-systems/HERMES-THREE-GOLD-PRODUCTION-FINAL-V1/receipt.json").is_file())
 
+    def test_exact_host_legacy_api_migrates_and_rollback_restores_legacy_bytes(self):
+        legacy = (self.package / "payload/briefs/server/legacy_briefs_api_block.pyfrag").read_text()
+        anchor = '@app.get("/api/files")'
+        self.server.write_text(
+            self.original_web_server.replace(anchor, legacy.rstrip("\n") + "\n\n" + anchor)
+        )
+        self.original = self.capture_original()
+        legacy_bytes = self.server.read_bytes()
+        result = self.install()
+        self.assertIn("BRIEFS_API=MIGRATED_FROM_PINNED_LEGACY", result.stdout)
+        installed = self.server.read_text()
+        self.assertIn("retained_dates = set(sorted(selected, reverse=True)[:5])", installed)
+        self.assertIn("candidate.parent == directory", installed)
+        backup = self.latest_backup()
+        rollback = subprocess.run(
+            ["bash", str(backup / "RESTORE_THIS_BACKUP.command")],
+            text=True,
+            capture_output=True,
+        )
+        self.assertEqual(rollback.returncode, 0, rollback.stdout + rollback.stderr)
+        self.assertEqual(self.server.read_bytes(), legacy_bytes)
+        self.assert_original_restored()
+
     def test_repeat_install_is_idempotent_and_preserves_watchlist(self):
         self.install()
         watch = self.profile_plugin / "dashboard/data/watchlist.json"

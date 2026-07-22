@@ -32,6 +32,7 @@ class ProductionFinalContractTests(unittest.TestCase):
             "7_ROLLBACK_BACKUP.command", "scripts/three-gold-production-manager.sh",
             "payload/briefs/server/patch_briefs_api.py",
             "payload/briefs/server/briefs_api_block.pyfrag",
+            "payload/briefs/server/legacy_briefs_api_block.pyfrag",
             "payload/gold-masters/briefs-ai-v34/CHECKSUMS.sha256",
             "payload/gold-masters/briefs-stocks-v34/CHECKSUMS.sha256",
             "payload/gold-masters/git-watch-r52/RELEASE-MANIFEST.json",
@@ -68,6 +69,14 @@ class ProductionFinalContractTests(unittest.TestCase):
     def test_briefs_backend_fragment_is_pinned(self):
         backend = MANIFEST["briefs_backend"]
         self.assertEqual(sha(ROOT / backend["fragment"]), backend["fragment_sha256"])
+        self.assertEqual(
+            sha(ROOT / backend["legacy_authority"]),
+            backend["legacy_authority_sha256"],
+        )
+        self.assertEqual(
+            backend["legacy_authority_sha256"],
+            "090a843fa8dcf650847d4d6782fd22b3608e3e8f88127e1a1022b0c03e99f1e0",
+        )
         self.assertTrue(MANIFEST["runtime_contract"]["web_server_backup_restore"])
 
     def test_executable_modes_are_preserved(self):

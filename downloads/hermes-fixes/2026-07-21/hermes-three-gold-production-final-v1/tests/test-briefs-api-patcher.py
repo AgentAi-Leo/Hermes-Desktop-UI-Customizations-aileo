@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PATCHER = ROOT / "payload/briefs/server/patch_briefs_api.py"
 FRAGMENT = ROOT / "payload/briefs/server/briefs_api_block.pyfrag"
+LEGACY = ROOT / "payload/briefs/server/legacy_briefs_api_block.pyfrag"
 
 BASE = """from dataclasses import dataclass
 from datetime import datetime
@@ -73,6 +74,43 @@ class BriefsApiPatcherTests(unittest.TestCase):
             result = self.run_patcher("verify", target)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("BRIEFS_API_MISSING", result.stderr)
+
+    def test_exact_pinned_legacy_contract_migrates_and_is_idempotent(self):
+        legacy = LEGACY.read_text()
+        self.assertEqual(len(legacy.encode()), 4967)
+        self.assertEqual(
+            __import__("hashlib").sha256(legacy.encode()).hexdigest(),
+            "090a843fa8dcf650847d4d6782fd22b3608e3e8f88127e1a1022b0c03e99f1e0",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            target = Path(td) / "web_server.py"
+            target.write_text(BASE.replace('@app.get("/api/files")', legacy.rstrip("\n") + '\n\n@app.get("/api/files")'))
+            before = target.read_bytes()
+            verify_legacy = self.run_patcher("verify", target)
+            self.assertNotEqual(verify_legacy.returncode, 0)
+            self.assertIn("BRIEFS_API_LEGACY_REQUIRES_MIGRATION", verify_legacy.stderr)
+            self.assertEqual(target.read_bytes(), before)
+            migrated = self.run_patcher("apply", target)
+            self.assertEqual(migrated.returncode, 0, migrated.stderr)
+            self.assertIn("BRIEFS_API=MIGRATED_FROM_PINNED_LEGACY", migrated.stdout)
+            installed = target.read_bytes()
+            self.assertNotEqual(installed, before)
+            verified = self.run_patcher("verify", target)
+            self.assertEqual(verified.returncode, 0, verified.stderr)
+            repeated = self.run_patcher("apply", target)
+            self.assertEqual(repeated.returncode, 0, repeated.stderr)
+            self.assertEqual(target.read_bytes(), installed)
+
+    def test_drifted_legacy_contract_fails_without_mutation(self):
+        legacy = LEGACY.read_text().replace("AI Morning Briefs", "AI Morning Briefs drifted", 1)
+        with tempfile.TemporaryDirectory() as td:
+            target = Path(td) / "web_server.py"
+            target.write_text(BASE.replace('@app.get("/api/files")', legacy.rstrip("\n") + '\n\n@app.get("/api/files")'))
+            before = target.read_bytes()
+            result = self.run_patcher("apply", target)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("PARTIAL_BRIEFS_API", result.stderr)
+            self.assertEqual(target.read_bytes(), before)
 
     def test_partial_contract_fails_without_mutation(self):
         with tempfile.TemporaryDirectory() as td:

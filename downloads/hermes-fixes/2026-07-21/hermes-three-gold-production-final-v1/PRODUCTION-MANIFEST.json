@@ -58,9 +58,11 @@
     }
   },
   "briefs_backend": {
-    "strategy": "preserve-complete-existing-or-insert-pinned-block-fail-closed",
+    "strategy": "preserve-complete-existing-or-migrate-exact-pinned-legacy-or-insert-pinned-block-fail-closed",
     "fragment": "payload/briefs/server/briefs_api_block.pyfrag",
     "fragment_sha256": "2a46ae607db9fa9370262144115927ba2d55bb0af6f8a15b17c47c5942eabed0",
+    "legacy_authority": "payload/briefs/server/legacy_briefs_api_block.pyfrag",
+    "legacy_authority_sha256": "090a843fa8dcf650847d4d6782fd22b3608e3e8f88127e1a1022b0c03e99f1e0",
     "archive_precedence": "explicit_env_then_active_hermes_root_then_user_home_fallback"
   },
   "runtime_contract": {

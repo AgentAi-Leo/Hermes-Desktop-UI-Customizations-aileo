@@ -139,6 +139,7 @@ verify_package() {
     "$PACKAGE_DIR/CHECKSUMS.sha256" \
     "$NEW_SOURCE" "$NEW_TEST_SOURCE" "$NEW_PAGE_SOURCE" \
     "$BRIEFS_API_PATCHER" "$BRIEFS_API_FRAGMENT" \
+    "$BRIEFS_PAYLOAD/server/legacy_briefs_api_block.pyfrag" \
     "$GIT_PAYLOAD/dashboard/dist/index.js" \
     "$GIT_PAYLOAD/dashboard/plugin_api.py" \
     "$GIT_PAYLOAD/dashboard/manifest.json" \
@@ -150,9 +151,9 @@ verify_package() {
     [[ -f "$required" ]] || { echo "PACKAGE_MISSING=$required" >&2; return 1; }
   done
   verify_checksum_ledger "$PACKAGE_DIR/CHECKSUMS.sha256" "$PACKAGE_DIR"
-  (cd "$GOLD_PAYLOAD/briefs-ai-v34" && bash VERIFY_BRIEFS_AI_V34.command >/dev/null)
-  (cd "$GOLD_PAYLOAD/briefs-stocks-v34" && bash VERIFY_BRIEFS_STOCKS_V34.command >/dev/null)
-  (cd "$GOLD_PAYLOAD/git-watch-r52" && bash 4_VERIFY_GIT_WATCH_PACKAGE.command >/dev/null)
+  (cd "$GOLD_PAYLOAD/briefs-ai-v34" && bash VERIFY_BRIEFS_AI_V34.command </dev/null >/dev/null)
+  (cd "$GOLD_PAYLOAD/briefs-stocks-v34" && bash VERIFY_BRIEFS_STOCKS_V34.command </dev/null >/dev/null)
+  (cd "$GOLD_PAYLOAD/git-watch-r52" && bash 4_VERIFY_GIT_WATCH_PACKAGE.command </dev/null >/dev/null)
   node --check "$GIT_PAYLOAD/dashboard/dist/index.js" >/dev/null
   "$PYTHON" -m py_compile "$GIT_PAYLOAD/dashboard/plugin_api.py" "$BRIEFS_API_PATCHER"
   bash -n "$GIT_PAYLOAD/scripts/github-comments-checker-v27-review.sh"
@@ -486,9 +487,9 @@ verify_installed() {
   for rel in briefs-ai-v34 briefs-stocks-v34 git-watch-r52; do
     [[ -d "$SEALED_GOLD/$rel" ]] || { echo "SEALED_GOLD_MISSING=$rel" >&2; return 1; }
   done
-  (cd "$SEALED_GOLD/briefs-ai-v34" && bash VERIFY_BRIEFS_AI_V34.command >/dev/null)
-  (cd "$SEALED_GOLD/briefs-stocks-v34" && bash VERIFY_BRIEFS_STOCKS_V34.command >/dev/null)
-  (cd "$SEALED_GOLD/git-watch-r52" && bash 4_VERIFY_GIT_WATCH_PACKAGE.command >/dev/null)
+  (cd "$SEALED_GOLD/briefs-ai-v34" && bash VERIFY_BRIEFS_AI_V34.command </dev/null >/dev/null)
+  (cd "$SEALED_GOLD/briefs-stocks-v34" && bash VERIFY_BRIEFS_STOCKS_V34.command </dev/null >/dev/null)
+  (cd "$SEALED_GOLD/git-watch-r52" && bash 4_VERIFY_GIT_WATCH_PACKAGE.command </dev/null >/dev/null)
   node --check "$PROFILE_PLUGIN/dist/index.js" >/dev/null
   "$PYTHON" -m py_compile "$PROFILE_PLUGIN/plugin_api.py" "$SCRIPTS/brief_materializer.py" "$SCRIPTS/brief_renderer.py" "$SCRIPTS/materialize-briefs-ai.py" "$SCRIPTS/materialize-briefs-stock.py" "$SCRIPTS/stock_quote_collector.py"
   bash -n "$PROFILE_CHECKER"

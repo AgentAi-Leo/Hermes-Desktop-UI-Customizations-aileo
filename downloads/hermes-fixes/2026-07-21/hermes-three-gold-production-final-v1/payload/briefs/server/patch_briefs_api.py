@@ -2,6 +2,7 @@
 """Idempotently install or verify the pinned Briefs API block in web_server.py."""
 from __future__ import annotations
 
+import hashlib
 import os
 import stat
 import sys
@@ -21,6 +22,8 @@ CONTRACT_MARKERS = (
     "candidate.parent == directory",
 )
 ANCHOR = '@app.get("/api/files")'
+LEGACY_START = '@dataclass(frozen=True)\nclass BriefArchive:'
+LEGACY_SHA256 = "090a843fa8dcf650847d4d6782fd22b3608e3e8f88127e1a1022b0c03e99f1e0"
 
 
 def fail(message: str) -> None:
@@ -38,6 +41,17 @@ def contract_state(text: str) -> str:
     if any(route_hits) or any(contract_hits):
         return "partial"
     return "absent"
+
+
+def exact_legacy_block(text: str):
+    if text.count(LEGACY_START) != 1 or text.count(ANCHOR) != 1:
+        return None
+    start = text.index(LEGACY_START)
+    end = text.index(ANCHOR, start)
+    block = (text[start:end].rstrip("\n") + "\n").encode("utf-8")
+    if hashlib.sha256(block).hexdigest() != LEGACY_SHA256:
+        return None
+    return start, end, block
 
 
 def compile_or_fail(text: str, target: Path) -> None:
@@ -76,6 +90,7 @@ def main() -> None:
     mode, target_arg, fragment_arg = sys.argv[1:]
     target = Path(target_arg)
     fragment_path = Path(fragment_arg)
+    legacy_path = fragment_path.with_name("legacy_briefs_api_block.pyfrag")
     if not target.is_file():
         fail(f"WEB_SERVER_NOT_FOUND={target}")
     if not fragment_path.is_file():
@@ -83,7 +98,25 @@ def main() -> None:
     text = target.read_text(encoding="utf-8")
     state = contract_state(text)
     if state == "partial":
-        fail("PARTIAL_BRIEFS_API")
+        legacy = exact_legacy_block(text)
+        if legacy is None:
+            fail("PARTIAL_BRIEFS_API")
+        if not legacy_path.is_file() or legacy_path.read_bytes() != legacy[2]:
+            fail("LEGACY_BRIEFS_API_AUTHORITY_MISMATCH")
+        if mode == "verify":
+            fail("BRIEFS_API_LEGACY_REQUIRES_MIGRATION")
+        start, end, _ = legacy
+        fragment = fragment_path.read_text(encoding="utf-8").strip("\n") + "\n\n"
+        patched = text[:start] + fragment + text[end:]
+        if contract_state(patched) != "complete":
+            fail("BRIEFS_API_MIGRATION_CONTRACT_FAILED")
+        compile_or_fail(patched, target)
+        atomic_replace(target, patched)
+        if target.read_text(encoding="utf-8") != patched:
+            fail("BRIEFS_API_MIGRATION_READBACK_FAILED")
+        print("BRIEFS_API=MIGRATED_FROM_PINNED_LEGACY")
+        print("BRIEFS_API_CONTRACT=PASS")
+        return
     if state == "complete":
         compile_or_fail(text, target)
         print("BRIEFS_API=ALREADY_PRESENT")
