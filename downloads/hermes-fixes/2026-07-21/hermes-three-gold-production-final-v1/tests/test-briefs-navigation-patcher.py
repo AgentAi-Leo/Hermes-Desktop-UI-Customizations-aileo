@@ -10,8 +10,10 @@ from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 PATCHER_PATH = ROOT / "payload/briefs/dashboard/patch_briefs_navigation.py"
-PINNED_APP_FIXTURE = ROOT / "tests/fixtures/App.data-driven-upstream.tsx"
-PINNED_APP_SHA256 = "ccccbb3f3d1ae54c54c303b994b052bc66926ace2204bfb12a4c360f550694db"
+PINNED_APP_FIXTURES = {
+    ROOT / "tests/fixtures/App.data-driven-upstream.tsx": "ccccbb3f3d1ae54c54c303b994b052bc66926ace2204bfb12a4c360f550694db",
+    ROOT / "tests/fixtures/App.customized-production-b50dd.tsx": "b50dd1e6026b7ca8e5570e4ba07a73a4e911582262b370bdab8bb5a2bff19fd5",
+}
 
 MODERN_PREDECESSOR = '''import { NavLink, useLocation } from "react-router-dom";
 function SidebarNavLink({ item }: any) {
@@ -40,19 +42,21 @@ def load_patcher():
 class BriefsNavigationPatcherTests(unittest.TestCase):
     def test_real_pinned_predecessor_bytes_migrate_and_round_trip_verify(self):
         patcher = load_patcher()
-        predecessor_bytes = PINNED_APP_FIXTURE.read_bytes()
-        self.assertEqual(hashlib.sha256(predecessor_bytes).hexdigest(), PINNED_APP_SHA256)
-        with tempfile.TemporaryDirectory() as td:
-            target = Path(td) / "App.tsx"
-            target.write_bytes(predecessor_bytes)
-            self.assertEqual(
-                patcher.patch_file(target, "apply"),
-                "MIGRATED_DATA_DRIVEN_NAVIGATION",
-            )
-            installed = target.read_bytes()
-            self.assertNotEqual(installed, predecessor_bytes)
-            self.assertEqual(patcher.patch_file(target, "verify"), "ALREADY_COMPLIANT")
-            self.assertEqual(target.read_bytes(), installed)
+        for fixture, expected_sha in PINNED_APP_FIXTURES.items():
+            with self.subTest(fixture=fixture.name):
+                predecessor_bytes = fixture.read_bytes()
+                self.assertEqual(hashlib.sha256(predecessor_bytes).hexdigest(), expected_sha)
+                with tempfile.TemporaryDirectory() as td:
+                    target = Path(td) / "App.tsx"
+                    target.write_bytes(predecessor_bytes)
+                    self.assertEqual(
+                        patcher.patch_file(target, "apply"),
+                        "MIGRATED_DATA_DRIVEN_NAVIGATION",
+                    )
+                    installed = target.read_bytes()
+                    self.assertNotEqual(installed, predecessor_bytes)
+                    self.assertEqual(patcher.patch_file(target, "verify"), "ALREADY_COMPLIANT")
+                    self.assertEqual(target.read_bytes(), installed)
 
     def test_exact_audited_data_driven_predecessor_migrates_and_is_idempotent(self):
         patcher = load_patcher()

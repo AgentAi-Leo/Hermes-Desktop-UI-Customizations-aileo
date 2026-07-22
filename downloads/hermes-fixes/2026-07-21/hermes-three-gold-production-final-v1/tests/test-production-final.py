@@ -33,6 +33,7 @@ class ProductionFinalContractTests(unittest.TestCase):
             "payload/briefs/server/patch_briefs_api.py",
             "payload/briefs/dashboard/patch_briefs_navigation.py",
             "tests/fixtures/App.data-driven-upstream.tsx",
+            "tests/fixtures/App.customized-production-b50dd.tsx",
             "payload/briefs/server/briefs_api_block.pyfrag",
             "payload/briefs/server/legacy_briefs_api_block.pyfrag",
             "payload/gold-masters/briefs-ai-v34/CHECKSUMS.sha256",

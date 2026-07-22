@@ -11,8 +11,10 @@ from pathlib import Path
 
 # Whole-file predecessors audited before mutation.
 KNOWN_DATA_DRIVEN_PREDECESSOR_SHA256 = {
-    # User's customized Mac production source (2026-07-22).
+    # Earlier audited customized Mac source (2026-07-22).
     "e4fe900bb6df0bd25db9cd3d07e7b76eb2ce795786ecfbce84a0c8beb933aa6e",
+    # Current Mac production source confirmed on-host (2026-07-22).
+    "b50dd1e6026b7ca8e5570e4ba07a73a4e911582262b370bdab8bb5a2bff19fd5",
     # Current upstream source used for complete-tree compatibility rehearsal.
     "ccccbb3f3d1ae54c54c303b994b052bc66926ace2204bfb12a4c360f550694db",
 }
