@@ -89,6 +89,13 @@ class ProductionFinalContractTests(unittest.TestCase):
         self.assertFalse(MANIFEST["state_contract"]["downloads_dependency"])
         self.assertFalse(MANIFEST["state_contract"]["package_path_dependency"])
 
+    def test_runtime_manager_is_compatible_with_standard_macos_tools(self):
+        manager = (ROOT / "scripts/three-gold-production-manager.sh").read_text()
+        self.assertNotIn("sha256sum", manager)
+        self.assertNotIn("${MODE^^}", manager)
+        self.assertIn("verify_checksum_ledger", manager)
+        self.assertIn("tr '[:lower:]-' '[:upper:]_'", manager)
+
     def test_launch_ownership_and_relocatable_rollback_are_contractual(self):
         manager = (ROOT / "scripts/three-gold-production-manager.sh").read_text()
         for marker in [

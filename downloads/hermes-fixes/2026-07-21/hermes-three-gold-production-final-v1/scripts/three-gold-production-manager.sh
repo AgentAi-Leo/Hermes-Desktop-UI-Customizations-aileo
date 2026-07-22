@@ -107,6 +107,22 @@ with open(sys.argv[1], 'rb') as f:
 print(h.hexdigest())
 PY
 }
+verify_checksum_ledger() { "$PYTHON" - "$1" "$2" <<'PY'
+import hashlib,sys
+from pathlib import Path
+ledger=Path(sys.argv[1]); root=Path(sys.argv[2]).resolve()
+for number,line in enumerate(ledger.read_text(encoding='utf-8').splitlines(),1):
+    if not line.strip(): continue
+    try: want,rel=line.split('  ',1)
+    except ValueError: raise SystemExit(f'INVALID_CHECKSUM_LINE={number}')
+    candidate=(root/rel).resolve()
+    try: candidate.relative_to(root)
+    except ValueError: raise SystemExit(f'CHECKSUM_PATH_ESCAPES_ROOT={rel}')
+    if not candidate.is_file(): raise SystemExit(f'CHECKSUM_FILE_MISSING={rel}')
+    got=hashlib.sha256(candidate.read_bytes()).hexdigest()
+    if got != want: raise SystemExit(f'CHECKSUM_MISMATCH={rel}')
+PY
+}
 exists_even_symlink() { [[ -e "$1" || -L "$1" ]]; }
 atomic_copy() {
   local source="$1" destination="$2"
@@ -133,7 +149,7 @@ verify_package() {
     "$GOLD_PAYLOAD/git-watch-r52/RELEASE-MANIFEST.json"; do
     [[ -f "$required" ]] || { echo "PACKAGE_MISSING=$required" >&2; return 1; }
   done
-  (cd "$PACKAGE_DIR" && sha256sum -c CHECKSUMS.sha256 >/dev/null)
+  verify_checksum_ledger "$PACKAGE_DIR/CHECKSUMS.sha256" "$PACKAGE_DIR"
   (cd "$GOLD_PAYLOAD/briefs-ai-v34" && bash VERIFY_BRIEFS_AI_V34.command >/dev/null)
   (cd "$GOLD_PAYLOAD/briefs-stocks-v34" && bash VERIFY_BRIEFS_STOCKS_V34.command >/dev/null)
   (cd "$GOLD_PAYLOAD/git-watch-r52" && bash 4_VERIFY_GIT_WATCH_PACKAGE.command >/dev/null)
@@ -617,7 +633,8 @@ PY
 
 verify_installed
 TOUCHED=0
-echo "THREE_GOLD_${MODE^^}=PASS" | tr '-' '_'
+MODE_LABEL="$(printf '%s' "$MODE" | tr '[:lower:]-' '[:upper:]_')"
+echo "THREE_GOLD_${MODE_LABEL}=PASS"
 echo "PROFILE=$PROFILE"
 echo "PROFILE_HOME=$PROFILE_HOME"
 echo "SYSTEM_ROOT=$SYSTEM_ROOT"
