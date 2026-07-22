@@ -70,10 +70,12 @@ SOURCE="$WEB/src/lib/briefs.ts"
 TEST_SOURCE="$WEB/src/lib/briefs.test.ts"
 PAGE_SOURCE="$WEB/src/pages/BriefsPage.tsx"
 APP_SOURCE="$WEB/src/App.tsx"
+DASHBOARD_API_SOURCE="$WEB/src/lib/api.ts"
 WEB_SERVER="$AGENT_ROOT/hermes_cli/web_server.py"
 BRIEFS_API_PATCHER="$BRIEFS_PAYLOAD/server/patch_briefs_api.py"
 BRIEFS_API_FRAGMENT="$BRIEFS_PAYLOAD/server/briefs_api_block.pyfrag"
 BRIEFS_NAV_PATCHER="$BRIEFS_PAYLOAD/dashboard/patch_briefs_navigation.py"
+BRIEFS_DASHBOARD_API_PATCHER="$BRIEFS_PAYLOAD/dashboard/patch_briefs_dashboard_api.py"
 NEW_SOURCE="$BRIEFS_PAYLOAD/dashboard/src/lib/briefs.ts"
 NEW_TEST_SOURCE="$BRIEFS_PAYLOAD/dashboard/src/lib/briefs.test.ts"
 NEW_PAGE_SOURCE="$BRIEFS_PAYLOAD/dashboard/src/pages/BriefsPage.tsx"
@@ -200,7 +202,7 @@ read_only_audit() {
   local archive_rc=0
   archive_status AI "$AI_ARCHIVE" || archive_rc=$?
   archive_status STOCKS "$STOCK_ARCHIVE" || archive_rc=$?
-  for path in "$SOURCE" "$TEST_SOURCE" "$PAGE_SOURCE" "$APP_SOURCE" "$WEB_SERVER" "$DIST/index.html"; do
+  for path in "$SOURCE" "$TEST_SOURCE" "$PAGE_SOURCE" "$APP_SOURCE" "$DASHBOARD_API_SOURCE" "$WEB_SERVER" "$DIST/index.html"; do
     if [[ -e "$path" ]]; then echo "EXISTS=$path SHA256=$(sha256_file "$path")"; else echo "MISSING=$path"; fi
   done
   for path in "$PROFILE_PLUGIN/dist/index.js" "$PROFILE_PLUGIN/plugin_api.py" "$PROFILE_PLUGIN/manifest.json" "$PROFILE_CHECKER"; do
@@ -242,6 +244,7 @@ restore_from_backup() {
   restore_one "$TEST_SOURCE" dashboard-briefs-test
   restore_one "$PAGE_SOURCE" dashboard-briefs-page
   restore_one "$APP_SOURCE" dashboard-app-source
+  restore_one "$DASHBOARD_API_SOURCE" dashboard-api-source
   restore_one "$WEB_SERVER" dashboard-web-server
   restore_one "$DIST" dashboard-web-dist
   restore_one "$PROFILE_PLUGIN_ROOT" profile-git-watch-plugin
@@ -287,6 +290,7 @@ install_briefs_runtime() {
   atomic_copy "$NEW_TEST_SOURCE" "$TEST_SOURCE"
   atomic_copy "$NEW_PAGE_SOURCE" "$PAGE_SOURCE"
   "$PYTHON" "$BRIEFS_NAV_PATCHER" "$APP_SOURCE" apply
+  "$PYTHON" "$BRIEFS_DASHBOARD_API_PATCHER" "$DASHBOARD_API_SOURCE" apply
   local rel
   for rel in "${RUNTIME_FILES[@]}"; do
     atomic_copy "$BRIEFS_PAYLOAD/materializer/$rel" "$SCRIPTS/$rel"
@@ -302,6 +306,7 @@ verify_briefs_server() {
 }
 verify_briefs_navigation() {
   "$PYTHON" "$BRIEFS_NAV_PATCHER" "$APP_SOURCE" verify
+  "$PYTHON" "$BRIEFS_DASHBOARD_API_PATCHER" "$DASHBOARD_API_SOURCE" verify
 }
 install_dashboard_dist() {
   [[ -f "$BUILD_DIST/index.html" ]] || { echo "DASHBOARD_BUILD_MISSING=$BUILD_DIST/index.html" >&2; return 1; }
@@ -543,7 +548,7 @@ if [[ "$MODE" == "candidate-install" ]]; then
   [[ -n "${THREE_GOLD_HERMES_HOME:-}" && -n "${THREE_GOLD_AGENT_ROOT:-}" ]] || { echo "candidate-install requires THREE_GOLD_HERMES_HOME and THREE_GOLD_AGENT_ROOT" >&2; exit 2; }
 fi
 if [[ "$SKIP_SOURCE_REQUIREMENTS" != 1 ]]; then
-  for path in "$SOURCE" "$TEST_SOURCE" "$PAGE_SOURCE" "$APP_SOURCE" "$WEB_SERVER" "$WEB/package.json" "$DIST/index.html"; do
+  for path in "$SOURCE" "$TEST_SOURCE" "$PAGE_SOURCE" "$APP_SOURCE" "$DASHBOARD_API_SOURCE" "$WEB_SERVER" "$WEB/package.json" "$DIST/index.html"; do
     [[ -e "$path" ]] || { echo "SOURCE_PREREQUISITE_MISSING=$path" >&2; exit 1; }
   done
 fi
@@ -564,6 +569,7 @@ backup_one "$SOURCE" dashboard-briefs-source
 backup_one "$TEST_SOURCE" dashboard-briefs-test
 backup_one "$PAGE_SOURCE" dashboard-briefs-page
 backup_one "$APP_SOURCE" dashboard-app-source
+backup_one "$DASHBOARD_API_SOURCE" dashboard-api-source
 backup_one "$WEB_SERVER" dashboard-web-server
 backup_one "$DIST" dashboard-web-dist
 backup_one "$PROFILE_PLUGIN_ROOT" profile-git-watch-plugin

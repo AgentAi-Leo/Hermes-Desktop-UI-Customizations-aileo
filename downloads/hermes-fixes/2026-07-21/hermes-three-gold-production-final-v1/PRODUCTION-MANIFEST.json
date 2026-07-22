@@ -33,8 +33,11 @@
     }
   },
   "briefs_source_union": {
-    "file_count": 21,
+    "file_count": 24,
     "files": {
+      "payload/briefs/dashboard/dashboard_api.hardened-generated-at.ts": "b5ed1687d0692342e105384821e8e078977c3492c080c1ab273080986fcb6022",
+      "payload/briefs/dashboard/dashboard_api.production-b987.ts": "b9870bc1ef79cc0cad6e0ef40f1cb6f4b21af22711229fe4e1635e073dd469d2",
+      "payload/briefs/dashboard/patch_briefs_dashboard_api.py": "3a4e7c9f58b4cdb2ee3b4ecd2ecc18f5e25bedddade4232cccea1e5cbba5d032",
       "payload/briefs/dashboard/patch_briefs_navigation.py": "106124317ffe15acd88317b859c2315c7c36faec5a40721be4403a8231a3a578",
       "payload/briefs/dashboard/scripts/export-v34.ts": "98a35c023614e494a2043d0f262f08de97160916d37b94db665f1b9eb5e8d6c9",
       "payload/briefs/dashboard/src/lib/briefs.test.ts": "0a69161af59a6c6645203c8a7382fac71b079664078b8d36e4b9e43f527dd8eb",

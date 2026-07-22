@@ -65,6 +65,10 @@ class ProductionLifecycleTests(unittest.TestCase):
             self.package / "tests/fixtures/App.data-driven-upstream.tsx",
             self.web / "src/App.tsx",
         )
+        shutil.copyfile(
+            self.package / "payload/briefs/dashboard/dashboard_api.production-b987.ts",
+            self.web / "src/lib/api.ts",
+        )
         (self.agent / "hermes_cli/web_dist/index.html").write_text("OLD_DIST\n")
         self.original_web_server = (
             "from dataclasses import dataclass\n"
@@ -110,6 +114,7 @@ class ProductionLifecycleTests(unittest.TestCase):
             "test": (self.web / "src/lib/briefs.test.ts").read_bytes(),
             "page": (self.web / "src/pages/BriefsPage.tsx").read_bytes(),
             "app": (self.web / "src/App.tsx").read_bytes(),
+            "dashboard_api": (self.web / "src/lib/api.ts").read_bytes(),
             "server": self.server.read_bytes(),
             "dist": digest_tree(self.agent / "hermes_cli/web_dist"),
             "profile_plugin": digest_tree(self.profile_plugin),
@@ -122,6 +127,7 @@ class ProductionLifecycleTests(unittest.TestCase):
         self.assertEqual((self.web / "src/lib/briefs.test.ts").read_bytes(), self.original["test"])
         self.assertEqual((self.web / "src/pages/BriefsPage.tsx").read_bytes(), self.original["page"])
         self.assertEqual((self.web / "src/App.tsx").read_bytes(), self.original["app"])
+        self.assertEqual((self.web / "src/lib/api.ts").read_bytes(), self.original["dashboard_api"])
         self.assertEqual(self.server.read_bytes(), self.original["server"])
         self.assertEqual(digest_tree(self.agent / "hermes_cli/web_dist"), self.original["dist"])
         self.assertEqual(digest_tree(self.profile_plugin), self.original["profile_plugin"])
@@ -200,6 +206,10 @@ class ProductionLifecycleTests(unittest.TestCase):
         self.assertNotIn("git-comments-v27-review", config["plugins"]["disabled"])
         self.assertIn('@app.get("/api/briefs/{kind}")', self.server.read_text())
         self.assertIn('pathname: path, search: location.search, hash: location.hash', (self.web / "src/App.tsx").read_text())
+        self.assertEqual(
+            (self.web / "src/lib/api.ts").read_bytes(),
+            (self.package / "payload/briefs/dashboard/dashboard_api.hardened-generated-at.ts").read_bytes(),
+        )
         self.assertTrue((self.profile / "production-systems/HERMES-THREE-GOLD-PRODUCTION-FINAL-V1/receipt.json").is_file())
 
     def test_exact_host_legacy_api_migrates_and_rollback_restores_legacy_bytes(self):
@@ -252,6 +262,18 @@ class ProductionLifecycleTests(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("UNKNOWN_BRIEFS_NAVIGATION_SOURCE", result.stdout + result.stderr)
+        self.assertIn("THREE_GOLD_AUTOMATIC_ROLLBACK=PASS", result.stderr)
+        self.assert_original_restored()
+
+    def test_unknown_dashboard_api_source_fails_closed_and_restores_every_original(self):
+        (self.web / "src/lib/api.ts").write_text("export interface BriefEntry { unknown: true }\n")
+        self.original = self.capture_original()
+        result = self.run_manager(
+            "candidate-install", "--profile", PROFILE, "--yes",
+            env=self.env(),
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("UNKNOWN_BRIEFS_DASHBOARD_API_SOURCE", result.stderr)
         self.assertIn("THREE_GOLD_AUTOMATIC_ROLLBACK=PASS", result.stderr)
         self.assert_original_restored()
 

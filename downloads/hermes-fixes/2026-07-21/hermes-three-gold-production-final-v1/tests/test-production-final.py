@@ -32,6 +32,9 @@ class ProductionFinalContractTests(unittest.TestCase):
             "7_ROLLBACK_BACKUP.command", "scripts/three-gold-production-manager.sh",
             "payload/briefs/server/patch_briefs_api.py",
             "payload/briefs/dashboard/patch_briefs_navigation.py",
+            "payload/briefs/dashboard/patch_briefs_dashboard_api.py",
+            "payload/briefs/dashboard/dashboard_api.production-b987.ts",
+            "payload/briefs/dashboard/dashboard_api.hardened-generated-at.ts",
             "tests/fixtures/App.data-driven-upstream.tsx",
             "tests/fixtures/App.customized-production-b50dd.tsx",
             "payload/briefs/server/briefs_api_block.pyfrag",
@@ -58,10 +61,10 @@ class ProductionFinalContractTests(unittest.TestCase):
         for rel, expected in entries.items():
             self.assertEqual(sha(ROOT / rel), expected, rel)
 
-    def test_source_union_is_exact_twenty_one_file_byte_ledger(self):
+    def test_source_union_is_exact_twenty_four_file_byte_ledger(self):
         ledger = MANIFEST["briefs_source_union"]["files"]
-        self.assertEqual(MANIFEST["briefs_source_union"]["file_count"], 21)
-        self.assertEqual(len(ledger), 21)
+        self.assertEqual(MANIFEST["briefs_source_union"]["file_count"], 24)
+        self.assertEqual(len(ledger), 24)
         for rel, expected in ledger.items():
             self.assertEqual(sha(ROOT / rel), expected, rel)
 
@@ -90,6 +93,7 @@ class ProductionFinalContractTests(unittest.TestCase):
             "scripts/three-gold-production-manager.sh",
             "payload/briefs/server/patch_briefs_api.py",
             "payload/briefs/dashboard/patch_briefs_navigation.py",
+            "payload/briefs/dashboard/patch_briefs_dashboard_api.py",
             "payload/git-watch/scripts/github-comments-checker-v27-review.sh",
         ]
         for rel in executables:
