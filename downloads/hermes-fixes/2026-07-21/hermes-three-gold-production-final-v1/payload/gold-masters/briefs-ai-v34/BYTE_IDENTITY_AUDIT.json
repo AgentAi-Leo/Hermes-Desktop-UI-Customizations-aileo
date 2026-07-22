@@ -1,0 +1,159 @@
+{
+  "schema": "briefs-v34-packaging-split-byte-identity-v1",
+  "stream": "AI",
+  "template_version": "V34",
+  "comparison_count": 25,
+  "passed": true,
+  "comparisons": [
+    {
+      "packaged": "EXPORTS/AI Morning Brief - 2026-07-15.md",
+      "upstream": "EXPORTS/AI/AI Morning Brief - 2026-07-15.md",
+      "byte_identical": true,
+      "bytes": 8273
+    },
+    {
+      "packaged": "EXPORTS/AI Morning Brief - 2026-07-16.md",
+      "upstream": "EXPORTS/AI/AI Morning Brief - 2026-07-16.md",
+      "byte_identical": true,
+      "bytes": 10768
+    },
+    {
+      "packaged": "EXPORTS/AI Morning Brief - 2026-07-17.md",
+      "upstream": "EXPORTS/AI/AI Morning Brief - 2026-07-17.md",
+      "byte_identical": true,
+      "bytes": 9714
+    },
+    {
+      "packaged": "EXPORTS/AI Morning Brief - 2026-07-18.md",
+      "upstream": "EXPORTS/AI/AI Morning Brief - 2026-07-18.md",
+      "byte_identical": true,
+      "bytes": 7822
+    },
+    {
+      "packaged": "EXPORTS/AI Morning Brief - 2026-07-20.md",
+      "upstream": "EXPORTS/AI/AI Morning Brief - 2026-07-20.md",
+      "byte_identical": true,
+      "bytes": 10577
+    },
+    {
+      "packaged": "EXPORTS/BRIEFS-AI - 2026-07-15.html",
+      "upstream": "EXPORTS/AI/BRIEFS-AI - 2026-07-15.html",
+      "byte_identical": true,
+      "bytes": 93610
+    },
+    {
+      "packaged": "EXPORTS/BRIEFS-AI - 2026-07-16.html",
+      "upstream": "EXPORTS/AI/BRIEFS-AI - 2026-07-16.html",
+      "byte_identical": true,
+      "bytes": 96743
+    },
+    {
+      "packaged": "EXPORTS/BRIEFS-AI - 2026-07-17.html",
+      "upstream": "EXPORTS/AI/BRIEFS-AI - 2026-07-17.html",
+      "byte_identical": true,
+      "bytes": 95253
+    },
+    {
+      "packaged": "EXPORTS/BRIEFS-AI - 2026-07-18.html",
+      "upstream": "EXPORTS/AI/BRIEFS-AI - 2026-07-18.html",
+      "byte_identical": true,
+      "bytes": 93400
+    },
+    {
+      "packaged": "EXPORTS/BRIEFS-AI - 2026-07-20.html",
+      "upstream": "EXPORTS/AI/BRIEFS-AI - 2026-07-20.html",
+      "byte_identical": true,
+      "bytes": 96304
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-15.html",
+      "upstream": "REFERENCES/AI/BRIEFS-AI - 2026-07-15.html",
+      "byte_identical": true,
+      "bytes": 12531
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-15.md",
+      "upstream": "REFERENCES/AI/BRIEFS-AI - 2026-07-15.md",
+      "byte_identical": true,
+      "bytes": 9042
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-16.html",
+      "upstream": "REFERENCES/AI/BRIEFS-AI - 2026-07-16.html",
+      "byte_identical": true,
+      "bytes": 15580
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-16.md",
+      "upstream": "REFERENCES/AI/BRIEFS-AI - 2026-07-16.md",
+      "byte_identical": true,
+      "bytes": 11589
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-17.html",
+      "upstream": "REFERENCES/AI/BRIEFS-AI - 2026-07-17.html",
+      "byte_identical": true,
+      "bytes": 14216
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-17.md",
+      "upstream": "REFERENCES/AI/BRIEFS-AI - 2026-07-17.md",
+      "byte_identical": true,
+      "bytes": 10254
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-18.html",
+      "upstream": "REFERENCES/AI/BRIEFS-AI - 2026-07-18.html",
+      "byte_identical": true,
+      "bytes": 12579
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-18.md",
+      "upstream": "REFERENCES/AI/BRIEFS-AI - 2026-07-18.md",
+      "byte_identical": true,
+      "bytes": 8564
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-20.html",
+      "upstream": "REFERENCES/AI/BRIEFS-AI - 2026-07-20.html",
+      "byte_identical": true,
+      "bytes": 15329
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-20.md",
+      "upstream": "REFERENCES/AI/BRIEFS-AI - 2026-07-20.md",
+      "byte_identical": true,
+      "bytes": 11358
+    },
+    {
+      "packaged": "REFERENCES/DATA/2026-07-15.json",
+      "upstream": "REFERENCES/AI-DATA/2026-07-15.json",
+      "byte_identical": true,
+      "bytes": 10342
+    },
+    {
+      "packaged": "REFERENCES/DATA/2026-07-16.json",
+      "upstream": "REFERENCES/AI-DATA/2026-07-16.json",
+      "byte_identical": true,
+      "bytes": 13163
+    },
+    {
+      "packaged": "REFERENCES/DATA/2026-07-17.json",
+      "upstream": "REFERENCES/AI-DATA/2026-07-17.json",
+      "byte_identical": true,
+      "bytes": 11618
+    },
+    {
+      "packaged": "REFERENCES/DATA/2026-07-18.json",
+      "upstream": "REFERENCES/AI-DATA/2026-07-18.json",
+      "byte_identical": true,
+      "bytes": 9772
+    },
+    {
+      "packaged": "REFERENCES/DATA/2026-07-20.json",
+      "upstream": "REFERENCES/AI-DATA/2026-07-20.json",
+      "byte_identical": true,
+      "bytes": 12666
+    }
+  ]
+}

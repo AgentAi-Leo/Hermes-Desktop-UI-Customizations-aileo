@@ -1,0 +1,120 @@
+{
+  "contract_version": "ai-brief-data-v1",
+  "date": "2026-07-15",
+  "founder_takeaways": [
+    {
+      "detail": "OpenAI\u2019s GPT-5.6 and Anthropic\u2019s Claude Sonnet 5 both emphasize autonomous tool use, coding, and multi-step workflows; Meta is also pushing into coding with Muse Spark access. If you sell software or services, assume your customers\u2019 build velocity is rising and your internal workflows should be benchmarked against AI-assisted execution.",
+      "headline": "Agentic coding is now a price/performance war, not a novelty."
+    },
+    {
+      "detail": "GPT-5.6\u2019s Sol/Terra/Luna family and Claude\u2019s effort-level pricing point toward a practical stack: cheap models for routine work, higher-effort/parallel-agent modes for complex engineering, research, analysis, and QA.",
+      "headline": "Model choice should become workload routing."
+    },
+    {
+      "detail": "Meta\u2019s Muse Image is designed around photo restoration, likeness-preserving edits, product shots, room restyling, stickers, posters, and personalized creative prompts inside Meta AI.",
+      "headline": "Visual AI is moving directly into consumer/ad workflows."
+    },
+    {
+      "detail": "Reuters reports TSMC is expected to ride AI chip demand to another record-profit quarter, while U.S. power demand is projected to hit records in 2026 and 2027 as AI data centers expand.",
+      "headline": "Compute and power are becoming strategic constraints."
+    },
+    {
+      "detail": "Reuters reports China is considering restrictions on overseas access to top Chinese AI models, including open-weight versions. Avoid critical dependencies on any single frontier provider or jurisdiction.",
+      "headline": "AI geopolitics is shifting from chips to model access."
+    }
+  ],
+  "generated_at": "2026-07-15T08:00:00-07:00",
+  "kind": "ai",
+  "timezone": "America/Los_Angeles",
+  "topics": [
+    {
+      "actionable_implication": "multi-agent modes can raise token spend quickly and may create false confidence if not paired with deterministic checks, tests, or human review. Treat higher-effort modes like hiring a short-term specialist: use them where failure cost is high, not for routine summarization.",
+      "headline": "OpenAI launches GPT-5.6 GA: more agentic, more segmented, more cost-aware",
+      "number": 1,
+      "sources": [
+        {
+          "label": "OpenAI \u2014 GPT-5.6",
+          "url": "https://openai.com/index/gpt-5-6"
+        },
+        {
+          "label": "OpenAI News",
+          "url": "https://openai.com/news"
+        }
+      ],
+      "summary": "OpenAI announced general availability of the GPT-5.6 family on July 9: Sol as flagship, Terra as balanced, and Luna as cost-efficient. OpenAI says GPT-5.6 focuses on \u201cmore intelligence from every token,\u201d coding, knowledge work, cybersecurity, science, and stronger performance per dollar. It also introduces higher-capability modes such as max and ultra, with ultra coordinating multiple agents across parallel workstreams for demanding tasks.",
+      "why_it_matters": "this is a strong signal that frontier labs are packaging \u201cagent orchestration\u201d as a default product surface, not a custom architecture you build from scratch. For a solo founder, the immediate move is to identify 3\u20135 workflows where parallel decomposition matters: code review, migration planning, customer research synthesis, competitive teardown, security triage, and long-form data cleanup."
+    },
+    {
+      "actionable_implication": "run a real benchmark on your own tasks, not generic leaderboards. Create a 20-task eval set from your actual backlog: bug fix, refactor, sales email personalization, support macro creation, analytics query, landing-page rewrite, spec-to-ticket conversion, and QA test generation. Score by correctness, latency, cost, and required supervision.",
+      "headline": "Anthropic\u2019s Claude Sonnet 5 brings agentic work down-market",
+      "number": 2,
+      "sources": [
+        {
+          "label": "Anthropic \u2014 Introducing Claude Sonnet 5",
+          "url": "https://www.anthropic.com/news/claude-sonnet-5"
+        },
+        {
+          "label": "Claude Sonnet 5 System Card",
+          "url": "https://www.anthropic.com/claude-sonnet-5-system-card"
+        }
+      ],
+      "summary": "Anthropic\u2019s Claude Sonnet 5, released June 30, is positioned as the most agentic Sonnet model yet. Anthropic says it can make plans, use browsers and terminals, and run autonomously at a level that recently required larger, more expensive models. It is now available across Claude plans, in Claude Code, and through the Claude API, with introductory pricing through August 31 of $2/M input tokens and $10/M output tokens, then $3/M input and $15/M output.",
+      "why_it_matters": "mid-tier models are getting good enough for many production agent workflows. That changes the ROI math: you can reserve the most expensive frontier models for tasks where they materially change outcomes, while using Sonnet-class models for coding, support ops, data enrichment, and internal automation."
+    },
+    {
+      "actionable_implication": "build a \u201ccreative prompt library\u201d for your brand now: product hero shots, testimonial visuals, founder-story posters, before/after transformations, short ad concepts, and UGC-style variations. Pair that with a governance checklist for likeness rights, claims, brand consistency, and disclosure.",
+      "headline": "Meta\u2019s AI push expands from consumer creativity to coding competition",
+      "number": 3,
+      "sources": [
+        {
+          "label": "Meta \u2014 Introducing Muse Image",
+          "url": "https://about.fb.com/news/2026/07/introducing-muse-image-meta-ai"
+        },
+        {
+          "label": "CNBC \u2014 Meta jumps into AI coding market",
+          "url": "https://www.cnbc.com/2026/07/09/meta-jumps-into-ai-coding-market-to-chase-anthropic-and-openai.html"
+        },
+        {
+          "label": "Meta \u2014 Muse Spark",
+          "url": "https://about.fb.com/news/2026/04/introducing-muse-spark-meta-superintelligence-labs/"
+        }
+      ],
+      "summary": "Meta introduced Muse Image, its image-generation model in Meta AI, focused on personalized, likeness-aware edits and creative production: photo restoration, editorial portraits, room restyling, product photography, posters, sticker sheets, game assets, and more. Separately, CNBC reports Meta is entering the AI coding market with Muse Spark, chasing Anthropic and OpenAI; early API access is available to some partners, with a waitlist for new users.",
+      "why_it_matters": "Meta is turning AI generation into an embedded distribution advantage across Facebook, Instagram, WhatsApp, Messenger, Threads, and glasses. For a founder, this means creative testing cycles will compress further. Expect more advertisers to generate variants directly inside the platforms where performance data lives."
+    },
+    {
+      "actionable_implication": "Maintain at least two model providers for critical workflows. Add cost ceilings per user/account/workspace. Log model, latency, token usage, retries, and error class for every AI call. Cache repeatable outputs aggressively. Design graceful degradation: cheaper model, delayed batch mode, or human-in-the-loop queue.",
+      "headline": "AI infrastructure demand keeps pressure on chips, packaging, and power",
+      "number": 4,
+      "sources": [
+        {
+          "label": "Reuters \u2014 TSMC seen riding AI boom",
+          "url": "https://www.reuters.com/world/asia-pacific/tsmc-seen-riding-ai-boom-fifth-straight-quarter-record-profit-2026-07-14"
+        },
+        {
+          "label": "Reuters \u2014 U.S. power use to beat record highs",
+          "url": "https://www.reuters.com/business/energy/us-power-use-beat-record-highs-2026-2027-ai-use-surges-eia-says-2026-07-07"
+        },
+        {
+          "label": "Reuters \u2014 White House data-center power costs",
+          "url": "https://www.reuters.com/legal/litigation/white-house-rally-utilities-data-centers-over-ai-power-costs-2026-07-13"
+        }
+      ],
+      "summary": "Reuters reports TSMC is expected to post a fifth straight quarter of record profit, with analysts citing strong demand for 3nm and 2nm process technologies for AI chips and advanced packaging such as CoWoS. Reuters also reported U.S. power consumption is expected to hit record highs in 2026 and 2027, driven by AI-hungry data centers and electrification, and that the White House is convening utilities and data-center developers around power-cost concerns.",
+      "why_it_matters": "the bottleneck is not just \u201cwhich model is best.\u201d It is whether capacity, cost, latency, and power constraints make that model reliable for your product. If your app depends on real-time AI, you need fallbacks and cost controls."
+    },
+    {
+      "actionable_implication": "keep an \u201cAI dependency register\u201d with model/provider, jurisdiction, data sent, customer-facing impact, fallback, and exit plan. This is especially important if you serve regulated customers, defense-adjacent customers, education, healthcare, finance, or cross-border teams.",
+      "headline": "Model-access geopolitics: China weighs curbs on top AI models",
+      "number": 5,
+      "sources": [
+        {
+          "label": "Reuters \u2014 Beijing considering curbs on overseas access to top AI models",
+          "url": "https://www.reuters.com/world/beijing-is-looking-curbing-overseas-access-chinas-top-ai-models-sources-say-2026-07-07"
+        }
+      ],
+      "summary": "Reuters reports Chinese authorities have held meetings with Alibaba, ByteDance, and Z.ai about potentially restricting overseas access to China\u2019s most advanced AI models, including both closed-source and more open versions. Reuters\u2019 summary says officials discussed national-security treatment of leaks or thefts and possible restrictions on who can fund domestic AI startups.",
+      "why_it_matters": "open models and foreign APIs may become less predictable as governments treat frontier models more like strategic infrastructure. Even if your company is small, your supply chain can be affected through API availability, licensing, cloud region restrictions, or sudden compliance requirements."
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "release": "HERMES-THREE-GOLD-PRODUCTION-FINAL-V1",
+  "date": "2026-07-21",
+  "profile": "local-ai-assist1",
+  "source_commit": "5d7e5a88af37a87e68285b97b5ee98ed0fec7de2",
+  "components": {
+    "briefs_ai": {
+      "version": "V34",
+      "authority": "payload/gold-masters/briefs-ai-v34",
+      "publication_commit": "5d7e5a88af37a87e68285b97b5ee98ed0fec7de2",
+      "published_zip_sha256": "7f170d542b6040bc9c3c987b2aaafbaf72200bb36831c49805a505e63aa8c1f9"
+    },
+    "briefs_stocks": {
+      "version": "V34",
+      "authority": "payload/gold-masters/briefs-stocks-v34",
+      "publication_commit": "5d7e5a88af37a87e68285b97b5ee98ed0fec7de2",
+      "published_zip_sha256": "101d10b07c0fd92887317770851190add1939cd34bc252a09018eb194732fe23"
+    },
+    "git_watch": {
+      "version": "Revision 52",
+      "authority": "payload/gold-masters/git-watch-r52",
+      "plugin_id": "git-comments-v27-review",
+      "route": "/git-comments-v27-review",
+      "api_prefix": "/api/plugins/git-comments-v27-review",
+      "frozen_payload_sha256": {
+        "payload/git-watch/dashboard/dist/index.js": "3f007932e2d39602147b7f35a26dc402edd64de0b3a1849e3fd06fd1ed4e2d4e",
+        "payload/git-watch/dashboard/plugin_api.py": "c51f72ab253b8f156b1c4955fd4298911e7635cb95790828189098e54f77043c",
+        "payload/git-watch/dashboard/manifest.json": "173768da0abae910be056690f2e219bb581ef76f31dcbbc190e10ab7d5156b8f",
+        "payload/git-watch/scripts/github-comments-checker-v27-review.sh": "73384b045ba96c18ff12eb82f6a5a23455f20e701b287d976ece0443c88df076",
+        "payload/git-watch/data/watchlist.clean.json": "193be892786873851bdf4e284d88ee147ad9b78ce264ebd6e9052c9fc6bfd275"
+      }
+    }
+  },
+  "briefs_source_union": {
+    "file_count": 20,
+    "files": {
+      "payload/briefs/dashboard/scripts/export-v34.ts": "98a35c023614e494a2043d0f262f08de97160916d37b94db665f1b9eb5e8d6c9",
+      "payload/briefs/dashboard/src/lib/briefs.test.ts": "6b8b70e136ef97bcd813e43b8b4f61dc641a679f53519005009307418d6e7c0f",
+      "payload/briefs/dashboard/src/lib/briefs.ts": "2e0762a52856fd2b1846cf6e21aeeadeca4d23991e0c2db79f466ae0b40aba24",
+      "payload/briefs/dashboard/src/pages/BriefsPage.tsx": "4de05bc3cad0c087324de7e247f5afe639a74351d1348974237503a948ad10e7",
+      "payload/briefs/materializer/VERSION": "20d2add851bf39edcc6b5e830930f962db7e19dffa2cab8610eed551eda6c302",
+      "payload/briefs/materializer/brief_materializer.py": "51d0757bc6951a1dc6a637cfccaecc36be250898f0f0367fedb1d526056a41c8",
+      "payload/briefs/materializer/brief_renderer.py": "a4a963ff24f7aae42b0da7ee26d77eb11410a4f1f0b57a87a29128fcae22b976",
+      "payload/briefs/materializer/config/portfolio-lots.json": "1811c1ad26c0eeb04661f08cc31a4405668ab356450d4afa7fea8a729f8eb159",
+      "payload/briefs/materializer/fixtures/ai-valid.json": "65651af67f90c931f9f83f6d14035692c057e5dacdb0788db749d64af8b9975f",
+      "payload/briefs/materializer/fixtures/stock-valid.json": "d41fbb481140dc643ceaf635a47f1a08703b775bb2e021cd34cf0e77a874719c",
+      "payload/briefs/materializer/materialize-briefs-ai.py": "20d8f713a809f06be61a9a013df56dbe164d23ff65f90c5fea4c7ef0065766e2",
+      "payload/briefs/materializer/materialize-briefs-stock.py": "1a878e4ba16d9cbbf49fc671504744014aadc38f418c26654d0d323403161180",
+      "payload/briefs/materializer/prompts/ai-generator-prompt.md": "3e1f7fa9ee4efa62d0bf2df39a1c078e27852b2e91e64d480eaa8321da0a1dad",
+      "payload/briefs/materializer/prompts/stock-generator-prompt.md": "7295d9edc63bcf8cad4e24acda3c2e7305eba003ff15597b667bb56e27224e48",
+      "payload/briefs/materializer/schemas/ai-brief-data-v1.schema.json": "38316aa5f81f24d37109d988995109bc97cf94bf9cade88f7e06eb3cebde5601",
+      "payload/briefs/materializer/schemas/stock-brief-data-v1.schema.json": "12719dd8a9c9e92be4f8334760ae30c97688592ba0d44e6f4769c04086feca3b",
+      "payload/briefs/materializer/stock_quote_collector.py": "b17122015d3d2877091b20b4795e9370da919f5d6f8ae0258e702c04414e20cd",
+      "payload/briefs/materializer/test_materializer.py": "afbcb1c86e390ab30ca69ad1b6d2a47a7d167815dc43dd32e37dc60de3ad8f92",
+      "payload/briefs/materializer/test_renderer.py": "01876048cca2a3c4c7b0998609075881aa8e99c32704156e312fcb0935d85503",
+      "payload/briefs/materializer/test_stock_quote_collector.py": "edb3bacf259d2a866bc8b8798d957ba3862cacd9cc26121d5131eccfbefa8706"
+    }
+  },
+  "briefs_backend": {
+    "strategy": "preserve-complete-existing-or-insert-pinned-block-fail-closed",
+    "fragment": "payload/briefs/server/briefs_api_block.pyfrag",
+    "fragment_sha256": "2a46ae607db9fa9370262144115927ba2d55bb0af6f8a15b17c47c5942eabed0",
+    "archive_precedence": "explicit_env_then_active_hermes_root_then_user_home_fallback"
+  },
+  "runtime_contract": {
+    "profile_runtime_root": "~/.hermes/profiles/local-ai-assist1",
+    "system_root": "production-systems/HERMES-THREE-GOLD-PRODUCTION-FINAL-V1",
+    "ai_archive": "~/.hermes/zDownloads/__AI-DAILY-BRIEFS",
+    "stocks_archive": "~/.hermes/zDownloads/_STOCK-BRIEFS",
+    "git_watch_data": "plugins/git-comments-v27-review/dashboard/data",
+    "launch_root_owner_guard": true,
+    "profile_config_backup_restore": true,
+    "web_server_backup_restore": true,
+    "relocatable_backup_launcher": true,
+    "built_dashboard_promoted_to_served_web_dist": true
+  },
+  "state_contract": {
+    "gold_masters_immutable": true,
+    "git_watch_state_preserved": true,
+    "brief_archives_preserved": true,
+    "downloads_dependency": false,
+    "package_path_dependency": false
+  },
+  "update_paths": {
+    "briefs_ai": {
+      "producer": "materialize-briefs-ai.py",
+      "failure_isolated": true
+    },
+    "briefs_stocks": {
+      "producer": "materialize-briefs-stock.py",
+      "failure_isolated": true
+    },
+    "git_watch": {
+      "job": "03_Git-COMMENTS",
+      "checker": "github-comments-checker-v27-review.sh",
+      "failure_isolated": true
+    }
+  }
+}

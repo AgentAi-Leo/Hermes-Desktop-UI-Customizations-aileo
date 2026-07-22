@@ -1,0 +1,8 @@
+ticker,current_price,daily_change,daily_change_pct,Agent
+AAPL,$326.59,-$7.15,-2.14%,HERMES
+AMZN,$249.99,+$2.76,+1.12%,HERMES
+NVDA,$203.28,+$0.47,+0.23%,HERMES
+SNAP,$4.56,+$0.03,+0.66%,HERMES
+GOOGL,$351.99,+$5.22,+1.51%,HERMES
+MSFT,$402.29,+$8.47,+2.15%,HERMES
+DIS,$96.41,-$1.26,-1.29%,HERMES

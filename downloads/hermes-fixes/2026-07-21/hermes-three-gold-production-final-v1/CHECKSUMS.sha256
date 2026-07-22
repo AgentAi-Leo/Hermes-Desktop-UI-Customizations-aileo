@@ -1,0 +1,155 @@
+d983e5f2e508ac75ef740b29429b0c52a42e1684b6ba3ce1890834c1dbd30791  1_READ_FIRST.md
+3613d4f6f1e64c50ad9bbf216ed7044e8a4798fbdcd0f47573c5796d0a6b1de3  2_VERIFY_PACKAGE.command
+49445981a500c8d0103d9741f42701880d42e9303d4944e48876d1ef6a3f753b  3_READ_ONLY_AUDIT.command
+32f23eab02ef0a5392467be15c52138e942155dcb31c4c8bc735538a3116fdd3  4_CANDIDATE_INSTALL.command
+60360ad9a8167c5aba3a48374aa35885f7ff00ddd50719a77e533dad0c12fa96  5_INSTALL_PRODUCTION.command
+33b040f6cfb6bb71108e5591a5d5d0abcc4c8af63d014b0a6fd52a28c2d06316  6_VERIFY_INSTALLED.command
+c925682511226eee1791e29e0b8a8faecd95b1fd927175ae1292738b75dc56c1  7_ROLLBACK_BACKUP.command
+9c78d54ee7f7a10d2cfe91d997f2ae3a9cc4956eaaa3e2b53d3a0137534d20a1  PRODUCTION-MANIFEST.json
+98a35c023614e494a2043d0f262f08de97160916d37b94db665f1b9eb5e8d6c9  payload/briefs/dashboard/scripts/export-v34.ts
+6b8b70e136ef97bcd813e43b8b4f61dc641a679f53519005009307418d6e7c0f  payload/briefs/dashboard/src/lib/briefs.test.ts
+2e0762a52856fd2b1846cf6e21aeeadeca4d23991e0c2db79f466ae0b40aba24  payload/briefs/dashboard/src/lib/briefs.ts
+4de05bc3cad0c087324de7e247f5afe639a74351d1348974237503a948ad10e7  payload/briefs/dashboard/src/pages/BriefsPage.tsx
+20d2add851bf39edcc6b5e830930f962db7e19dffa2cab8610eed551eda6c302  payload/briefs/materializer/VERSION
+51d0757bc6951a1dc6a637cfccaecc36be250898f0f0367fedb1d526056a41c8  payload/briefs/materializer/brief_materializer.py
+a4a963ff24f7aae42b0da7ee26d77eb11410a4f1f0b57a87a29128fcae22b976  payload/briefs/materializer/brief_renderer.py
+1811c1ad26c0eeb04661f08cc31a4405668ab356450d4afa7fea8a729f8eb159  payload/briefs/materializer/config/portfolio-lots.json
+65651af67f90c931f9f83f6d14035692c057e5dacdb0788db749d64af8b9975f  payload/briefs/materializer/fixtures/ai-valid.json
+d41fbb481140dc643ceaf635a47f1a08703b775bb2e021cd34cf0e77a874719c  payload/briefs/materializer/fixtures/stock-valid.json
+20d8f713a809f06be61a9a013df56dbe164d23ff65f90c5fea4c7ef0065766e2  payload/briefs/materializer/materialize-briefs-ai.py
+1a878e4ba16d9cbbf49fc671504744014aadc38f418c26654d0d323403161180  payload/briefs/materializer/materialize-briefs-stock.py
+3e1f7fa9ee4efa62d0bf2df39a1c078e27852b2e91e64d480eaa8321da0a1dad  payload/briefs/materializer/prompts/ai-generator-prompt.md
+7295d9edc63bcf8cad4e24acda3c2e7305eba003ff15597b667bb56e27224e48  payload/briefs/materializer/prompts/stock-generator-prompt.md
+38316aa5f81f24d37109d988995109bc97cf94bf9cade88f7e06eb3cebde5601  payload/briefs/materializer/schemas/ai-brief-data-v1.schema.json
+12719dd8a9c9e92be4f8334760ae30c97688592ba0d44e6f4769c04086feca3b  payload/briefs/materializer/schemas/stock-brief-data-v1.schema.json
+b17122015d3d2877091b20b4795e9370da919f5d6f8ae0258e702c04414e20cd  payload/briefs/materializer/stock_quote_collector.py
+afbcb1c86e390ab30ca69ad1b6d2a47a7d167815dc43dd32e37dc60de3ad8f92  payload/briefs/materializer/test_materializer.py
+01876048cca2a3c4c7b0998609075881aa8e99c32704156e312fcb0935d85503  payload/briefs/materializer/test_renderer.py
+edb3bacf259d2a866bc8b8798d957ba3862cacd9cc26121d5131eccfbefa8706  payload/briefs/materializer/test_stock_quote_collector.py
+2a46ae607db9fa9370262144115927ba2d55bb0af6f8a15b17c47c5942eabed0  payload/briefs/server/briefs_api_block.pyfrag
+0a462b00eb5973a7605057c14a3ed523c737e915d0f7cdc7e662175ddfec43b5  payload/briefs/server/patch_briefs_api.py
+3f007932e2d39602147b7f35a26dc402edd64de0b3a1849e3fd06fd1ed4e2d4e  payload/git-watch/dashboard/dist/index.js
+173768da0abae910be056690f2e219bb581ef76f31dcbbc190e10ab7d5156b8f  payload/git-watch/dashboard/manifest.json
+c51f72ab253b8f156b1c4955fd4298911e7635cb95790828189098e54f77043c  payload/git-watch/dashboard/plugin_api.py
+193be892786873851bdf4e284d88ee147ad9b78ce264ebd6e9052c9fc6bfd275  payload/git-watch/data/watchlist.clean.json
+73384b045ba96c18ff12eb82f6a5a23455f20e701b287d976ece0443c88df076  payload/git-watch/scripts/github-comments-checker-v27-review.sh
+f42f121c76523ca315c8956d5f36c894d29acc3ebd172e06511d4015ff49554f  payload/gold-masters/briefs-ai-v34/BYTE_IDENTITY_AUDIT.json
+3ba32286c96ca3f181aba16dfac12677fc2350a65b2f507db3875dba282cb6de  payload/gold-masters/briefs-ai-v34/CHECKSUMS.sha256
+5734fdb8cb5f0cf78b6831dc9006d25ad3343452817b904983649655262740b1  payload/gold-masters/briefs-ai-v34/EXPORTS/AI Morning Brief - 2026-07-15.md
+0a0dd006e1570b15eb7de5c7325e2090050b18918dcfc76daa420f37dc6f9990  payload/gold-masters/briefs-ai-v34/EXPORTS/AI Morning Brief - 2026-07-16.md
+b28ee96b29f6adca1b182c4e5e56aa072636abc8be30a6e224fec51ecbe24d63  payload/gold-masters/briefs-ai-v34/EXPORTS/AI Morning Brief - 2026-07-17.md
+ba65d67db88722d64970567e8af8be0778d6b9a9e0f1a26adbf54b6f29301ccb  payload/gold-masters/briefs-ai-v34/EXPORTS/AI Morning Brief - 2026-07-18.md
+f95c0006af3505308e0b47c0ad2483c25d4f345aee5edc54dc66ca0bda4a8d19  payload/gold-masters/briefs-ai-v34/EXPORTS/AI Morning Brief - 2026-07-20.md
+cc6c9a9b4e791219e37a58eec510e20c4b65db46800690f83e00887c15fdb021  payload/gold-masters/briefs-ai-v34/EXPORTS/BRIEFS-AI - 2026-07-15.html
+d37658e895c3c84d0c456652614eec435c2441fa16c8aabc7f4f2b288c9180be  payload/gold-masters/briefs-ai-v34/EXPORTS/BRIEFS-AI - 2026-07-16.html
+0fcfb88feaf55f886327c9240a9fbfa1629309180e936c19162391abb7bdad4f  payload/gold-masters/briefs-ai-v34/EXPORTS/BRIEFS-AI - 2026-07-17.html
+7ccb089b101026f8d0fdbee8739821d76dc35f42a3f460b074907addb188616d  payload/gold-masters/briefs-ai-v34/EXPORTS/BRIEFS-AI - 2026-07-18.html
+a5989472548817f5194e7a10278b6d436a3620daa1084178ce96ef2111624fb6  payload/gold-masters/briefs-ai-v34/EXPORTS/BRIEFS-AI - 2026-07-20.html
+a49d587d585cf351b844031e13070f4b43e060964cfd796b468531e4a4e04fb4  payload/gold-masters/briefs-ai-v34/README_FIRST.md
+a7d5069a260ecf953f044c13ad40018239ff777ae0fb99c9cdfd5f4dc552c944  payload/gold-masters/briefs-ai-v34/REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-15.html
+43c49caf100118e1e0a91f8e5f1cfb97c91ed58f42cd43293c863b1453f55598  payload/gold-masters/briefs-ai-v34/REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-15.md
+d4ea91f90d37e4bba108b7b485cc4a8b3eba55467fbfc6df44bc9926e15d4d71  payload/gold-masters/briefs-ai-v34/REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-16.html
+2f51cfb3d415c1b917bd362fd56ad26476c54801d02bc77bf1d73dadd7ca7873  payload/gold-masters/briefs-ai-v34/REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-16.md
+c083781bed8f738496ed7c61277e010c5e773d77f1d06a1328cdf859d5ac0ce5  payload/gold-masters/briefs-ai-v34/REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-17.html
+fed0a55be5a0d9e4e4138daa719f92402d7830d924addf2618fb79086f4d21b5  payload/gold-masters/briefs-ai-v34/REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-17.md
+fa6d6b1ee98d961be2735de7ce6b0105022fbaaf77e5e59c3b1db050d6d61068  payload/gold-masters/briefs-ai-v34/REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-18.html
+0dce23a4a5655bf78814d89a8b6fd9e282585c7b41db73254ed9237d0cfdbb72  payload/gold-masters/briefs-ai-v34/REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-18.md
+e6ddf64660c649c48f0b72876d0edfa46dc136a38ef4cdd55cbc45ca83419619  payload/gold-masters/briefs-ai-v34/REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-20.html
+afe938ec147dde944424eaf2df4bd1db5edcb58d877d8952cf9f017f61474f2c  payload/gold-masters/briefs-ai-v34/REFERENCES/CANONICAL/BRIEFS-AI - 2026-07-20.md
+491b379ad99e5b5c1fe372a8eb0b961567765e68c70009f9a6eeb9de642a0cc5  payload/gold-masters/briefs-ai-v34/REFERENCES/DATA/2026-07-15.json
+ce75ad74b0d6d4c9b11a49df0d442dd441603d2262db1f3b6fb864be473af7d0  payload/gold-masters/briefs-ai-v34/REFERENCES/DATA/2026-07-16.json
+57fedd7f4b84f39961bc831ade7d929b2aaf01cb613c80034d320a9b53f5848d  payload/gold-masters/briefs-ai-v34/REFERENCES/DATA/2026-07-17.json
+42e25c3016c0963262c37095932f32dcc23508ed9865831fedd45cf3fadc2726  payload/gold-masters/briefs-ai-v34/REFERENCES/DATA/2026-07-18.json
+e62d5dff6c4b7877c0499d234af42bc755ca0e07daebf964d0553679d0ff78ca  payload/gold-masters/briefs-ai-v34/REFERENCES/DATA/2026-07-20.json
+98a35c023614e494a2043d0f262f08de97160916d37b94db665f1b9eb5e8d6c9  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/dashboard/scripts/export-v34.ts
+3d839760ecb7ebac6a6dd89e5aba4aaed617b57455f6fca5a5629655f444a0fc  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/dashboard/src/lib/briefs.test.ts
+e83f303b7c8de7de55bb79d78dd2cd3514e3ba4d8f03924b27433682d07a08b6  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/dashboard/src/lib/briefs.ts
+4de05bc3cad0c087324de7e247f5afe639a74351d1348974237503a948ad10e7  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/dashboard/src/pages/BriefsPage.tsx
+20d2add851bf39edcc6b5e830930f962db7e19dffa2cab8610eed551eda6c302  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/materializer/VERSION
+51d0757bc6951a1dc6a637cfccaecc36be250898f0f0367fedb1d526056a41c8  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/materializer/brief_materializer.py
+a4a963ff24f7aae42b0da7ee26d77eb11410a4f1f0b57a87a29128fcae22b976  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/materializer/brief_renderer.py
+65651af67f90c931f9f83f6d14035692c057e5dacdb0788db749d64af8b9975f  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/materializer/fixtures/ai-valid.json
+20d8f713a809f06be61a9a013df56dbe164d23ff65f90c5fea4c7ef0065766e2  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/materializer/materialize-briefs-ai.py
+3e1f7fa9ee4efa62d0bf2df39a1c078e27852b2e91e64d480eaa8321da0a1dad  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/materializer/prompts/ai-generator-prompt.md
+38316aa5f81f24d37109d988995109bc97cf94bf9cade88f7e06eb3cebde5601  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/materializer/schemas/ai-brief-data-v1.schema.json
+afbcb1c86e390ab30ca69ad1b6d2a47a7d167815dc43dd32e37dc60de3ad8f92  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/materializer/test_materializer.py
+01876048cca2a3c4c7b0998609075881aa8e99c32704156e312fcb0935d85503  payload/gold-masters/briefs-ai-v34/SOURCE-SNAPSHOT/materializer/test_renderer.py
+955e8ca8f7ea2a03dd2ad275b52351279b638484cdea1d26c03ac54edb175d47  payload/gold-masters/briefs-ai-v34/VERIFY_BRIEFS_AI_V34.command
+948c63f7a5273e35908706463dcde0fbb7792d62069c6bf8765ec247f40cbd3e  payload/gold-masters/briefs-ai-v34/verify_ai_v34.py
+1611a7a67ec5dec6f45802be466be8fbd18a549b9f90789187bc1d46f33fcfdb  payload/gold-masters/briefs-stocks-v34/BYTE_IDENTITY_AUDIT.json
+66ff1c40806022994ca58b597731df3a4397684d3156b0643de8e7fe0c8c2f87  payload/gold-masters/briefs-stocks-v34/CHECKSUMS.sha256
+a6128e68172cf943868e1e7a8632784ef5f4aacde20e149ab8c267bf25122c38  payload/gold-masters/briefs-stocks-v34/EXPORTS/BRIEFS-STOCKS - 2026-07-15.html
+4e9087f2adfa0197544ed9a85dd81b3347fb5c9574887c540b4f94288211bc8e  payload/gold-masters/briefs-stocks-v34/EXPORTS/BRIEFS-STOCKS - 2026-07-16.html
+b3c7f79a3c42022703da05e0530c93a177fc6284a7d3361a5e0a8f6553802111  payload/gold-masters/briefs-stocks-v34/EXPORTS/BRIEFS-STOCKS - 2026-07-17.html
+54e3d5a551ec649308688c1f91a1758084d59db455e1bb84bf9cf4b4526f5b6a  payload/gold-masters/briefs-stocks-v34/EXPORTS/BRIEFS-STOCKS - 2026-07-18.html
+e7f1b135c2d041e89f60478d8cdb6cea2f5096b366d0aa96dcc9943b92ee81d6  payload/gold-masters/briefs-stocks-v34/EXPORTS/BRIEFS-STOCKS - 2026-07-20.html
+b89dae6415fee6567d842ab32e37a61b0e9181bf7621e9833c165e74006066f5  payload/gold-masters/briefs-stocks-v34/EXPORTS/Stock Brief - 2026-07-15.md
+b2013da79801ed3ad552316a5501ac1030d85c3ff2ec816ce7a7129ce0b5686c  payload/gold-masters/briefs-stocks-v34/EXPORTS/Stock Brief - 2026-07-16.md
+95d743adebdb333e9a5c10e6437d599fe4beeb5a9443ff57d3f01a61d6bd1cad  payload/gold-masters/briefs-stocks-v34/EXPORTS/Stock Brief - 2026-07-17.md
+95d743adebdb333e9a5c10e6437d599fe4beeb5a9443ff57d3f01a61d6bd1cad  payload/gold-masters/briefs-stocks-v34/EXPORTS/Stock Brief - 2026-07-18.md
+bb888b4ae3f250e59bd523eed421a5dfb8ec412d176956e15f28f93fb91fa28b  payload/gold-masters/briefs-stocks-v34/EXPORTS/Stock Brief - 2026-07-20.md
+7226cede23c28c6f28fc7a3ba05f55e66b5c7b473c6a8b6154a2191ac883c2cf  payload/gold-masters/briefs-stocks-v34/EXPORTS/Stock Portfolio - 2026-07-15.csv
+c6e6b9b4491b21146de487ed64d9cbe55f7c111fdc73d60d74a75d2b676ce6ea  payload/gold-masters/briefs-stocks-v34/EXPORTS/Stock Portfolio - 2026-07-16.csv
+f8150471900b692e85d90efdab5f092641f2dd559f877af1fe7ef4a3dd2d68f4  payload/gold-masters/briefs-stocks-v34/EXPORTS/Stock Portfolio - 2026-07-17.csv
+69d83664a785e04625fabd0715e8bf38b8858559828473e3f24528fb81c71623  payload/gold-masters/briefs-stocks-v34/EXPORTS/Stock Portfolio - 2026-07-18.csv
+0ee7c6d96dec1fb69bd6f008bbe83d199c0198ef05377bb237f6a82fe35e8db9  payload/gold-masters/briefs-stocks-v34/EXPORTS/Stock Portfolio - 2026-07-20.csv
+10f5457acbe9246345caf2c87f8fbf5299d426a4484093152a76c5b8c2a3424d  payload/gold-masters/briefs-stocks-v34/README_FIRST.md
+a461d0c79a59dda65daba0bddb33405436e3e56facbca683a348c3e64b58c85f  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-15.csv
+eacc8e0bc70f36b05ae683589f02bd72acb0b1c95bd8e82f18be162a96e23a3a  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-15.html
+cc0180f8a237fbd9646ced77977d757735803ac89a45cc5d9dc85d8fb20a6360  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-15.md
+b5f1fffd7f14287dda07a8aec849b360a4bd13a31011826745d5375e5be8c7e8  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-16.csv
+54205e6eab57453b473bc4f6fce230f746ec30d0b77521cad7a1dfb1dfc42cd5  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-16.html
+68b7230e5bb51107f7c8c0ddbe313bdab90c983166cb2d7c176cb70606628b7e  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-16.md
+b0e90760035d4fe63a0160c380e4bbe66c0b03101b22b5f615d1d2755d197f7d  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-17.csv
+b714c4e27d78288356fd68ca5dbd6d1dd86d1acdc8d9df4755dea166b009649e  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-17.html
+74265261056fda44549c9541c0e949ac706f75310bd44ab5cdbf13ee19315709  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-17.md
+b0e90760035d4fe63a0160c380e4bbe66c0b03101b22b5f615d1d2755d197f7d  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-18.csv
+2f88c37d51dd9f0616f31ac1a2d9a7f686ecee6f341ae94e433cf39cb608c717  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-18.html
+4e8bfa9fba6798c9d6b03b16374733d54a90318fd88b4f0eb0aec98fc772382a  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-18.md
+0d57bb0ff2d22c080ca072a8c5b12da857f0475757deace469166ce5a95ad25d  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-20.csv
+734e1ae08f5f3c03f89a5f3fa059bb0988aac7d40f501565782d59e546fb30e3  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-20.html
+391db11cd0e82e3c65fee9ecdedddd19826bca6826f6e80179d036450370215d  payload/gold-masters/briefs-stocks-v34/REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-20.md
+19c390140625e6ebe3a80ad0c90ed785e2727038bc6a11ad119f4cde6b6ce631  payload/gold-masters/briefs-stocks-v34/REFERENCES/DATA/2026-07-15.json
+a603f4f41267177719d74b295d61474074fd14dd13da9bc4bfe1962082576f48  payload/gold-masters/briefs-stocks-v34/REFERENCES/DATA/2026-07-16.json
+2332e1c1ad5eceda36512f4cefd5f05af99b1cf84840fde1ac89b616bb07f15f  payload/gold-masters/briefs-stocks-v34/REFERENCES/DATA/2026-07-17.json
+1bbfa8623ac9bb459f0e5254b07a12f835eb5bc0cb58974f2359db7ff400f434  payload/gold-masters/briefs-stocks-v34/REFERENCES/DATA/2026-07-18.json
+f8dccaf76dbe2d419d0a4ab20c80ba0490bebbb865b0e613106de98e437f8bfe  payload/gold-masters/briefs-stocks-v34/REFERENCES/DATA/2026-07-20.json
+98a35c023614e494a2043d0f262f08de97160916d37b94db665f1b9eb5e8d6c9  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/dashboard/scripts/export-v34.ts
+3d839760ecb7ebac6a6dd89e5aba4aaed617b57455f6fca5a5629655f444a0fc  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/dashboard/src/lib/briefs.test.ts
+e83f303b7c8de7de55bb79d78dd2cd3514e3ba4d8f03924b27433682d07a08b6  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/dashboard/src/lib/briefs.ts
+4de05bc3cad0c087324de7e247f5afe639a74351d1348974237503a948ad10e7  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/dashboard/src/pages/BriefsPage.tsx
+20d2add851bf39edcc6b5e830930f962db7e19dffa2cab8610eed551eda6c302  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/VERSION
+51d0757bc6951a1dc6a637cfccaecc36be250898f0f0367fedb1d526056a41c8  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/brief_materializer.py
+a4a963ff24f7aae42b0da7ee26d77eb11410a4f1f0b57a87a29128fcae22b976  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/brief_renderer.py
+1811c1ad26c0eeb04661f08cc31a4405668ab356450d4afa7fea8a729f8eb159  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/config/portfolio-lots.json
+d41fbb481140dc643ceaf635a47f1a08703b775bb2e021cd34cf0e77a874719c  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/fixtures/stock-valid.json
+1a878e4ba16d9cbbf49fc671504744014aadc38f418c26654d0d323403161180  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/materialize-briefs-stock.py
+7295d9edc63bcf8cad4e24acda3c2e7305eba003ff15597b667bb56e27224e48  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/prompts/stock-generator-prompt.md
+12719dd8a9c9e92be4f8334760ae30c97688592ba0d44e6f4769c04086feca3b  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/schemas/stock-brief-data-v1.schema.json
+b17122015d3d2877091b20b4795e9370da919f5d6f8ae0258e702c04414e20cd  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/stock_quote_collector.py
+afbcb1c86e390ab30ca69ad1b6d2a47a7d167815dc43dd32e37dc60de3ad8f92  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/test_materializer.py
+01876048cca2a3c4c7b0998609075881aa8e99c32704156e312fcb0935d85503  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/test_renderer.py
+edb3bacf259d2a866bc8b8798d957ba3862cacd9cc26121d5131eccfbefa8706  payload/gold-masters/briefs-stocks-v34/SOURCE-SNAPSHOT/materializer/test_stock_quote_collector.py
+d950d6895b34353471a947259ccd7b9c285c631a5e2d08c13b1ba4e11fb88425  payload/gold-masters/briefs-stocks-v34/VERIFY_BRIEFS_STOCKS_V34.command
+f1f725f9fa974cf7efc214d8e2a2e38ea369df38e2f31aeff26e5b8dfeaab4e0  payload/gold-masters/briefs-stocks-v34/verify_stocks_v34.py
+fcdb1327566496eb750b09bad73e69a4fb466bbb4b28ae667c8f63ddaacc72cd  payload/gold-masters/git-watch-r52/1_INSTALL_OR_RESTORE_GIT_WATCH.command
+b4672dba45da062467151cc3cd5abf4e968c5f214a66e37d3822066495a14e16  payload/gold-masters/git-watch-r52/2_FACTORY_RESET_GIT_WATCH.command
+4e321a20d8df807ed78dd90d9f217ce3ee084ee6ed56da6a8383072ccc448fd6  payload/gold-masters/git-watch-r52/3_UNINSTALL_GIT_WATCH.command
+1e800114b696a40850dd968f3cd3c6866fb45202f61a9d128e06499228ef93e0  payload/gold-masters/git-watch-r52/4_VERIFY_GIT_WATCH_PACKAGE.command
+f8d011b8e8cd439f37a3f26aa927d3ef64c64e2a911a85627c0fc197f32f1012  payload/gold-masters/git-watch-r52/CHECKSUMS.sha256
+7b7a5cc77290f2e1066003b410bfd99deb94228a1ed135babcb7259b6c78e512  payload/gold-masters/git-watch-r52/GIT-WATCH-OFFLINE-DEMO.html
+d069e96479737820f487ae1c73f4cac316fa390cba4947714e8ec8794136ddf1  payload/gold-masters/git-watch-r52/README-FIRST.md
+56499366e382594f45ff42496f2f4d3c487c442c9e1b853243ee3c8362f04de2  payload/gold-masters/git-watch-r52/RELEASE-MANIFEST.json
+c0d53cbcf3b4e9cfa23c0ce575a1568d34f763eaf74917fb525a61d5624752ca  payload/gold-masters/git-watch-r52/payload/CUELUME-LICENSE-0.1.2.txt
+3f007932e2d39602147b7f35a26dc402edd64de0b3a1849e3fd06fd1ed4e2d4e  payload/gold-masters/git-watch-r52/payload/dashboard/dist/index.js
+173768da0abae910be056690f2e219bb581ef76f31dcbbc190e10ab7d5156b8f  payload/gold-masters/git-watch-r52/payload/dashboard/manifest.json
+c51f72ab253b8f156b1c4955fd4298911e7635cb95790828189098e54f77043c  payload/gold-masters/git-watch-r52/payload/dashboard/plugin_api.py
+193be892786873851bdf4e284d88ee147ad9b78ce264ebd6e9052c9fc6bfd275  payload/gold-masters/git-watch-r52/payload/data/watchlist.clean.json
+73384b045ba96c18ff12eb82f6a5a23455f20e701b287d976ece0443c88df076  payload/gold-masters/git-watch-r52/payload/scripts/github-comments-checker-v27-review.sh
+00d88f255a0d53e339badc71a98402981fb1e4089d604828c37aea0eb140b8b8  payload/gold-masters/git-watch-r52/scripts/git-watch-golden-manager.sh
+ec3b8503bc8da71e9e8c352fab52c0fb083ef7017a3408582435dd3a2d417286  payload/gold-masters/git-watch-r52/tests/test-golden-release.js
+48867406dfdcc50e4dd2633d44655a78c8bcda5c9f763df66e0baf1ded5d1c5a  scripts/three-gold-production-manager.sh
+1ceb6585637aacac255976c0c6c64b7f81a50252f22f4c619cf0b52c6568abf2  tests/test-briefs-api-patcher.py
+dc594202f2c005c0b28171bb1786852a1964ecfb0f6d4d8979cc0ce9ea183bbb  tests/test-production-browser.mjs
+e11066a83cad090f0c2241eb4b007d6c059b7d8bab986e1543eb3078bfd7807f  tests/test-production-final.py
+f04563791983057c4762aa52b83dbb71d3a718fc7578e23a018f8fb095062f43  tests/test-production-lifecycle.py

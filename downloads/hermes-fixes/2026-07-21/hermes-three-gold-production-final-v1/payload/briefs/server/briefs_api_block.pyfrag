@@ -1,0 +1,275 @@
+@dataclass(frozen=True)
+class BriefArchive:
+    kind: str
+    label: str
+    env_var: str
+    default_directory: str
+    filename_stem: str
+
+
+_BRIEF_ARCHIVES: Dict[str, BriefArchive] = {
+    "ai": BriefArchive(
+        kind="ai",
+        label="AI Morning Briefs",
+        env_var="HERMES_AI_BRIEFS_ROOT",
+        default_directory="__AI-DAILY-BRIEFS",
+        filename_stem="AI Morning Brief",
+    ),
+    "stock": BriefArchive(
+        kind="stock",
+        label="Stock Briefs",
+        env_var="HERMES_STOCK_BRIEFS_ROOT",
+        default_directory="_STOCK-BRIEFS",
+        filename_stem="Stock Brief",
+    ),
+}
+_BRIEF_HTML_HEADERS = {
+    "Content-Security-Policy": (
+        "sandbox; default-src 'none'; style-src 'unsafe-inline'; "
+        "img-src data: https:; font-src data: https:"
+    ),
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+}
+
+
+def _brief_archive(kind: str) -> BriefArchive:
+    archive = _BRIEF_ARCHIVES.get(kind)
+    if archive is None:
+        raise HTTPException(status_code=404, detail="Unknown brief archive")
+    return archive
+
+
+def _brief_root(archive: BriefArchive) -> Path:
+    configured = os.environ.get(archive.env_var, "").strip()
+    root = (
+        Path(configured).expanduser()
+        if configured
+        else Path.home() / ".hermes" / "zDownloads" / archive.default_directory
+    )
+    try:
+        return root.resolve()
+    except (OSError, RuntimeError):
+        raise HTTPException(status_code=500, detail="Brief archive path is invalid")
+
+
+def _brief_roots(archive: BriefArchive) -> List[Path]:
+    """Return archive roots in deterministic, tightly-derived precedence order."""
+    primary = _brief_root(archive)
+    hermes_home = Path(get_hermes_home()).expanduser()
+    hermes_root = (
+        hermes_home.parent.parent
+        if hermes_home.parent.name == "profiles"
+        else hermes_home
+    )
+
+    def sandbox_roots(home: Path) -> List[Path]:
+        sandbox = home / "sandboxes" / "docker" / "default"
+        return [
+            sandbox / "home" / ".hermes" / "zDownloads" / archive.default_directory,
+            sandbox / "home" / archive.default_directory,
+            sandbox / "home" / "hermes-built-in-briefs" / "upstream" / "web" / archive.default_directory,
+            sandbox / "workspace" / archive.default_directory,
+        ]
+
+    # Cron producers may persist either to the global archive, or (when they
+    # use relative file-tool paths) directly below the active profile.  Include
+    # both before sandbox fallbacks so a dashboard launched with a sandboxed
+    # HOME still discovers the real persistent daily artifacts.
+    global_archive = hermes_root / "zDownloads" / archive.default_directory
+    profile_archive = hermes_home / archive.default_directory
+    root_archive = hermes_root / archive.default_directory
+    # Explicit archive overrides are authoritative. Otherwise prefer the active
+    # Hermes root; Path.home()/.hermes is only a compatibility fallback. This
+    # keeps isolated candidate/profile launches from reading unrelated global
+    # archives that happen to contain the same dates.
+    candidates: List[Path] = []
+    if os.environ.get(archive.env_var, "").strip():
+        candidates.append(primary)
+    candidates.extend([
+        global_archive,
+        profile_archive,
+        root_archive,
+        *sandbox_roots(hermes_home),
+    ])
+    if not os.environ.get(archive.env_var, "").strip():
+        candidates.append(primary)
+    if hermes_root != hermes_home:
+        candidates.extend(sandbox_roots(hermes_root))
+
+    roots: List[Path] = []
+    for candidate in candidates:
+        try:
+            resolved = candidate.resolve()
+        except (OSError, RuntimeError):
+            raise HTTPException(status_code=500, detail="Brief archive path is invalid")
+        if resolved not in roots:
+            roots.append(resolved)
+    return roots
+
+
+def _valid_brief_date(value: str) -> bool:
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value or ""):
+        return False
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").strftime("%Y-%m-%d") == value
+    except ValueError:
+        return False
+
+
+def _brief_file(directory: Path, filename: str) -> Optional[Path]:
+    candidate = (directory / filename).resolve()
+    return candidate if candidate.parent == directory else None
+
+
+def _brief_paths(
+    kind: str, date: str
+) -> tuple[BriefArchive, Path, Optional[Path], Optional[Path]]:
+    archive = _brief_archive(kind)
+    if not _valid_brief_date(date):
+        raise HTTPException(status_code=400, detail="Expected a valid date as YYYY-MM-DD")
+
+    roots = _brief_roots(archive)
+    stem = f"{archive.filename_stem} - {date}"
+    for root in roots:
+        directory = (root / date).resolve()
+        if directory.parent != root:
+            continue
+        html = _brief_file(directory, f"{stem}.html")
+        markdown = _brief_file(directory, f"{stem}.md")
+        if (html is not None and html.is_file()) or (
+            markdown is not None and markdown.is_file()
+        ):
+            return archive, root, html, markdown
+
+    root = roots[0]
+    directory = (root / date).resolve()
+    if directory.parent != root:
+        raise HTTPException(status_code=400, detail="Invalid brief path")
+    return (
+        archive,
+        root,
+        _brief_file(directory, f"{stem}.html"),
+        _brief_file(directory, f"{stem}.md"),
+    )
+
+
+@app.get("/api/briefs/{kind}")
+async def list_briefs(kind: str):
+    archive = _brief_archive(kind)
+    roots = _brief_roots(archive)
+    selected: Dict[str, tuple[Optional[Path], Optional[Path]]] = {}
+    locations: Dict[str, List[tuple[Optional[Path], Optional[Path]]]] = {}
+
+    for index, root in enumerate(roots):
+        if not root.exists():
+            continue
+        if not root.is_dir():
+            if index == 0:
+                raise HTTPException(status_code=500, detail="Brief archive root is not a directory")
+            continue
+        try:
+            directories = (
+                path for path in root.iterdir() if path.is_dir() and _valid_brief_date(path.name)
+            )
+            for candidate in directories:
+                date = candidate.name
+                directory = candidate.resolve()
+                if directory.parent != root:
+                    continue
+                stem = f"{archive.filename_stem} - {date}"
+                html = _brief_file(directory, f"{stem}.html")
+                markdown = _brief_file(directory, f"{stem}.md")
+                if (html is not None and html.is_file()) or (
+                    markdown is not None and markdown.is_file()
+                ):
+                    locations.setdefault(date, []).append((html, markdown))
+                    selected.setdefault(date, (html, markdown))
+        except PermissionError:
+            if index == 0:
+                raise HTTPException(status_code=403, detail="Brief archive is not readable")
+        except OSError as exc:
+            if index == 0:
+                raise HTTPException(status_code=500, detail=f"Could not read brief archive: {exc}")
+
+    retained_dates = set(sorted(selected, reverse=True)[:5])
+    for expired_date in set(selected) - retained_dates:
+        for html, markdown in locations.get(expired_date, []):
+            directories = set()
+            try:
+                for path in (html, markdown):
+                    if path is not None and path.is_file():
+                        directories.add(path.parent)
+                        path.unlink()
+                for directory in directories:
+                    try:
+                        directory.rmdir()
+                    except OSError:
+                        # Preserve a date directory if it contains any unrelated file.
+                        pass
+            except OSError as exc:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Could not enforce five-date brief retention: {exc}",
+                ) from exc
+        selected.pop(expired_date, None)
+
+    items: List[Dict[str, Any]] = []
+    for date in sorted(selected, reverse=True):
+        html, markdown = selected[date]
+        html_exists = html is not None and html.is_file()
+        markdown_exists = markdown is not None and markdown.is_file()
+        generated_at = max(
+            path.stat().st_mtime
+            for path in (html, markdown)
+            if path is not None and path.is_file()
+        )
+        items.append(
+            {
+                "date": date,
+                "generated_at": generated_at,
+                "html_exists": html_exists,
+                "markdown_exists": markdown_exists,
+                "html_route": f"/api/briefs/{kind}/html/{date}" if html_exists else None,
+                "markdown_route": (
+                    f"/api/briefs/{kind}/markdown/{date}" if markdown_exists else None
+                ),
+            }
+        )
+
+    return {
+        "kind": archive.kind,
+        "label": archive.label,
+        "root": str(roots[0]),
+        "roots": [str(root) for root in roots],
+        "count": len(items),
+        "briefs": items,
+    }
+
+
+@app.get("/api/briefs/{kind}/html/{date}")
+async def read_brief_html(kind: str, date: str):
+    _, _, html, _ = _brief_paths(kind, date)
+    if html is None or not html.is_file():
+        raise HTTPException(status_code=404, detail="HTML brief not found")
+    return FileResponse(
+        path=str(html),
+        media_type="text/html",
+        headers=_BRIEF_HTML_HEADERS,
+        content_disposition_type="inline",
+    )
+
+
+@app.get("/api/briefs/{kind}/markdown/{date}")
+async def download_brief_markdown(kind: str, date: str):
+    _, _, _, markdown = _brief_paths(kind, date)
+    if markdown is None or not markdown.is_file():
+        raise HTTPException(status_code=404, detail="Markdown brief not found")
+    return FileResponse(
+        path=str(markdown),
+        media_type="text/markdown",
+        filename=markdown.name,
+        content_disposition_type="attachment",
+        headers={"X-Content-Type-Options": "nosniff"},
+    )
+

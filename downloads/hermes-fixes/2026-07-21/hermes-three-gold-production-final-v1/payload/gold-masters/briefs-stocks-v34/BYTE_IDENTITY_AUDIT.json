@@ -1,0 +1,219 @@
+{
+  "schema": "briefs-v34-packaging-split-byte-identity-v1",
+  "stream": "STOCKS",
+  "template_version": "V34",
+  "comparison_count": 35,
+  "passed": true,
+  "comparisons": [
+    {
+      "packaged": "EXPORTS/BRIEFS-STOCKS - 2026-07-15.html",
+      "upstream": "EXPORTS/STOCK/BRIEFS-STOCKS - 2026-07-15.html",
+      "byte_identical": true,
+      "bytes": 59716
+    },
+    {
+      "packaged": "EXPORTS/BRIEFS-STOCKS - 2026-07-16.html",
+      "upstream": "EXPORTS/STOCK/BRIEFS-STOCKS - 2026-07-16.html",
+      "byte_identical": true,
+      "bytes": 59707
+    },
+    {
+      "packaged": "EXPORTS/BRIEFS-STOCKS - 2026-07-17.html",
+      "upstream": "EXPORTS/STOCK/BRIEFS-STOCKS - 2026-07-17.html",
+      "byte_identical": true,
+      "bytes": 59705
+    },
+    {
+      "packaged": "EXPORTS/BRIEFS-STOCKS - 2026-07-18.html",
+      "upstream": "EXPORTS/STOCK/BRIEFS-STOCKS - 2026-07-18.html",
+      "byte_identical": true,
+      "bytes": 59705
+    },
+    {
+      "packaged": "EXPORTS/BRIEFS-STOCKS - 2026-07-20.html",
+      "upstream": "EXPORTS/STOCK/BRIEFS-STOCKS - 2026-07-20.html",
+      "byte_identical": true,
+      "bytes": 59703
+    },
+    {
+      "packaged": "EXPORTS/Stock Brief - 2026-07-15.md",
+      "upstream": "EXPORTS/STOCK/Stock Brief - 2026-07-15.md",
+      "byte_identical": true,
+      "bytes": 3878
+    },
+    {
+      "packaged": "EXPORTS/Stock Brief - 2026-07-16.md",
+      "upstream": "EXPORTS/STOCK/Stock Brief - 2026-07-16.md",
+      "byte_identical": true,
+      "bytes": 3869
+    },
+    {
+      "packaged": "EXPORTS/Stock Brief - 2026-07-17.md",
+      "upstream": "EXPORTS/STOCK/Stock Brief - 2026-07-17.md",
+      "byte_identical": true,
+      "bytes": 3867
+    },
+    {
+      "packaged": "EXPORTS/Stock Brief - 2026-07-18.md",
+      "upstream": "EXPORTS/STOCK/Stock Brief - 2026-07-18.md",
+      "byte_identical": true,
+      "bytes": 3867
+    },
+    {
+      "packaged": "EXPORTS/Stock Brief - 2026-07-20.md",
+      "upstream": "EXPORTS/STOCK/Stock Brief - 2026-07-20.md",
+      "byte_identical": true,
+      "bytes": 3865
+    },
+    {
+      "packaged": "EXPORTS/Stock Portfolio - 2026-07-15.csv",
+      "upstream": "EXPORTS/STOCK/Stock Portfolio - 2026-07-15.csv",
+      "byte_identical": true,
+      "bytes": 1129
+    },
+    {
+      "packaged": "EXPORTS/Stock Portfolio - 2026-07-16.csv",
+      "upstream": "EXPORTS/STOCK/Stock Portfolio - 2026-07-16.csv",
+      "byte_identical": true,
+      "bytes": 1126
+    },
+    {
+      "packaged": "EXPORTS/Stock Portfolio - 2026-07-17.csv",
+      "upstream": "EXPORTS/STOCK/Stock Portfolio - 2026-07-17.csv",
+      "byte_identical": true,
+      "bytes": 1129
+    },
+    {
+      "packaged": "EXPORTS/Stock Portfolio - 2026-07-18.csv",
+      "upstream": "EXPORTS/STOCK/Stock Portfolio - 2026-07-18.csv",
+      "byte_identical": true,
+      "bytes": 1129
+    },
+    {
+      "packaged": "EXPORTS/Stock Portfolio - 2026-07-20.csv",
+      "upstream": "EXPORTS/STOCK/Stock Portfolio - 2026-07-20.csv",
+      "byte_identical": true,
+      "bytes": 1126
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-15.csv",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-15.csv",
+      "byte_identical": true,
+      "bytes": 295
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-15.html",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-15.html",
+      "byte_identical": true,
+      "bytes": 10786
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-15.md",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-15.md",
+      "byte_identical": true,
+      "bytes": 3657
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-16.csv",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-16.csv",
+      "byte_identical": true,
+      "bytes": 293
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-16.html",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-16.html",
+      "byte_identical": true,
+      "bytes": 10780
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-16.md",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-16.md",
+      "byte_identical": true,
+      "bytes": 3651
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-17.csv",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-17.csv",
+      "byte_identical": true,
+      "bytes": 292
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-17.html",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-17.html",
+      "byte_identical": true,
+      "bytes": 10780
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-17.md",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-17.md",
+      "byte_identical": true,
+      "bytes": 3651
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-18.csv",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-18.csv",
+      "byte_identical": true,
+      "bytes": 292
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-18.html",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-18.html",
+      "byte_identical": true,
+      "bytes": 10780
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-18.md",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-18.md",
+      "byte_identical": true,
+      "bytes": 3651
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-20.csv",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-20.csv",
+      "byte_identical": true,
+      "bytes": 292
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-20.html",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-20.html",
+      "byte_identical": true,
+      "bytes": 10778
+    },
+    {
+      "packaged": "REFERENCES/CANONICAL/BRIEFS-STOCKS - 2026-07-20.md",
+      "upstream": "REFERENCES/STOCK/BRIEFS-STOCKS - 2026-07-20.md",
+      "byte_identical": true,
+      "bytes": 3649
+    },
+    {
+      "packaged": "REFERENCES/DATA/2026-07-15.json",
+      "upstream": "REFERENCES/STOCK-DATA/2026-07-15.json",
+      "byte_identical": true,
+      "bytes": 3290
+    },
+    {
+      "packaged": "REFERENCES/DATA/2026-07-16.json",
+      "upstream": "REFERENCES/STOCK-DATA/2026-07-16.json",
+      "byte_identical": true,
+      "bytes": 3287
+    },
+    {
+      "packaged": "REFERENCES/DATA/2026-07-17.json",
+      "upstream": "REFERENCES/STOCK-DATA/2026-07-17.json",
+      "byte_identical": true,
+      "bytes": 3287
+    },
+    {
+      "packaged": "REFERENCES/DATA/2026-07-18.json",
+      "upstream": "REFERENCES/STOCK-DATA/2026-07-18.json",
+      "byte_identical": true,
+      "bytes": 3287
+    },
+    {
+      "packaged": "REFERENCES/DATA/2026-07-20.json",
+      "upstream": "REFERENCES/STOCK-DATA/2026-07-20.json",
+      "byte_identical": true,
+      "bytes": 3285
+    }
+  ]
+}

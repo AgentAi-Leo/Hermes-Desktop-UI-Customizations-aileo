@@ -1,0 +1,49 @@
+<!-- V34 SEMANTIC EXPORT: Content and hierarchy match the canonical dashboard rendering. This Markdown file is intentionally data/semantics-only; exact commented CSS and JavaScript live inline in the companion self-contained HTML gold master. -->
+
+# AI Morning Brief
+
+8am - America/Los_Angeles
+
+## FOUNDER TAKEAWAYS
+
+### Agentic coding is now a price/performance war, not a novelty.
+OpenAI’s GPT-5.6 and Anthropic’s Claude Sonnet 5 both emphasize autonomous tool use, coding, and multi-step workflows; Meta is also pushing into coding with Muse Spark access. If you sell software or services, assume your customers’ build velocity is rising and your internal workflows should be benchmarked against AI-assisted execution.
+
+### Model choice should become workload routing.
+GPT-5.6’s Sol/Terra/Luna family and Claude’s effort-level pricing point toward a practical stack: cheap models for routine work, higher-effort/parallel-agent modes for complex engineering, research, analysis, and QA.
+
+### Visual AI is moving directly into consumer/ad workflows.
+Meta’s Muse Image is designed around photo restoration, likeness-preserving edits, product shots, room restyling, stickers, posters, and personalized creative prompts inside Meta AI.
+
+### Compute and power are becoming strategic constraints.
+Reuters reports TSMC is expected to ride AI chip demand to another record-profit quarter, while U.S. power demand is projected to hit records in 2026 and 2027 as AI data centers expand.
+
+### AI geopolitics is shifting from chips to model access.
+Reuters reports China is considering restrictions on overseas access to top Chinese AI models, including open-weight versions. Avoid critical dependencies on any single frontier provider or jurisdiction.
+
+## 1. OpenAI launches GPT-5.6 GA: more agentic, more segmented, more cost-aware
+Summary: OpenAI announced general availability of the GPT-5.6 family on July 9: Sol as flagship, Terra as balanced, and Luna as cost-efficient. OpenAI says GPT-5.6 focuses on “more intelligence from every token,” coding, knowledge work, cybersecurity, science, and stronger performance per dollar. It also introduces higher-capability modes such as max and ultra, with ultra coordinating multiple agents across parallel workstreams for demanding tasks.
+Why it matters for founders/operators: this is a strong signal that frontier labs are packaging “agent orchestration” as a default product surface, not a custom architecture you build from scratch. For a solo founder, the immediate move is to identify 3–5 workflows where parallel decomposition matters: code review, migration planning, customer research synthesis, competitive teardown, security triage, and long-form data cleanup.
+Actionable implication: multi-agent modes can raise token spend quickly and may create false confidence if not paired with deterministic checks, tests, or human review. Treat higher-effort modes like hiring a short-term specialist: use them where failure cost is high, not for routine summarization.
+
+## 2. Anthropic’s Claude Sonnet 5 brings agentic work down-market
+Summary: Anthropic’s Claude Sonnet 5, released June 30, is positioned as the most agentic Sonnet model yet. Anthropic says it can make plans, use browsers and terminals, and run autonomously at a level that recently required larger, more expensive models. It is now available across Claude plans, in Claude Code, and through the Claude API, with introductory pricing through August 31 of $2/M input tokens and $10/M output tokens, then $3/M input and $15/M output.
+Why it matters for founders/operators: mid-tier models are getting good enough for many production agent workflows. That changes the ROI math: you can reserve the most expensive frontier models for tasks where they materially change outcomes, while using Sonnet-class models for coding, support ops, data enrichment, and internal automation.
+Actionable implication: run a real benchmark on your own tasks, not generic leaderboards. Create a 20-task eval set from your actual backlog: bug fix, refactor, sales email personalization, support macro creation, analytics query, landing-page rewrite, spec-to-ticket conversion, and QA test generation. Score by correctness, latency, cost, and required supervision.
+
+## 3. Meta’s AI push expands from consumer creativity to coding competition
+Summary: Meta introduced Muse Image, its image-generation model in Meta AI, focused on personalized, likeness-aware edits and creative production: photo restoration, editorial portraits, room restyling, product photography, posters, sticker sheets, game assets, and more. Separately, CNBC reports Meta is entering the AI coding market with Muse Spark, chasing Anthropic and OpenAI; early API access is available to some partners, with a waitlist for new users.
+Why it matters for founders/operators: Meta is turning AI generation into an embedded distribution advantage across Facebook, Instagram, WhatsApp, Messenger, Threads, and glasses. For a founder, this means creative testing cycles will compress further. Expect more advertisers to generate variants directly inside the platforms where performance data lives.
+Actionable implication: build a “creative prompt library” for your brand now: product hero shots, testimonial visuals, founder-story posters, before/after transformations, short ad concepts, and UGC-style variations. Pair that with a governance checklist for likeness rights, claims, brand consistency, and disclosure.
+
+## 4. AI infrastructure demand keeps pressure on chips, packaging, and power
+Summary: Reuters reports TSMC is expected to post a fifth straight quarter of record profit, with analysts citing strong demand for 3nm and 2nm process technologies for AI chips and advanced packaging such as CoWoS. Reuters also reported U.S. power consumption is expected to hit record highs in 2026 and 2027, driven by AI-hungry data centers and electrification, and that the White House is convening utilities and data-center developers around power-cost concerns.
+Why it matters for founders/operators: the bottleneck is not just “which model is best.” It is whether capacity, cost, latency, and power constraints make that model reliable for your product. If your app depends on real-time AI, you need fallbacks and cost controls.
+Actionable implication: Maintain at least two model providers for critical workflows. Add cost ceilings per user/account/workspace. Log model, latency, token usage, retries, and error class for every AI call. Cache repeatable outputs aggressively. Design graceful degradation: cheaper model, delayed batch mode, or human-in-the-loop queue.
+
+## 5. Model-access geopolitics: China weighs curbs on top AI models
+Summary: Reuters reports Chinese authorities have held meetings with Alibaba, ByteDance, and Z.ai about potentially restricting overseas access to China’s most advanced AI models, including both closed-source and more open versions. Reuters’ summary says officials discussed national-security treatment of leaks or thefts and possible restrictions on who can fund domestic AI startups.
+Why it matters for founders/operators: open models and foreign APIs may become less predictable as governments treat frontier models more like strategic infrastructure. Even if your company is small, your supply chain can be affected through API availability, licensing, cloud region restrictions, or sudden compliance requirements.
+Actionable implication: keep an “AI dependency register” with model/provider, jurisdiction, data sent, customer-facing impact, fallback, and exit plan. This is especially important if you serve regulated customers, defense-adjacent customers, education, healthcare, finance, or cross-border teams.
+
+<!-- HERMES_BRIEFS_EXPORT_MANIFEST {"accepted_ui":"v61-date-load-keyboard-focus","export_schema":"briefs-v34-gold-master","format":"markdown","kind":"ai","html_self_contained":false,"inline_css":false,"inline_javascript":false,"gold_master_documented":false,"style_comment_contract":"not-applicable","script_comment_contract":"not-applicable","companion_html_pattern":"BRIEFS-AI - YYYY-MM-DD.html","purpose":"Semantic content export; use the companion HTML export for the accepted visual and interactive recreation."} -->

@@ -1,0 +1,1252 @@
+<!doctype html><html lang="en" data-hermes-canonical-ai="v26"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'self' file:; worker-src 'none'; base-uri 'none'; form-action 'none'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AI Morning Brief</title><style id="hermes-v25-ai-base-style">
+/* GOLD MASTER STYLE: hermes-v25-ai-base-style
+Purpose: Defines the canonical dark AI canvas, design tokens, hero, Founder Takeaways, topic cards, sources, and base responsive fallback.
+Restore notes: Keep this block first. It is the minimal visual foundation; later AI blocks intentionally refine it with the accepted dashboard geometry.
+*/
+:root{color-scheme:dark;--bg:#0b1020;--card:#121a33;--text:#eef3ff;--muted:#aab6d3;--accent:#8bd3ff;--line:#263456;--hot:#ffd166}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg)}body{color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:24px;line-height:1.5}main{width:100%;padding:24px clamp(18px,4vw,64px) 56px}.hero{padding:28px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(135deg,#182345,#10182f)}.pill{display:inline-block;padding:9px 20px;border-radius:999px;background:var(--hot);color:var(--bg);font-size:21px;font-weight:900}.hero h1{margin:16px 0 4px;font-size:64px;line-height:1.05}.date{margin:0;color:var(--accent)}.takeaways{margin:12px 0;padding:22px 26px;background:var(--card);border:1px solid var(--line);border-radius:18px}.takeaways h2{margin:0 0 20px;color:var(--hot);font-size:38px}.takeaways li{margin:0 0 22px}.takeaways li::marker,.takeaways strong{color:var(--accent)}.takeaways strong{display:block;font-size:34px;line-height:1.16}.takeaway-detail{display:block;margin-top:7px;font-size:27px;line-height:1.34}.topics{display:grid;gap:18px;margin-top:22px}.card{padding:24px;background:rgba(18,26,51,.55);border:1px solid var(--line);border-radius:18px}.card h2{margin:0 0 16px;color:var(--hot);font-size:34px}.card p{margin:12px 0;font-size:23px;line-height:1.52}.label,a{color:var(--accent)}.label{font-weight:750}.sources{color:var(--muted);font-size:20px!important}@media(max-width:720px){body{font-size:20px}.hero h1{font-size:42px}.takeaways,.card{padding:22px}.takeaways h2,.card h2{font-size:30px}.takeaways strong{font-size:26px}.takeaway-detail,.card p{font-size:20px}}
+</style><style id="hermes-brief-player-style">
+/* GOLD MASTER STYLE: hermes-brief-player-style
+Purpose: Styles the fixed AI narration toolbar, date controls, active-card states, portfolio compatibility rules, canonical Stock rows, and responsive layouts.
+Restore notes: Preserve its selectors with the player controller. The normal-flow placeholder and --hermes-player-height prevent content from hiding under the fixed toolbar.
+*/
+html, body { width: 100% !important; max-width: none !important; overflow-x: hidden !important; }
+.wrap { width: 100% !important; max-width: none !important; margin: 0 !important; }
+.hermes-brief-player-sticky {
+  position: fixed !important;
+  inset: 0 0 auto 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  z-index: 2147483647 !important;
+  margin: 0 !important;
+  border-radius: 0 0 14px 14px !important;
+  background: var(--bg, #0f1117) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .42), 0 1px 0 rgba(255, 255, 255, .12) !important;
+  padding-top: max(10px, env(safe-area-inset-top)) !important;
+  isolation: isolate;
+}
+.hermes-brief-player-placeholder { display: block !important; width: 100% !important; }
+.hermes-brief-player-sticky input[type="range"] { width: 137.5px !important; min-width: 137.5px !important; height: 28px !important; cursor: pointer !important; }
+.hermes-brief-player-sticky button { min-width: 38px !important; min-height: 38px !important; }
+.hermes-brief-player-sticky button.hermes-command-active,
+.hermes-brief-player-sticky button:active {
+  border-color: var(--accent, var(--link, #8ab4ff)) !important;
+  color: var(--accent, var(--link, #8ab4ff)) !important;
+  box-shadow: 0 0 0 2px var(--accent, var(--link, #8ab4ff)) !important;
+}
+.hermes-brief-player-status { color: var(--muted, #93a4bd); font-size: 12px; white-space: nowrap; }
+#hermes-brief-player .hermes-player-shell { position: relative !important; display: flex; min-height: 50px; align-items: center; gap: 9px; padding: 8px 16px 10px; color: var(--text, #f4f7fb); }
+#hermes-brief-player .hermes-player-volume { display: inline-flex; align-items: center; gap: 7px; color: var(--muted, #aab8ca); font-size: 12px; white-space: nowrap; }
+#hermes-brief-player #tts-speed { min-width: 58px !important; height: 36px !important; min-height: 36px !important; padding: 0 13px !important; border: 1px solid rgba(255,255,255,.16) !important; border-radius: 999px !important; background: #05070c !important; color: #f7f8fb !important; font-size: 13px !important; font-weight: 600 !important; font-variant-numeric: tabular-nums !important; }
+#hermes-brief-player #tts-speed:hover { border-color: rgba(255,255,255,.34) !important; }
+#hermes-brief-player .hermes-date-nav { position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; display: inline-flex !important; align-items: center !important; gap: 18px !important; margin: 0 !important; vertical-align: middle !important; }
+#hermes-brief-player .hermes-date-nav-label { display: inline-flex !important; min-height: 42px !important; align-items: center !important; padding: 0 16px !important; border-radius: 999px !important; background: #67e8f9 !important; color: #07111f !important; font-size: 17px !important; line-height: 42px !important; font-weight: 850 !important; letter-spacing: .02em !important; white-space: nowrap !important; }
+#hermes-brief-player .hermes-date-nav button { width: 42px !important; height: 42px !important; min-width: 42px !important; min-height: 42px !important; margin: 0 !important; border: 1px solid #67e8f9 !important; border-radius: 999px !important; background: rgba(103, 232, 249, .10) !important; color: #67e8f9 !important; font-size: 26px !important; line-height: 1 !important; }
+#hermes-brief-player + .hero, #hermes-brief-player ~ .hero { scroll-margin-top: var(--hermes-player-height, 10rem); }
+header .tts, header .player { display: none !important; }
+.card, .hermes-playable-card { width: 100% !important; max-width: none !important; scroll-margin-top: var(--hermes-player-height, 10rem) !important; }
+.card[role="button"], .hermes-playable-card[role="button"] { cursor: pointer !important; }
+.card[role="button"]:hover, .hermes-playable-card[role="button"]:hover { border-color: var(--accent, var(--link, #8ab4ff)) !important; }
+.card[role="button"]:focus-visible, .hermes-playable-card[role="button"]:focus-visible { outline: 2px solid var(--accent, var(--link, #8ab4ff)) !important; outline-offset: 2px; }
+.hermes-playable-card.active,
+.hermes-playable-card[aria-current="true"],
+.hermes-playable-card.active:hover,
+.hermes-playable-card[aria-current="true"]:hover,
+.hermes-playable-card.active:focus-visible,
+.hermes-playable-card[aria-current="true"]:focus-visible {
+  border-color: #ffd166 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+/* AI topic headlines use the concise July 14 visual hierarchy. */
+.hermes-playable-card h2, .hermes-playable-card h3 { color: var(--hot, #ffd166) !important; }
+.hermes-playable-card.takeaways h2 { color: #67e8f9 !important; text-transform: uppercase !important; letter-spacing: .035em !important; }
+.hermes-playable-card.takeaways ol { margin: 1.25rem 0 0 !important; padding-left: 2.15rem !important; }
+.hermes-playable-card.takeaways li { font-size: 1.2em !important; line-height: 1.58 !important; margin: 0 0 1.15rem !important; }
+.hermes-playable-card.takeaways li > strong:first-child { display: block !important; color: #67e8f9 !important; font-size: 1.35em !important; line-height: 1.25 !important; margin: 0 0 .32rem !important; }
+.hermes-playable-card.takeaways li::marker { color: #67e8f9 !important; font-size: 1.35em !important; font-weight: 850 !important; }
+/* Cron dates are metadata, not a secondary hierarchy. Keep them consistently cyan. */
+header .date, header .sub { color: #67e8f9 !important; }
+.hermes-portfolio-comparison { margin: 18px 0 22px; padding: 18px; border: 1px solid rgba(138, 180, 255, .45); border-radius: 14px; background: rgba(10, 24, 42, .72); color: var(--text, #f4f7fb); }
+.hermes-portfolio-comparison h2 { color: #ffd166 !important; margin: 0 0 4px; font-size: clamp(28px, 3.08vw, 39px); }
+.hermes-portfolio-comparison .hermes-portfolio-note { margin: 0 0 14px; color: var(--muted, #aab8ca); font-size: 18px; }
+.hermes-portfolio-table-wrap { width: 100%; overflow-x: auto; }
+.hermes-portfolio-table { width: 100%; min-width: 1480px; table-layout: fixed; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.hermes-portfolio-table th, .hermes-portfolio-table td { padding: 8px 9px; border-bottom: 1px solid rgba(255, 255, 255, .12); text-align: right; white-space: nowrap; }
+.hermes-portfolio-table th { font-size: 14.7px; }
+.hermes-portfolio-table td { font-size: 18.2px; }
+.hermes-portfolio-table th:first-child, .hermes-portfolio-table td:first-child { width: 20%; min-width: 230px; }
+/* Stock quote cards are intentionally transformed into concise full-width rows. */
+[aria-label="Stock price cards"] { display: flex !important; flex-direction: column !important; gap: 10px !important; }
+[aria-label="Stock price cards"] .card { display: grid !important; grid-template-columns: minmax(210px, 1.45fr) repeat(5, minmax(92px, 1fr)) !important; grid-template-rows: auto auto; gap: 4px 14px !important; align-items: center !important; margin: 0 !important; padding: 16px 18px !important; }
+[aria-label="Stock price cards"] .card h2 { grid-column: 1; grid-row: 1 / span 2; margin: 0 !important; }
+.hermes-card-daily-change { display: inline-block; margin-left: 10px; font-size: .9em; font-weight: 760; }
+[aria-label="Stock price cards"] .card > .change,
+[aria-label="Stock price cards"] .card > p.positive,
+[aria-label="Stock price cards"] .card > p.negative { display: none !important; }
+[aria-label="Stock price cards"] .card .stats { display: contents !important; }
+[aria-label="Stock price cards"] .card .stats > * { min-width: 0; margin: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(n+6) { display: none !important; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(1) { grid-column: 2; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(2) { grid-column: 3; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(3) { grid-column: 4; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(4) { grid-column: 5; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(5) { grid-column: 6; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats .label { display: block; margin-bottom: 2px; font-size: 10px; letter-spacing: .07em; text-transform: uppercase; }
+[aria-label="Stock price cards"] .card .stats strong { font-size: 1rem; }
+@media (max-width: 840px) { [aria-label="Stock price cards"] .card { grid-template-columns: minmax(190px, 1fr) repeat(3, minmax(88px, 1fr)) !important; } [aria-label="Stock price cards"] .card .stats > *:nth-child(1) { grid-column: 2; grid-row: 1; } [aria-label="Stock price cards"] .card .stats > *:nth-child(2) { grid-column: 3; grid-row: 1; } [aria-label="Stock price cards"] .card .stats > *:nth-child(3) { grid-column: 4; grid-row: 1; } [aria-label="Stock price cards"] .card .stats > *:nth-child(4) { grid-column: 2; grid-row: 2; } [aria-label="Stock price cards"] .card .stats > *:nth-child(5) { grid-column: 3; grid-row: 2; } }
+@media (max-width: 620px) { [aria-label="Stock price cards"] .card { grid-template-columns: 1fr 1fr !important; } [aria-label="Stock price cards"] .card h2 { grid-column: 1 / -1; grid-row: auto; } [aria-label="Stock price cards"] .card .stats > * { grid-column: auto !important; grid-row: auto !important; } }
+.hermes-portfolio-table th:first-child, .hermes-portfolio-table td:first-child { text-align: left; }
+.hermes-portfolio-table thead th { color: var(--muted, #aab8ca); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.hermes-portfolio-table tbody tr:hover { background: rgba(138, 180, 255, .07); }
+.hermes-portfolio-position { display: block; font-weight: 750; }
+.hermes-portfolio-meta { display: block; margin-top: 3px; color: var(--muted, #aab8ca); font-size: 15.25px; font-weight: 500; }
+.hermes-portfolio-shares { color: #ffd766; font-weight: 800; }
+.hermes-portfolio-table thead .hermes-portfolio-shares { color: #ffd766; }
+.hermes-portfolio-purchase { color: #ffd766; font-weight: 800; }
+.hermes-portfolio-table thead .hermes-portfolio-purchase { color: #ffd766; }
+.hermes-portfolio-positive { color: #4ade80; font-weight: 750; }
+.hermes-portfolio-negative { color: #fb7185; font-weight: 750; }
+.hermes-card-inline-price { display: block; margin-top: .2rem; font-size: 1.35rem; font-weight: 850; white-space: nowrap; }
+/* Preserve each archived brief's original card/grid layout.  Only the price moves beneath the ticker. */
+.card h2 { display: block !important; }
+.hermes-portfolio-unavailable { color: var(--muted, #aab8ca); }
+.hermes-portfolio-table tfoot td { border-top: 2px solid rgba(138, 180, 255, .55); border-bottom: 0; font-weight: 800; }
+@media (max-width: 700px) {
+  .wrap { padding: 10px 8px 28px !important; }
+  .hermes-brief-player-sticky { padding: max(8px, env(safe-area-inset-top)) 8px 8px !important; }
+  #hermes-brief-player .hermes-player-shell { display: grid !important; grid-template-columns: repeat(3, auto) minmax(96px, 1fr) !important; grid-template-rows: auto auto !important; gap: 8px !important; padding: 6px !important; }
+  #hermes-brief-player .hermes-player-volume { min-width: 0 !important; justify-self: stretch !important; }
+  #hermes-brief-player .hermes-date-nav { position: static !important; grid-column: 1 / -1 !important; grid-row: 2 !important; justify-self: center !important; gap: 12px !important; transform: none !important; }
+  #hermes-brief-player .hermes-date-nav-label { min-height: 34px !important; font-size: 30px !important; line-height: 34px !important; }
+  #hermes-brief-player .hermes-date-nav button { width: 36px !important; height: 36px !important; min-width: 36px !important; min-height: 36px !important; font-size: 22px !important; }
+  .hermes-brief-player-sticky button { min-width: 36px !important; min-height: 36px !important; }
+  .hermes-brief-player-sticky input[type="range"] { width: 100% !important; min-width: 0 !important; max-width: 160px !important; }
+  .hermes-portfolio-comparison { margin: 10px 0 16px; padding: 12px; }
+}
+/* V26: archive-independent full-width Stock rows. */
+.hermes-stock-row { grid-column: 1 / -1 !important; width: 100% !important; max-width: none !important; display: grid !important; grid-template-columns: minmax(280px, 1.45fr) repeat(5, minmax(118px, 1fr)) !important; grid-template-rows: auto auto !important; gap: 6px 22px !important; align-items: center !important; margin: 0 !important; padding: 15px 20px !important; }
+.hermes-stock-row h2 { grid-column: 1 !important; grid-row: 1 / span 2 !important; margin: 0 !important; }
+.hermes-stock-row .hermes-card-company { display: inline !important; margin-left: 9px !important; color: var(--muted, #aab8ca) !important; font-size: .68em !important; font-weight: 550 !important; }
+.hermes-stock-row .hermes-card-daily-change { display: inline !important; margin-left: 10px !important; font-size: .78em !important; }
+.hermes-stock-row .hermes-card-inline-price { display: block !important; margin-top: 5px !important; font-size: 1.42rem !important; }
+.hermes-stock-row > .change, .hermes-stock-row > p.positive, .hermes-stock-row > p.negative, .hermes-stock-row > .company { display: none !important; }
+.hermes-stock-row .stats { display: contents !important; }
+.hermes-stock-row .stats > * { min-width: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; }
+.hermes-stock-row .stats > *:nth-child(n+6) { display: none !important; }
+.hermes-stock-row .stats > *:nth-child(1) { grid-column: 2 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(2) { grid-column: 3 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(3) { grid-column: 4 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(4) { grid-column: 5 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(5) { grid-column: 6 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats .label { display: block !important; margin-bottom: 3px !important; font-size: 11px !important; letter-spacing: .08em !important; text-transform: uppercase !important; }
+.hermes-stock-row .stats strong { font-size: 1.08rem !important; }
+@media (max-width: 940px) { .hermes-stock-row { grid-template-columns: minmax(230px, 1fr) repeat(3, minmax(100px, 1fr)) !important; } .hermes-stock-row .stats > *:nth-child(1) { grid-column: 2 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(2) { grid-column: 3 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(3) { grid-column: 4 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(4) { grid-column: 2 !important; grid-row: 2 !important; } .hermes-stock-row .stats > *:nth-child(5) { grid-column: 3 !important; grid-row: 2 !important; } }
+@media (max-width: 680px) { .hermes-stock-row { grid-template-columns: 1fr 1fr !important; } .hermes-stock-row h2 { grid-column: 1 / -1 !important; grid-row: auto !important; } .hermes-stock-row .stats > * { grid-column: auto !important; grid-row: auto !important; } }
+/* Stock archives are rewritten to a stable, canonical row markup rather than restyled opportunistically. */
+.hermes-stock-today-date-pill { display: inline-flex !important; width: max-content !important; max-width: 100% !important; align-items: center !important; margin: 6.6px 0 9.9px !important; padding: 5.5px 12.1px !important; border-radius: 999px !important; background: #ffffff !important; color: #0b1020 !important; font-family: inherit !important; font-size: clamp(12.1px, 1.43vw, 18.7px) !important; font-weight: 850 !important; line-height: 1.1 !important; letter-spacing: .02em !important; white-space: nowrap !important; }
+main.grid { display: flex !important; flex-direction: column !important; gap: 8px !important; }
+.hermes-stock-row { grid-column: 1 / -1 !important; width: 100% !important; max-width: none !important; min-width: 0 !important; box-sizing: border-box !important; display: grid !important; grid-template-columns: minmax(220px, 280px) minmax(150px, 190px) minmax(0, 1fr) !important; gap: 14px !important; align-items: center !important; margin: 0 !important; padding: 10px 20px !important; border: 1px solid var(--line, #334155) !important; border-radius: 16px !important; background: var(--panel, #111827) !important; box-shadow: none !important; }
+.hermes-stock-identity { grid-column: 1 !important; display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; justify-content: center !important; }
+.hermes-stock-title { display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; gap: 5px !important; }
+.hermes-stock-ticker { color: #ffe08a !important; font-size: 1.55rem !important; font-weight: 850 !important; letter-spacing: .02em !important; }
+.hermes-stock-company { min-width: 0 !important; color: var(--text, #f4f7fb) !important; font-size: 1.35rem !important; font-weight: 750 !important; line-height: 1.2 !important; letter-spacing: .025em !important; text-transform: uppercase !important; overflow-wrap: anywhere !important; }
+.hermes-stock-change { display: block !important; margin-top: 12px !important; font-size: 1.22rem !important; font-weight: 800 !important; line-height: 1.2 !important; white-space: nowrap !important; }
+.hermes-stock-current-price { grid-column: 2 !important; display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; justify-content: center !important; }
+.hermes-stock-current-label { color: var(--muted, #aab8ca) !important; font-size: clamp(.82rem, 1vw, 1.15rem) !important; font-weight: 700 !important; letter-spacing: .055em !important; line-height: 1.2 !important; }
+.hermes-stock-price { display: block !important; margin-top: 7px !important; color: #ffe08a !important; font-size: 2.3rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums !important; }
+.hermes-stock-metrics { grid-column: 3 !important; display: grid !important; min-width: 0 !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 12px !important; align-items: center !important; margin: 0 !important; }
+.hermes-stock-metrics > div { min-width: 0 !important; }
+.hermes-stock-metrics dt { max-width: 100% !important; color: var(--muted, #aab8ca) !important; font-size: clamp(.82rem, 1vw, 1.15rem) !important; font-weight: 700 !important; letter-spacing: .055em !important; line-height: 1.2 !important; text-transform: uppercase !important; overflow-wrap: anywhere !important; }
+.hermes-stock-metrics dd { max-width: 100% !important; margin: 7px 0 0 !important; color: var(--text, #f4f7fb) !important; font-size: clamp(1.05rem, 1.55vw, 1.9rem) !important; font-weight: 800 !important; line-height: 1.15 !important; font-variant-numeric: tabular-nums !important; white-space: nowrap !important; }
+.hermes-stock-row time, .hermes-stock-row [class*="timestamp"], .hermes-stock-row [class*="as-of"] { display: none !important; }
+@media (max-width: 1200px) { .hermes-stock-company { font-size: 1.05rem !important; } .hermes-stock-metrics { gap: 8px !important; } }
+@media (max-width: 900px) { .hermes-stock-today-date-pill { font-size: 14.3px !important; } }
+@media (max-width: 1100px) { .hermes-stock-row { grid-template-columns: minmax(0, 1fr) minmax(150px, 190px) !important; gap: 10px 16px !important; } .hermes-stock-identity { grid-column: 1 !important; } .hermes-stock-current-price { grid-column: 2 !important; } .hermes-stock-metrics { grid-column: 1 / -1 !important; grid-row: 2 !important; width: 100% !important; } }
+@media (max-width: 760px) { .hermes-stock-row { grid-template-columns: 1fr !important; gap: 12px !important; padding: 14px !important; } .hermes-stock-identity, .hermes-stock-current-price, .hermes-stock-metrics { grid-column: 1 !important; } .hermes-stock-current-price { grid-row: 2 !important; } .hermes-stock-metrics { grid-row: 3 !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px 22px !important; } }
+</style><style id="hermes-ai-restored-style">
+/* GOLD MASTER STYLE: hermes-ai-restored-style
+Purpose: Locks the accepted AI typography, full-width hierarchy, Founder Takeaways treatment, topic-card geometry, fullscreen control, and mobile breakpoints.
+Restore notes: Load after the base/player styles so these accepted dashboard values win without changing semantic HTML or narration behavior.
+*/
+:root { --bg: #0b1020; --card: #121a33; --text: #eef3ff; --muted: #aab6d3; --accent: #8bd3ff; --line: #263456; --hot: #ffd166; }
+html, body { width: 100% !important; max-width: none !important; min-height: 100% !important; margin: 0 !important; background: #0b1020 !important; color: #eef3ff !important; }
+body { box-sizing: border-box !important; padding: 40px 22px 64px !important; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important; font-size: 32px !important; line-height: 1.6 !important; }
+.wrap, body > main { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
+body > header, body > main > header, .wrap > header, .hero { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 0 0 22px !important; padding: 28px !important; border: 1px solid #263456 !important; border-radius: 22px !important; background: linear-gradient(135deg, #182345, #10182f) !important; color: #eef3ff !important; box-shadow: 0 20px 60px rgba(0,0,0,.25) !important; }
+body > header::before, body > main > header::before, .wrap > header::before, .hero::before { content: none !important; display: none !important; }
+html body .hero .tag, html body header .tag, html body .tag { display: none !important; visibility: hidden !important; }
+html body .hero .pill, html body header .pill { display: inline-block !important; visibility: visible !important; margin: 0 0 18px !important; padding: 10px 22px !important; border-radius: 999px !important; background: #ffd166 !important; color: #0b1020 !important; font-size: 22px !important; font-weight: 800 !important; line-height: 1.2 !important; letter-spacing: .02em !important; }
+.hermes-date-nav { position: relative !important; top: 10px !important; display: inline-flex !important; align-items: center !important; gap: 18px !important; margin: 0 0 18px 22px !important; vertical-align: middle !important; }
+.hermes-date-nav button { display: inline-grid !important; width: 46px !important; height: 46px !important; place-items: center !important; padding: 0 !important; border: 1px solid #67e8f9 !important; border-radius: 999px !important; background: rgba(103,232,249,.10) !important; color: #67e8f9 !important; font-size: 32px !important; font-weight: 800 !important; line-height: 1 !important; cursor: pointer !important; }
+.hermes-date-nav button:hover, .hermes-date-nav button:focus-visible { background: #67e8f9 !important; color: #0b1020 !important; outline: none !important; }
+body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { margin: 0 0 10px !important; color: #eef3ff !important; font-size: 64px !important; line-height: 1.05 !important; letter-spacing: .015em !important; }
+.hermes-ai-title-row { display: flex !important; align-items: center !important; flex-wrap: wrap !important; gap: 16px !important; margin: 0 0 10px !important; }
+.hermes-ai-title-row h1 { margin: 0 !important; }
+#hermes-ai-fullscreen-button { display: inline-grid !important; width: 44px !important; height: 44px !important; flex: 0 0 44px !important; place-items: center !important; padding: 0 !important; border: 1px solid #67e8f9 !important; border-radius: 10px !important; background: rgba(103,232,249,.10) !important; color: #67e8f9 !important; cursor: pointer !important; }
+#hermes-ai-fullscreen-button:hover, #hermes-ai-fullscreen-button:focus-visible { background: #67e8f9 !important; color: #0b1020 !important; outline: none !important; }
+#hermes-ai-fullscreen-button svg { width: 26px !important; height: 26px !important; fill: none !important; stroke: currentColor !important; stroke-width: 2 !important; stroke-linecap: round !important; stroke-linejoin: round !important; }
+html:fullscreen { overflow-y: auto !important; background: #0b1020 !important; }
+body > header p, body > main > header p, .wrap > header p, html body .hero p, body > header .date, body > main > header .date, .wrap > header .date, html body .hero .date, body > header strong, body > main > header strong, .wrap > header strong, html body .hero strong { margin: 0 !important; color: #eef3ff !important; font-size: 27px !important; line-height: 1.35 !important; }
+.takeaways, body > main > .takeaways, .hermes-playable-card.takeaways { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 12px 0 !important; padding: 22px 26px !important; border: 1px solid #263456 !important; border-radius: 18px !important; background: #121a33 !important; color: #eef3ff !important; box-shadow: none !important; }
+.takeaways h2, .hermes-playable-card.takeaways h2 { margin: 0 0 14px !important; padding: 0 !important; border: 0 !important; color: #ffd166 !important; font-size: 38px !important; font-weight: 700 !important; line-height: 1.15 !important; letter-spacing: .015em !important; text-transform: uppercase !important; }
+.takeaways ol, .hermes-playable-card.takeaways ol { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 0 !important; padding-left: 1.5em !important; }
+.takeaways li, .hermes-playable-card.takeaways li { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 0 0 10px !important; color: #eef3ff !important; font-size: 36px !important; font-weight: 400 !important; line-height: 1.34 !important; }
+.takeaways li > *, .hermes-playable-card.takeaways li > * { box-sizing: border-box !important; width: 100% !important; max-width: none !important; }
+.takeaways .hermes-takeaway-detail, .hermes-playable-card.takeaways .hermes-takeaway-detail { display: block !important; width: auto !important; max-width: min(92ch, 100%) !important; margin: .16em 0 0 !important; text-align: left !important; text-align-last: auto !important; text-wrap: pretty !important; word-spacing: normal !important; letter-spacing: -.01em !important; line-height: 1.42 !important; }
+.takeaways li:last-child, .hermes-playable-card.takeaways li:last-child { margin-bottom: 0 !important; }
+.takeaways li > strong:first-child, .hermes-playable-card.takeaways li > strong:first-child { display: block !important; margin: 0 0 2px !important; color: #8bd3ff !important; font-size: 42px !important; font-weight: 700 !important; line-height: 1.16 !important; letter-spacing: -.02em !important; }
+.takeaways li::marker, .hermes-playable-card.takeaways li::marker { color: #8bd3ff !important; font-size: 38px !important; font-weight: 700 !important; }
+.topics { display: grid !important; gap: 22px !important; }
+.topics > .card, .hermes-playable-card:not(.takeaways), body > main > article, body > main > section.hermes-generated-topic { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 0 0 22px !important; padding: 24px !important; border: 1px solid #67e8f9 !important; border-radius: 18px !important; background: rgba(18,26,51,.55) !important; color: #eef3ff !important; font-size: 32px !important; line-height: 1.6 !important; box-shadow: none !important; }
+body .hermes-topic-container { border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; margin: 0 !important; padding: 0 !important; }
+.topics > .card h2, .hermes-playable-card:not(.takeaways) h2, .hermes-playable-card:not(.takeaways) h3 { margin: 0 0 28px !important; padding: 0 !important; border: 0 !important; color: #ffd166 !important; font-size: 44px !important; line-height: 1.25 !important; }
+.topics > .card p, .hermes-playable-card:not(.takeaways) p, .topics > .card li, .hermes-playable-card:not(.takeaways) li, .topics > .card a, .hermes-playable-card:not(.takeaways) a { font-size: 32px !important; line-height: 1.6 !important; }
+.topics > .card a, .hermes-playable-card:not(.takeaways) a { color: #8bd3ff !important; text-decoration-thickness: .08em !important; text-underline-offset: .18em !important; }
+.sources { margin-top: 28px !important; color: #aab6d3 !important; }
+#hermes-brief-player { font-size: 16px !important; }
+@media (max-width: 900px) {
+  body { padding: 20px 12px 36px !important; font-size: 26px !important; }
+  body > header, body > main > header, .wrap > header, .hero { padding: 34px !important; }
+  .takeaways, body > main > .takeaways, .hermes-playable-card.takeaways { padding: 24px !important; }
+  .topics > .card, .hermes-playable-card:not(.takeaways), body > main > article, body > main > section.hermes-generated-topic { padding: 30px !important; }
+  body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { font-size: 48px !important; }
+  .takeaways h2, .hermes-playable-card.takeaways h2 { font-size: 32px !important; }
+  .takeaways li > strong:first-child, .hermes-playable-card.takeaways li > strong:first-child { font-size: 30px !important; }
+  .takeaways li, .hermes-playable-card.takeaways li { font-size: 24px !important; }
+  .topics > .card h2, .hermes-playable-card:not(.takeaways) h2, .hermes-playable-card:not(.takeaways) h3 { font-size: 36px !important; }
+  .topics > .card, .hermes-playable-card:not(.takeaways), .topics > .card p, .hermes-playable-card:not(.takeaways) p, .topics > .card li, .hermes-playable-card:not(.takeaways) li, .topics > .card a, .hermes-playable-card:not(.takeaways) a { font-size: 26px !important; }
+}
+@media (max-width: 560px) {
+  body { padding: 12px 8px 28px !important; font-size: 20px !important; overflow-x: hidden !important; }
+  body > header, body > main > header, .wrap > header, .hero { padding: 18px !important; border-radius: 16px !important; }
+  body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { font-size: 38px !important; overflow-wrap: anywhere !important; }
+  .hermes-ai-title-row { gap: 10px !important; }
+  #hermes-ai-fullscreen-button { width: 40px !important; height: 40px !important; flex-basis: 40px !important; }
+  .takeaways, body > main > .takeaways, .hermes-playable-card.takeaways, .topics > .card, .hermes-playable-card:not(.takeaways), body > main > article, body > main > section.hermes-generated-topic { padding: 16px !important; border-radius: 15px !important; }
+  .takeaways ol, .hermes-playable-card.takeaways ol { padding-left: 1.8em !important; }
+  .takeaways li::marker, .hermes-playable-card.takeaways li::marker { font-size: 25px !important; }
+  .takeaways h2, .hermes-playable-card.takeaways h2 { font-size: 27px !important; overflow-wrap: anywhere !important; }
+  .takeaways li > strong:first-child, .hermes-playable-card.takeaways li > strong:first-child { font-size: 25px !important; }
+  .takeaways li, .hermes-playable-card.takeaways li, .topics > .card, .hermes-playable-card:not(.takeaways), .topics > .card p, .hermes-playable-card:not(.takeaways) p, .topics > .card li, .hermes-playable-card:not(.takeaways) li, .topics > .card a, .hermes-playable-card:not(.takeaways) a { font-size: 20px !important; overflow-wrap: anywhere !important; }
+  .topics > .card h2, .hermes-playable-card:not(.takeaways) h2, .hermes-playable-card:not(.takeaways) h3 { margin-bottom: 18px !important; font-size: 29px !important; overflow-wrap: anywhere !important; }
+}
+@media (max-height: 900px) and (min-width: 1100px) {
+  body { padding: 18px 18px 40px !important; }
+  body > header, body > main > header, .wrap > header, .hero { margin-bottom: 16px !important; padding: 20px 24px !important; }
+  body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { font-size: 48px !important; }
+}
+</style><style id="hermes-brief-export-shell-style">
+/* GOLD MASTER STYLE: hermes-brief-export-shell-style
+Purpose: Styles the offline archive index, selected-date state, and visible gold-master provenance banner above the canonical brief.
+Restore notes: This shell is export-only. It may be removed when restoring into the live dashboard, but keep it when sharing files as an offline archive set.
+*/
+/* Dashboard-owned export shell: archive links and selected-date state remain visible offline. */
+#hermes-brief-export-shell { margin: 0; padding: 22px 28px; border-bottom: 1px solid rgba(255,255,255,.18); background: #03211f; color: #f9dec9; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#hermes-brief-export-shell .hermes-export-title { font: 750 24px/1.2 system-ui, sans-serif; letter-spacing: .08em; }
+#hermes-brief-export-shell .hermes-export-meta { margin-top: 14px; color: #c9baa8; }
+#hermes-brief-export-shell .hermes-export-dates { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+#hermes-brief-export-shell .hermes-export-dates a { padding: 8px 12px; border: 1px solid rgba(249,222,201,.35); color: inherit; text-decoration: none; }
+#hermes-brief-export-shell .hermes-export-dates a:hover, #hermes-brief-export-shell .hermes-export-dates a:focus-visible { border-color: #67e8f9; color: #67e8f9; outline: none; }
+#hermes-brief-export-shell .hermes-export-dates [aria-current="date"] { background: #f9dec9; color: #03211f; font-weight: 800; }
+</style></head><body><!-- BEGIN DASHBOARD-OWNED EXPORT SHELL --><!--
+V34 SELF-CONTAINED GOLD MASTER GUIDE
+GOLD MASTER RESTORATION MAP
+1. HTML ownership: semantic brief structure and date-specific content are inline in this document body. GOLD MASTER HTML comments identify the canonical restore boundaries.
+2. CSS ownership: every style block is inline and begins with a GOLD MASTER STYLE header describing its purpose and restore order.
+3. JavaScript ownership: every controller is inline and begins with a GOLD MASTER CONTROLLER header describing purpose, state, inputs, outputs, dependencies, and restore notes.
+4. Security boundary: the inline Content-Security-Policy denies network connections, external code, media, objects, workers, forms, and base-URL changes; AI allows only same-folder/file frames for offline date navigation.
+5. Offline contract: No external scripts, stylesheets, fonts, images, APIs, or build step are required. Browser-native DOM, Fullscreen, localStorage, iframe, and Web Speech APIs are used only where documented.
+6. Archive contract: date navigation is cyclic, so crossing either archive boundary continues at the opposite end. Share all same-kind HTML files together without renaming them to retain date navigation.
+7. Data boundary: cron/model content is treated as data and cannot supply layout, styles, controls, navigation, or executable code.
+8. Companion Markdown: semantic content and hierarchy only; CSS and browser interactions intentionally live in this companion self-contained HTML file.
+9. Companion CSV (Stocks): data-only Position Comparison rows with a fixed schema; CSV has no presentation or executable-code layer and therefore no inline comments.
+--><section id="hermes-brief-export-shell" data-hermes-exclude-from-player><div class="hermes-export-title">BRIEFS-AI</div><div class="hermes-export-meta">Self-contained dashboard export · 2026-07-15</div><div class="hermes-export-dates" aria-label="Archive dates"><a href="BRIEFS-AI - 2026-07-20.html">2026-07-20</a><a href="BRIEFS-AI - 2026-07-18.html">2026-07-18</a><a href="BRIEFS-AI - 2026-07-17.html">2026-07-17</a><a href="BRIEFS-AI - 2026-07-16.html">2026-07-16</a><a href="BRIEFS-AI - 2026-07-15.html" aria-current="date">2026-07-15</a></div></section><!-- END DASHBOARD-OWNED EXPORT SHELL --><!-- GOLD MASTER HTML: Canonical AI structure. The hero, Founder Takeaways, and numbered topic cards are semantic content; CSS and JavaScript remain separate inline ownership layers. --><main id="hermes-ai-canonical"><header class="hero" data-hermes-date-normalized="true"><span class="pill">July 15, 2026</span><div class="hermes-ai-title-row"><h1>AI Morning Brief</h1><button id="hermes-ai-fullscreen-button" type="button" aria-label="Enter AI Morning Brief fullscreen" title="Enter fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"></path><path d="M9 21H3v-6"></path><path d="m21 3-7 7"></path><path d="m3 21 7-7"></path></svg></button></div><p class="date">8am - America/Los_Angeles</p></header><section class="takeaways"><h2>FOUNDER TAKEAWAYS</h2><ol><li><strong>Agentic coding is now a price/performance war, not a novelty.</strong><span class="takeaway-detail">OpenAI’s GPT-5.6 and Anthropic’s Claude Sonnet 5 both emphasize autonomous tool use, coding, and multi-step workflows; Meta is also pushing into coding with Muse Spark access. If you sell software or services, assume your customers’ build velocity is rising and your internal workflows should be benchmarked against AI-assisted execution.</span></li><li><strong>Model choice should become workload routing.</strong><span class="takeaway-detail">GPT-5.6’s Sol/Terra/Luna family and Claude’s effort-level pricing point toward a practical stack: cheap models for routine work, higher-effort/parallel-agent modes for complex engineering, research, analysis, and QA.</span></li><li><strong>Visual AI is moving directly into consumer/ad workflows.</strong><span class="takeaway-detail">Meta’s Muse Image is designed around photo restoration, likeness-preserving edits, product shots, room restyling, stickers, posters, and personalized creative prompts inside Meta AI.</span></li><li><strong>Compute and power are becoming strategic constraints.</strong><span class="takeaway-detail">Reuters reports TSMC is expected to ride AI chip demand to another record-profit quarter, while U.S. power demand is projected to hit records in 2026 and 2027 as AI data centers expand.</span></li><li><strong>AI geopolitics is shifting from chips to model access.</strong><span class="takeaway-detail">Reuters reports China is considering restrictions on overseas access to top Chinese AI models, including open-weight versions. Avoid critical dependencies on any single frontier provider or jurisdiction.</span></li></ol></section><section class="topics" aria-label="Canonical AI news topics"><article class="card" data-brief-topic="1"><h2>1. OpenAI launches GPT-5.6 GA: more agentic, more segmented, more cost-aware</h2><p><span class="label">Summary:</span> OpenAI announced general availability of the GPT-5.6 family on July 9: Sol as flagship, Terra as balanced, and Luna as cost-efficient. OpenAI says GPT-5.6 focuses on “more intelligence from every token,” coding, knowledge work, cybersecurity, science, and stronger performance per dollar. It also introduces higher-capability modes such as max and ultra, with ultra coordinating multiple agents across parallel workstreams for demanding tasks.</p><p><span class="label">Why it matters for founders/operators:</span> this is a strong signal that frontier labs are packaging “agent orchestration” as a default product surface, not a custom architecture you build from scratch. For a solo founder, the immediate move is to identify 3–5 workflows where parallel decomposition matters: code review, migration planning, customer research synthesis, competitive teardown, security triage, and long-form data cleanup.</p><p><span class="label">Actionable implication:</span> multi-agent modes can raise token spend quickly and may create false confidence if not paired with deterministic checks, tests, or human review. Treat higher-effort modes like hiring a short-term specialist: use them where failure cost is high, not for routine summarization.</p><p class="sources"><span class="label">Sources:</span> <a href="https://openai.com/index/gpt-5-6" target="_blank" rel="noopener noreferrer">OpenAI — GPT-5.6</a> · <a href="https://openai.com/news" target="_blank" rel="noopener noreferrer">OpenAI News</a></p></article><article class="card" data-brief-topic="2"><h2>2. Anthropic’s Claude Sonnet 5 brings agentic work down-market</h2><p><span class="label">Summary:</span> Anthropic’s Claude Sonnet 5, released June 30, is positioned as the most agentic Sonnet model yet. Anthropic says it can make plans, use browsers and terminals, and run autonomously at a level that recently required larger, more expensive models. It is now available across Claude plans, in Claude Code, and through the Claude API, with introductory pricing through August 31 of $2/M input tokens and $10/M output tokens, then $3/M input and $15/M output.</p><p><span class="label">Why it matters for founders/operators:</span> mid-tier models are getting good enough for many production agent workflows. That changes the ROI math: you can reserve the most expensive frontier models for tasks where they materially change outcomes, while using Sonnet-class models for coding, support ops, data enrichment, and internal automation.</p><p><span class="label">Actionable implication:</span> run a real benchmark on your own tasks, not generic leaderboards. Create a 20-task eval set from your actual backlog: bug fix, refactor, sales email personalization, support macro creation, analytics query, landing-page rewrite, spec-to-ticket conversion, and QA test generation. Score by correctness, latency, cost, and required supervision.</p><p class="sources"><span class="label">Sources:</span> <a href="https://www.anthropic.com/news/claude-sonnet-5" target="_blank" rel="noopener noreferrer">Anthropic — Introducing Claude Sonnet 5</a> · <a href="https://www.anthropic.com/claude-sonnet-5-system-card" target="_blank" rel="noopener noreferrer">Claude Sonnet 5 System Card</a></p></article><article class="card" data-brief-topic="3"><h2>3. Meta’s AI push expands from consumer creativity to coding competition</h2><p><span class="label">Summary:</span> Meta introduced Muse Image, its image-generation model in Meta AI, focused on personalized, likeness-aware edits and creative production: photo restoration, editorial portraits, room restyling, product photography, posters, sticker sheets, game assets, and more. Separately, CNBC reports Meta is entering the AI coding market with Muse Spark, chasing Anthropic and OpenAI; early API access is available to some partners, with a waitlist for new users.</p><p><span class="label">Why it matters for founders/operators:</span> Meta is turning AI generation into an embedded distribution advantage across Facebook, Instagram, WhatsApp, Messenger, Threads, and glasses. For a founder, this means creative testing cycles will compress further. Expect more advertisers to generate variants directly inside the platforms where performance data lives.</p><p><span class="label">Actionable implication:</span> build a “creative prompt library” for your brand now: product hero shots, testimonial visuals, founder-story posters, before/after transformations, short ad concepts, and UGC-style variations. Pair that with a governance checklist for likeness rights, claims, brand consistency, and disclosure.</p><p class="sources"><span class="label">Sources:</span> <a href="https://about.fb.com/news/2026/07/introducing-muse-image-meta-ai" target="_blank" rel="noopener noreferrer">Meta — Introducing Muse Image</a> · <a href="https://www.cnbc.com/2026/07/09/meta-jumps-into-ai-coding-market-to-chase-anthropic-and-openai.html" target="_blank" rel="noopener noreferrer">CNBC — Meta jumps into AI coding market</a> · <a href="https://about.fb.com/news/2026/04/introducing-muse-spark-meta-superintelligence-labs/" target="_blank" rel="noopener noreferrer">Meta — Muse Spark</a></p></article><article class="card" data-brief-topic="4"><h2>4. AI infrastructure demand keeps pressure on chips, packaging, and power</h2><p><span class="label">Summary:</span> Reuters reports TSMC is expected to post a fifth straight quarter of record profit, with analysts citing strong demand for 3nm and 2nm process technologies for AI chips and advanced packaging such as CoWoS. Reuters also reported U.S. power consumption is expected to hit record highs in 2026 and 2027, driven by AI-hungry data centers and electrification, and that the White House is convening utilities and data-center developers around power-cost concerns.</p><p><span class="label">Why it matters for founders/operators:</span> the bottleneck is not just “which model is best.” It is whether capacity, cost, latency, and power constraints make that model reliable for your product. If your app depends on real-time AI, you need fallbacks and cost controls.</p><p><span class="label">Actionable implication:</span> Maintain at least two model providers for critical workflows. Add cost ceilings per user/account/workspace. Log model, latency, token usage, retries, and error class for every AI call. Cache repeatable outputs aggressively. Design graceful degradation: cheaper model, delayed batch mode, or human-in-the-loop queue.</p><p class="sources"><span class="label">Sources:</span> <a href="https://www.reuters.com/world/asia-pacific/tsmc-seen-riding-ai-boom-fifth-straight-quarter-record-profit-2026-07-14" target="_blank" rel="noopener noreferrer">Reuters — TSMC seen riding AI boom</a> · <a href="https://www.reuters.com/business/energy/us-power-use-beat-record-highs-2026-2027-ai-use-surges-eia-says-2026-07-07" target="_blank" rel="noopener noreferrer">Reuters — U.S. power use to beat record highs</a> · <a href="https://www.reuters.com/legal/litigation/white-house-rally-utilities-data-centers-over-ai-power-costs-2026-07-13" target="_blank" rel="noopener noreferrer">Reuters — White House data-center power costs</a></p></article><article class="card" data-brief-topic="5"><h2>5. Model-access geopolitics: China weighs curbs on top AI models</h2><p><span class="label">Summary:</span> Reuters reports Chinese authorities have held meetings with Alibaba, ByteDance, and Z.ai about potentially restricting overseas access to China’s most advanced AI models, including both closed-source and more open versions. Reuters’ summary says officials discussed national-security treatment of leaks or thefts and possible restrictions on who can fund domestic AI startups.</p><p><span class="label">Why it matters for founders/operators:</span> open models and foreign APIs may become less predictable as governments treat frontier models more like strategic infrastructure. Even if your company is small, your supply chain can be affected through API availability, licensing, cloud region restrictions, or sudden compliance requirements.</p><p><span class="label">Actionable implication:</span> keep an “AI dependency register” with model/provider, jurisdiction, data sent, customer-facing impact, fallback, and exit plan. This is especially important if you serve regulated customers, defense-adjacent customers, education, healthcare, finance, or cross-border teams.</p><p class="sources"><span class="label">Sources:</span> <a href="https://www.reuters.com/world/beijing-is-looking-curbing-overseas-access-chinas-top-ai-models-sources-say-2026-07-07" target="_blank" rel="noopener noreferrer">Reuters — Beijing considering curbs on overseas access to top AI models</a></p></article></section></main><script id="hermes-brief-player-controller">
+/* GOLD MASTER CONTROLLER: hermes-brief-player-controller
+Purpose: Owns AI narration, natural-voice selection, play/pause, topic traversal, Founder Takeaways sequencing, speed, volume, fullscreen, keyboard controls, and parent-frame synchronization.
+State: Tracks selected topic, playback/paused state, utterance and queue generations, 1.25x speed, persistent volume, fullscreen state, and viewport position.
+Inputs: Toolbar clicks, card clicks, Space/arrow/S/Enter/[ and ] keys, Web Speech events, localStorage, and validated postMessage commands from the parent.
+Outputs: SpeechSynthesis calls, accessible control state, selected-card visuals, scrolling/focus updates, localStorage volume, and viewport/date/fullscreen messages.
+Dependencies: Browser DOM, Web Speech API, Fullscreen API, localStorage when available, ResizeObserver when available, and same-package parent message contracts; no network or external library.
+Restore notes: Keep this controller single-owned and paired with hermes-brief-player-style. Do not combine it with archived scripts or duplicate keyboard listeners.
+*/
+(() => {
+  const MESSAGE_TYPE = "hermes-brief-player-command";
+  const DATE_NAV_MESSAGE_TYPE = "hermes-brief-date-navigation";
+
+  const PLAYER_CLASS = "hermes-brief-player-sticky";
+  const PLACEHOLDER_CLASS = "hermes-brief-player-placeholder";
+  const synth = window.speechSynthesis;
+  const playbackRates = [1, 1.25, 1.5, 1.75];
+  const preferredVoiceNames = [
+    "Samantha", "Ava", "Allison", "Susan", "Victoria", "Karen", "Moira",
+    "Tessa", "Serena", "Kate", "Fiona", "Veena", "Zira", "Jenny", "Aria",
+    "Google US English"
+  ];
+  const blockedVoiceNames = [
+    "Bad News", "Bahh", "Bells", "Boing", "Bubbles", "Cellos", "Deranged",
+    "Good News", "Hysterical", "Pipe Organ", "Trinoids", "Whisper", "Zarvox"
+  ];
+
+  let cards = [];
+  let index = 0;
+  let playbackRate = 1.25;
+  let activeCardIndex = 0;
+  let navigationStarted = false;
+  let playing = false;
+  let paused = false;
+  let currentUtterance = null;
+  let playbackRestartTimer = null;
+  let takeawayQueue = [];
+  let takeawayQueueIndex = 0;
+  let takeawayQueueToken = 0;
+  let takeawayQueueTimer = null;
+  let speakingTakeaways = false;
+  let root = null;
+  let previousButton = null;
+  let playButton = null;
+  let nextButton = null;
+  let volumeInput = null;
+  let speedButton = null;
+  let statusElement = null;
+  let placeholder = null;
+  let founderTakeaways = null;
+  let fullscreenButton = null;
+  let fullscreenActive = Boolean(document.fullscreenElement);
+
+  function updateFullscreenButton(active = fullscreenActive) {
+    if (!fullscreenButton) return;
+    fullscreenActive = active;
+    fullscreenButton.setAttribute("aria-label", active ? "Exit AI Morning Brief fullscreen" : "Enter AI Morning Brief fullscreen");
+    fullscreenButton.setAttribute("title", active ? "Exit fullscreen" : "Enter fullscreen");
+  }
+
+  async function toggleFullscreen() {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: "hermes-ai-fullscreen-toggle" }, "*");
+      return;
+    }
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch (_reason) {
+      // Browser fullscreen denial leaves audio and layout state unchanged.
+    }
+    updateFullscreenButton(Boolean(document.fullscreenElement));
+  }
+
+  function captureViewportPosition() {
+    return { scrollX: window.scrollX, scrollY: window.scrollY, topicIndex: activeCardIndex };
+  }
+
+  function publishViewportState() {
+    if (window.parent === window) return;
+    window.parent.postMessage({ type: "hermes-ai-viewport-state", position: captureViewportPosition() }, "*");
+  }
+
+  function restoreActiveCard(topicIndex) {
+    const requestedIndex = Math.trunc(topicIndex);
+    let target = null;
+    if (requestedIndex === -1 && founderTakeaways) {
+      activeCardIndex = -1;
+      cards.forEach((card) => {
+        card.classList.remove("active");
+        card.removeAttribute("aria-current");
+        applyCardVisualState(card, false);
+      });
+      founderTakeaways.classList.add("hermes-playable-card", "active");
+      founderTakeaways.setAttribute("aria-current", "true");
+      applyCardVisualState(founderTakeaways, true);
+      target = founderTakeaways;
+    } else {
+      index = Math.max(0, Math.min(cards.length - 1, requestedIndex));
+      activeCardIndex = index;
+      navigationStarted = true;
+      mark({ behavior: "auto", scroll: false });
+      target = cards[index];
+    }
+    if (!target) return;
+    let framesRemaining = 8;
+    const alignCard = () => {
+      target.scrollIntoView({ behavior: "auto", block: "start" });
+      framesRemaining -= 1;
+      if (framesRemaining > 0) requestAnimationFrame(alignCard);
+      else publishViewportState();
+    };
+    requestAnimationFrame(() => requestAnimationFrame(alignCard));
+  }
+
+  function restoreViewportPosition(position) {
+    if (Number.isInteger(position?.topicIndex)) {
+      restoreActiveCard(position.topicIndex);
+      return;
+    }
+    const targetX = Number.isFinite(position?.scrollX) ? Math.max(0, position.scrollX) : 0;
+    const targetY = Number.isFinite(position?.scrollY) ? Math.max(0, position.scrollY) : 0;
+    let framesRemaining = 8;
+    const applyPosition = () => {
+      window.scrollTo(targetX, targetY);
+      framesRemaining -= 1;
+      if (framesRemaining > 0) requestAnimationFrame(applyPosition);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(applyPosition));
+  }
+
+  function ensureHermesPlayer() {
+    let player = document.getElementById("hermes-brief-player");
+    if (player) return player;
+    player = document.createElement("nav");
+    player.id = "hermes-brief-player";
+    player.setAttribute("aria-label", "Brief playback controls");
+    player.innerHTML = '<div class="hermes-player-shell"><button id="tts-prev" type="button" aria-label="Previous topic" title="Previous topic">←</button><button id="tts-toggle" type="button" aria-label="Play reading" aria-pressed="false" title="Play or pause">▶</button><button id="tts-next" type="button" aria-label="Next topic" title="Next topic">→</button><label class="hermes-player-volume"><input id="tts-volume" type="range" min="0" max="1" step="0.05" value="0.45" aria-label="Volume" title="Volume 45%"></label><button id="tts-speed" type="button" aria-label="Playback speed 1.25x" title="Playback speed">1.25x</button></div>';
+    document.body.insertBefore(player, document.body.firstChild);
+    return player;
+  }
+
+  function normalizeAiVisualStructure() {
+    document.querySelectorAll(".tag").forEach((label) => label.remove());
+    const header = document.querySelector(".hero, body > header, body > main > header, .wrap > header, header");
+    if (!header) return;
+    const dateParagraph = header.querySelector(".date");
+    const dateLine = dateParagraph?.textContent?.trim();
+    const pill = header.querySelector(".pill");
+    const alreadyNormalized = header.dataset.hermesDateNormalized === "true";
+    if (dateLine && !alreadyNormalized) {
+      const [pillDate, ...metadataParts] = dateLine.split("·").map((part) => part.trim());
+      if (pillDate && pill) pill.textContent = pillDate;
+      const archiveMetadata = metadataParts.filter(Boolean).join(" · ");
+      const metadataLine = archiveMetadata;
+      if (dateParagraph && metadataLine) dateParagraph.textContent = metadataLine;
+      else dateParagraph?.remove();
+    }
+    header.querySelectorAll(".meta").forEach((metadata) => metadata.remove());
+    const heading = header.querySelector("h1");
+    if (heading) {
+      heading.textContent = heading.textContent.replace(/\s*(?:—|-)\s*\d{4}-\d{2}-\d{2}\s*$/, "");
+      let titleRow = heading.closest(".hermes-ai-title-row");
+      if (!titleRow) {
+        titleRow = document.createElement("div");
+        titleRow.className = "hermes-ai-title-row";
+        heading.parentElement?.insertBefore(titleRow, heading);
+        titleRow.appendChild(heading);
+      }
+      let fullscreenButton = document.getElementById("hermes-ai-fullscreen-button");
+      if (!fullscreenButton) {
+        fullscreenButton = document.createElement("button");
+        fullscreenButton.id = "hermes-ai-fullscreen-button";
+        fullscreenButton.setAttribute("type", "button");
+        fullscreenButton.setAttribute("aria-label", "Enter AI Morning Brief fullscreen");
+        fullscreenButton.setAttribute("title", "Enter fullscreen");
+        fullscreenButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M3 16v5h5"/></svg>';
+      }
+      titleRow.appendChild(fullscreenButton);
+    }
+  }
+
+  function normalizeTakeawayDetails() {
+    document.querySelectorAll(".takeaways li").forEach((item) => {
+      Array.from(item.childNodes).forEach((node) => {
+        if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) return;
+        const detail = document.createElement("span");
+        detail.className = "hermes-takeaway-detail";
+        node.replaceWith(detail);
+        detail.appendChild(node);
+      });
+      Array.from(item.children).forEach((element) => {
+        if (element.matches("strong:first-child, h3:first-child, h4:first-child")) return;
+        element.classList.add("hermes-takeaway-detail");
+      });
+    });
+  }
+
+  function ensureDateNavigator() {
+    const shell = document.querySelector("#hermes-brief-player .hermes-player-shell");
+    if (!shell) return;
+    const header = document.querySelector(".hero, body > header, body > main > header, .wrap > header, header");
+    let navigator = document.querySelector(".hermes-date-nav");
+    if (!navigator) navigator = document.createElement("span");
+    navigator.className = "hermes-date-nav";
+    navigator.setAttribute("role", "group");
+    navigator.setAttribute("aria-label", "Cron date navigation");
+    const visibleDate = header?.querySelector(".pill")?.textContent?.trim() || "Date unavailable";
+    navigator.innerHTML = '<button id="hermes-date-newer" type="button" aria-label="Load newer cron date" title="Newer cron date">‹</button><span class="hermes-date-nav-label"></span><button id="hermes-date-older" type="button" aria-label="Load older cron date" title="Older cron date">›</button>';
+    navigator.querySelector(".hermes-date-nav-label").textContent = visibleDate;
+    shell.appendChild(navigator);
+    header?.querySelectorAll(".hermes-date-nav").forEach((element) => {
+      if (element !== navigator) element.remove();
+    });
+    navigator.querySelector("#hermes-date-newer")?.addEventListener("click", () => {
+      window.parent?.postMessage({ type: DATE_NAV_MESSAGE_TYPE, direction: "newer", position: captureViewportPosition() }, "*");
+    });
+    navigator.querySelector("#hermes-date-older")?.addEventListener("click", () => {
+      window.parent?.postMessage({ type: DATE_NAV_MESSAGE_TYPE, direction: "older", position: captureViewportPosition() }, "*");
+    });
+  }
+
+  function isNumberedTopicHeading(element) {
+    return /^\s*\d+\s*[.)]\s+/.test(element.textContent || "");
+  }
+
+  function wrapSiblingTopic(heading) {
+    const parent = heading.parentElement;
+    if (!parent) return heading;
+    const wrapper = document.createElement("section");
+    wrapper.className = "hermes-playable-card hermes-generated-topic";
+    parent.insertBefore(wrapper, heading);
+    let node = heading;
+    while (node) {
+      const next = node.nextSibling;
+      if (node !== heading && node instanceof Element && node.matches("h2, h3") && isNumberedTopicHeading(node)) break;
+      wrapper.appendChild(node);
+      node = next;
+    }
+    return wrapper;
+  }
+
+  function playableCards() {
+    const numberedHeadings = Array.from(document.querySelectorAll("main h2, main h3, body > h2, body > h3"))
+      .filter(isNumberedTopicHeading);
+    if (numberedHeadings.length) {
+      return numberedHeadings.map((heading) => {
+        const container = heading.closest(".card, article, section");
+        const numberedInside = container
+          ? Array.from(container.querySelectorAll("h2, h3")).filter(isNumberedTopicHeading)
+          : [];
+        if (container && numberedInside.length > 1) container.classList.add("hermes-topic-container");
+        const card = container && numberedInside.length === 1 ? container : wrapSiblingTopic(heading);
+        card.classList.add("hermes-playable-card");
+        return card;
+      }).filter((element, position, all) => all.indexOf(element) === position)
+        .filter((element) => !element.matches(".agenda, [data-hermes-exclude-from-player]"));
+    }
+    const explicit = Array.from(document.querySelectorAll(".card, article.card"))
+      .filter((element) => !element.matches(".takeaways, .agenda, [data-hermes-exclude-from-player]"));
+    const fallback = explicit.length
+      ? explicit
+      : Array.from(document.querySelectorAll("main article, main section, article, section"))
+        .filter((element) => element.querySelector("h2, h3"))
+        .filter((element) => !element.closest("#hermes-brief-player"))
+        .filter((element) => !element.matches(".takeaways, .agenda, [data-hermes-exclude-from-player]"));
+    return fallback;
+  }
+
+  function controls() {
+    root = ensureHermesPlayer();
+    previousButton = document.getElementById("tts-prev");
+    playButton = document.getElementById("tts-toggle");
+    nextButton = document.getElementById("tts-next");
+    volumeInput = document.getElementById("tts-volume");
+    speedButton = document.getElementById("tts-speed");
+    founderTakeaways = document.querySelector(".takeaways");
+    fullscreenButton = document.getElementById("hermes-ai-fullscreen-button");
+    cards = playableCards();
+    return Boolean(root && previousButton && playButton && nextButton && volumeInput && speedButton && cards.length);
+  }
+
+  function focusPlayerRoot() {
+    if (!root) return;
+    root.setAttribute("tabindex", "-1");
+    root.dataset.hermesAiFocusRestore = "v26-ai-player-focus-restore";
+    root.focus({ preventScroll: true });
+  }
+
+  function normalizedIndex(value) {
+    if (!cards.length) return 0;
+    return ((value % cards.length) + cards.length) % cards.length;
+  }
+
+  function sentenceForSpeech(value) {
+    const text = String(value || "").replace(/\s+/g, " ").trim();
+    if (!text) return "";
+    return /[.!?;:]$/.test(text) ? text : text + ".";
+  }
+
+  function takeawaySpeechSegments(card) {
+    const heading = sentenceForSpeech(card.querySelector("h1, h2, h3")?.textContent);
+    const segments = heading ? [{ text: heading, pauseAfter: 300 }] : [];
+    Array.from(card.querySelectorAll("li")).forEach((item, itemIndex) => {
+      const clone = item.cloneNode(true);
+      clone.querySelectorAll(".sources, .source, script, style").forEach((element) => element.remove());
+      const titleElement = clone.querySelector("strong, h3, h4");
+      const title = sentenceForSpeech(titleElement?.textContent);
+      titleElement?.remove();
+      const detail = sentenceForSpeech(clone.textContent);
+      segments.push({ text: ["Takeaway " + (itemIndex + 1) + ".", title].filter(Boolean).join(" "), pauseAfter: 500 });
+      if (detail) segments.push({ text: detail, pauseAfter: 350 });
+    });
+    return segments;
+  }
+
+  function takeawaySpeechText(card) {
+    return takeawaySpeechSegments(card).map((segment) => segment.text).join(" ");
+  }
+
+  function textFor(card) {
+    const clone = card.cloneNode(true);
+    clone.querySelectorAll(".sources, .source, script, style").forEach((element) => element.remove());
+    if (card.classList.contains("takeaways")) return takeawaySpeechText(card);
+    const parts = Array.from(clone.querySelectorAll("h1, h2, h3, h4, p, li, blockquote, dt, dd"))
+      .map((element) => element.textContent.trim())
+      .filter(Boolean);
+    if (parts.length) return parts.join(". ");
+    return clone.textContent.trim();
+  }
+
+  function configureNaturalVoice(utterance) {
+    const voices = synth ? synth.getVoices() : [];
+    const usableVoices = voices.filter((voice) =>
+      /^en([-_]|$)/i.test(voice.lang || "") &&
+      !blockedVoiceNames.some((name) => voice.name.toLowerCase().includes(name.toLowerCase()))
+    );
+    const selectedVoice = preferredVoiceNames
+      .map((name) => usableVoices.find((voice) => voice.name.toLowerCase().includes(name.toLowerCase())))
+      .find(Boolean) || null;
+    if (selectedVoice) utterance.voice = selectedVoice;
+    utterance.lang = selectedVoice?.lang || "en-US";
+    utterance.pitch = 1;
+    utterance.rate = playbackRate;
+    return Boolean(selectedVoice);
+  }
+
+  function speakWhenNaturalVoiceReady(utterance, attempt = 0) {
+    if (!synth || currentUtterance !== utterance) return;
+    if (configureNaturalVoice(utterance)) {
+      synth.speak(utterance);
+      return;
+    }
+    if (attempt >= 50) {
+      currentUtterance = null;
+      playing = false;
+      paused = false;
+      updateControls();
+      if (statusElement) statusElement.textContent = "Natural voice unavailable";
+      return;
+    }
+    if (statusElement) statusElement.textContent = "Loading natural voice…";
+    window.setTimeout(() => speakWhenNaturalVoiceReady(utterance, attempt + 1), 100);
+  }
+
+  function setStatus() {
+    if (!statusElement) return;
+    const state = paused ? " · paused" : playing ? " · playing" : "";
+    statusElement.textContent = "Topic " + (index + 1) + " of " + cards.length + state;
+  }
+
+  function updateControls() {
+    playButton.textContent = paused || !playing ? "▶" : "⏸";
+    playButton.setAttribute("aria-label", paused || !playing ? "Play reading" : "Pause reading");
+    playButton.setAttribute("aria-pressed", playing ? "true" : "false");
+    setStatus();
+  }
+
+  function applyCardVisualState(card, active) {
+    card.style.setProperty("border-color", active ? "#ffd166" : "#67e8f9", "important");
+    card.style.setProperty("outline", "none", "important");
+    card.style.setProperty("box-shadow", "none", "important");
+  }
+
+  function clearCardVisualState(card) {
+    card.style.removeProperty("border-color");
+    card.style.removeProperty("outline");
+    card.style.removeProperty("box-shadow");
+  }
+
+  function mark(options = {}) {
+    activeCardIndex = index;
+    if (founderTakeaways) {
+      founderTakeaways.classList.remove("active");
+      founderTakeaways.removeAttribute("aria-current");
+      clearCardVisualState(founderTakeaways);
+    }
+    cards.forEach((card, cardIndex) => {
+      const active = cardIndex === index;
+      card.classList.toggle("active", active);
+      card.setAttribute("aria-current", active ? "true" : "false");
+      applyCardVisualState(card, active);
+    });
+    const card = cards[index];
+    if (card && options.scroll === true) {
+      card.scrollIntoView({ behavior: options.behavior || "smooth", block: "start" });
+    }
+    setStatus();
+    publishViewportState();
+  }
+
+  function flash(button) {
+    button.classList.add("hermes-command-active");
+    window.setTimeout(() => button.classList.remove("hermes-command-active"), 220);
+  }
+
+  function clearTakeawayQueue() {
+    window.clearTimeout(takeawayQueueTimer);
+    takeawayQueueToken += 1;
+    takeawayQueue = [];
+    takeawayQueueIndex = 0;
+    speakingTakeaways = false;
+  }
+
+  function finishTakeawayQueue(queueToken) {
+    if (queueToken !== takeawayQueueToken) return;
+    currentUtterance = null;
+    takeawayQueue = [];
+    takeawayQueueIndex = 0;
+    speakingTakeaways = false;
+    playing = false;
+    paused = false;
+    updateControls();
+  }
+
+  function speakTakeawayQueue(segments, segmentIndex, queueToken) {
+    if (!synth || queueToken !== takeawayQueueToken || paused) return;
+    if (segmentIndex >= segments.length) {
+      finishTakeawayQueue(queueToken);
+      return;
+    }
+    takeawayQueueIndex = segmentIndex;
+    const segment = segments[segmentIndex];
+    const utterance = new SpeechSynthesisUtterance(segment.text);
+    utterance.volume = Math.max(0, Math.min(1, Number(volumeInput.value) || 0));
+    utterance.onend = () => {
+      if (currentUtterance !== utterance || queueToken !== takeawayQueueToken) return;
+      currentUtterance = null;
+      takeawayQueueIndex = segmentIndex + 1;
+      takeawayQueueTimer = window.setTimeout(
+        () => speakTakeawayQueue(segments, segmentIndex + 1, queueToken),
+        segment.pauseAfter,
+      );
+    };
+    utterance.onerror = () => finishTakeawayQueue(queueToken);
+    currentUtterance = utterance;
+    speakWhenNaturalVoiceReady(utterance);
+  }
+
+  function stopSpeech(options = {}) {
+    window.clearTimeout(playbackRestartTimer);
+    clearTakeawayQueue();
+    synth?.cancel();
+    currentUtterance = null;
+    playing = false;
+    paused = false;
+    if (options.clearHighlight) {
+      if (founderTakeaways) {
+        founderTakeaways.classList.remove("active");
+        founderTakeaways.removeAttribute("aria-current");
+        clearCardVisualState(founderTakeaways);
+      }
+      cards.forEach((card) => {
+        card.classList.remove("active");
+        card.removeAttribute("aria-current");
+        clearCardVisualState(card);
+      });
+    }
+    updateControls();
+  }
+
+  function speakCurrent(options = {}) {
+    if (!synth || !cards.length) return;
+    window.clearTimeout(playbackRestartTimer);
+    clearTakeawayQueue();
+    synth.cancel();
+    index = normalizedIndex(index);
+    navigationStarted = true;
+    const utterance = new SpeechSynthesisUtterance(textFor(cards[index]));
+    utterance.volume = Math.max(0, Math.min(1, Number(volumeInput.value) || 0));
+    utterance.onend = () => {
+      if (currentUtterance !== utterance) return;
+      currentUtterance = null;
+      playing = false;
+      paused = false;
+      updateControls();
+    };
+    utterance.onerror = () => {
+      if (currentUtterance !== utterance) return;
+      currentUtterance = null;
+      playing = false;
+      paused = false;
+      updateControls();
+    };
+    currentUtterance = utterance;
+    playing = true;
+    paused = false;
+    mark({ scroll: options.scroll === true });
+    updateControls();
+    speakWhenNaturalVoiceReady(utterance);
+  }
+
+  function selectAndPlay(selectedIndex, options = {}) {
+    index = normalizedIndex(selectedIndex);
+    const selectedCard = cards[index];
+    if (options.focus === true) selectedCard?.focus({ preventScroll: true });
+    speakCurrent({ scroll: options.scroll === true });
+  }
+
+  function selectFounderTakeaways(options = {}) {
+    if (!founderTakeaways) return false;
+    activeCardIndex = -1;
+    navigationStarted = false;
+    cards.forEach((card) => {
+      card.classList.remove("active");
+      card.removeAttribute("aria-current");
+      applyCardVisualState(card, false);
+    });
+    founderTakeaways.classList.add("hermes-playable-card", "active");
+    founderTakeaways.setAttribute("aria-current", "true");
+    applyCardVisualState(founderTakeaways, true);
+    if (options.scroll === true) founderTakeaways.scrollIntoView({ behavior: options.behavior || "smooth", block: "start" });
+    if (statusElement) statusElement.textContent = "Founder takeaways";
+    publishViewportState();
+    return true;
+  }
+
+  function playFounderTakeaways(options = {}) {
+    if (!founderTakeaways || !synth) {
+      selectAndPlay(0, options);
+      return;
+    }
+    window.clearTimeout(playbackRestartTimer);
+    clearTakeawayQueue();
+    synth.cancel();
+    selectFounderTakeaways(options);
+
+    takeawayQueue = takeawaySpeechSegments(founderTakeaways);
+    takeawayQueueIndex = 0;
+    takeawayQueueToken += 1;
+    const queueToken = takeawayQueueToken;
+    speakingTakeaways = true;
+    playing = true;
+    paused = false;
+    playButton.textContent = "⏸";
+    playButton.setAttribute("aria-label", "Pause reading");
+    playButton.setAttribute("aria-pressed", "true");
+    if (statusElement) statusElement.textContent = "Founder takeaways · playing";
+    speakTakeawayQueue(takeawayQueue, 0, queueToken);
+  }
+
+  function togglePlayback() {
+    if (!synth) return;
+    if (playing) {
+      if (currentUtterance) synth.pause();
+      else window.clearTimeout(takeawayQueueTimer);
+      playing = false;
+      paused = true;
+      updateControls();
+      return;
+    }
+    if (paused) {
+      playing = true;
+      paused = false;
+      if (currentUtterance) synth.resume();
+      else if (speakingTakeaways) speakTakeawayQueue(takeawayQueue, takeawayQueueIndex, takeawayQueueToken);
+      updateControls();
+      return;
+    }
+    if (activeCardIndex === -1) playFounderTakeaways();
+    else speakCurrent();
+  }
+
+  const VOLUME_STORAGE_KEY = "hermes-briefs-ai-volume-v1";
+
+  function normalizeVolume(value) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? Math.max(0, Math.min(1, numeric)) : 0.45;
+  }
+
+  function readStoredVolume() {
+    try {
+      const stored = window.localStorage.getItem(VOLUME_STORAGE_KEY);
+      return stored === null ? 0.45 : normalizeVolume(stored);
+    } catch (_reason) {
+      // Sandboxed dashboard iframes have opaque origins; the parent restores their value.
+      return 0.45;
+    }
+  }
+
+  function applyVolume(value, options = {}) {
+    const normalized = normalizeVolume(value);
+    volumeInput.value = String(normalized);
+    volumeInput.setAttribute("aria-valuetext", Math.round(normalized * 100) + "%");
+    volumeInput.setAttribute("title", "Volume " + Math.round(normalized * 100) + "%");
+    if (currentUtterance) currentUtterance.volume = normalized;
+    if (options.persist !== false) {
+      try { window.localStorage.setItem(VOLUME_STORAGE_KEY, String(normalized)); } catch (_reason) {}
+    }
+    if (options.publish !== false && window.parent) {
+      window.parent.postMessage({ type: "hermes-ai-volume-change", volume: normalized }, "*");
+    }
+  }
+
+  function setVolume(value) {
+    // A volume adjustment must never cancel, requeue, scroll, or restart narration.
+    applyVolume(value);
+  }
+
+  function playbackRateLabel(rate) {
+    return String(rate) + "x";
+  }
+
+  function setPlaybackRate(rate) {
+    const nextRate = playbackRates.includes(Number(rate)) ? Number(rate) : 1.25;
+    playbackRate = nextRate;
+    speedButton.textContent = playbackRateLabel(playbackRate);
+    speedButton.setAttribute("aria-label", "Playback speed " + playbackRateLabel(playbackRate));
+    speedButton.setAttribute("title", "Playback speed");
+    if (!playing) return;
+    window.clearTimeout(playbackRestartTimer);
+    const restartTakeaways = speakingTakeaways;
+    playbackRestartTimer = window.setTimeout(() => restartTakeaways ? playFounderTakeaways() : speakCurrent(), 120);
+  }
+
+  function cyclePlaybackRate(direction = 1) {
+    const currentIndex = playbackRates.indexOf(playbackRate);
+    const nextIndex = (currentIndex + direction + playbackRates.length) % playbackRates.length;
+    setPlaybackRate(playbackRates[nextIndex]);
+  }
+
+  function runCommand(command) {
+    if (command === "toggle") {
+      togglePlayback();
+      flash(playButton);
+    } else if (command === "previous") {
+      if (!navigationStarted) selectAndPlay(0, { scroll: true });
+      else selectAndPlay(index - 1, { scroll: true });
+      flash(previousButton);
+    } else if (command === "next") {
+      if (!navigationStarted) selectAndPlay(0, { scroll: true });
+      else selectAndPlay(index + 1, { scroll: true });
+      flash(nextButton);
+    } else if (command === "first") {
+      playFounderTakeaways({ scroll: true });
+      flash(previousButton);
+    }
+  }
+
+  function commandForEvent(event) {
+    if (event.code === "Space" || event.key === " " || event.key === "Spacebar") return "toggle";
+    if (event.key === "ArrowLeft") return "previous";
+    if (event.key === "ArrowRight") return "next";
+    if (event.key === "ArrowUp") return "first";
+    return null;
+  }
+
+  function interactiveTarget(target) {
+    return target instanceof Element && Boolean(
+      target.closest('input, textarea, select, button, a, [contenteditable="true"]')
+    );
+  }
+
+  function textEditingTarget(target) {
+    return target instanceof Element && Boolean(
+      target.closest('input:not([type="range"]), textarea, select, [contenteditable="true"]')
+    );
+  }
+
+  function isVolumeControl(target) {
+    return target instanceof HTMLInputElement && target.id === "tts-volume" && target.type === "range";
+  }
+
+  function pinPlayer() {
+    root.classList.add(PLAYER_CLASS);
+    placeholder = root.previousElementSibling;
+    if (!placeholder || !placeholder.classList.contains(PLACEHOLDER_CLASS)) {
+      placeholder = document.createElement("div");
+      placeholder.className = PLACEHOLDER_CLASS;
+      root.parentElement?.insertBefore(placeholder, root);
+    }
+    const syncHeight = () => {
+      const height = Math.ceil(root.getBoundingClientRect().height);
+      placeholder.style.height = height + "px";
+      document.documentElement.style.setProperty("--hermes-player-height", height + 20 + "px");
+    };
+    syncHeight();
+    if ("ResizeObserver" in window) new ResizeObserver(syncHeight).observe(root);
+  }
+
+  function init() {
+    normalizeAiVisualStructure();
+    normalizeTakeawayDetails();
+    if (!controls()) return;
+    window.__hermesAiCaptureActiveCard = captureViewportPosition;
+    ensureDateNavigator();
+    synth.cancel();
+    synth.getVoices();
+    volumeInput.min = "0";
+    volumeInput.max = "1";
+    volumeInput.step = "0.05";
+    volumeInput.setAttribute("aria-label", "Volume");
+    applyVolume(readStoredVolume(), { persist: false, publish: false });
+    setPlaybackRate(1.25);
+
+
+    cards.forEach((card, cardIndex) => {
+      card.classList.add("hermes-playable-card");
+      card.setAttribute("role", "button");
+      card.setAttribute("tabindex", "0");
+      card.setAttribute("aria-label", "Play topic " + (cardIndex + 1));
+      card.addEventListener("click", (event) => {
+        if (interactiveTarget(event.target)) return;
+        event.stopPropagation();
+        const selectedCard = event.currentTarget;
+        const selectedIndex = cards.indexOf(selectedCard);
+        if (selectedIndex < 0) return;
+        selectedCard.focus({ preventScroll: true });
+        selectAndPlay(selectedIndex, { focus: true, scroll: true });
+      });
+    });
+
+    previousButton.onclick = (event) => { event.preventDefault(); runCommand("previous"); };
+    playButton.onclick = (event) => { event.preventDefault(); runCommand("toggle"); };
+    nextButton.onclick = (event) => { event.preventDefault(); runCommand("next"); };
+    volumeInput.oninput = () => setVolume(volumeInput.value);
+    speedButton.onclick = (event) => { event.preventDefault(); cyclePlaybackRate(); };
+    // The slider is pointer-only: preserve player keys and suppress every native range key.
+    volumeInput.tabIndex = -1;
+    volumeInput.addEventListener("keydown", (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    });
+
+    fullscreenButton?.addEventListener("click", toggleFullscreen);
+    document.addEventListener("fullscreenchange", () => updateFullscreenButton(Boolean(document.fullscreenElement)));
+    updateFullscreenButton();
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        void toggleFullscreen();
+        return;
+      }
+      const dateDirection = event.key === "[" ? "newer" : event.key === "]" ? "older" : null;
+      if (dateDirection) {
+        if (textEditingTarget(event.target) && !isVolumeControl(event.target)) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        window.parent?.postMessage({ type: DATE_NAV_MESSAGE_TYPE, direction: dateDirection, position: captureViewportPosition() }, "*");
+        return;
+      }
+      const speedDirection = event.code === "KeyS" || event.key.toLowerCase() === "s"
+        ? (event.shiftKey ? -1 : 1)
+        : 0;
+      if (speedDirection) {
+        if (textEditingTarget(event.target) && !isVolumeControl(event.target)) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        focusPlayerRoot();
+        cyclePlaybackRate(speedDirection);
+        flash(speedButton);
+        return;
+      }
+      const command = commandForEvent(event);
+      if (!command) return;
+      if (textEditingTarget(event.target) && !isVolumeControl(event.target)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      focusPlayerRoot();
+      runCommand(command);
+    }, true);
+
+    window.addEventListener("message", (event) => {
+      if (event.source !== window.parent) return;
+      if (event.data?.type === "hermes-ai-fullscreen-state") {
+        updateFullscreenButton(Boolean(event.data.active));
+        return;
+      }
+      if (event.data?.type === "hermes-ai-stop-audio") {
+        stopSpeech({ clearHighlight: true });
+        return;
+      }
+      if (event.data?.type === "hermes-ai-viewport-restore") {
+        restoreViewportPosition(event.data.position);
+        return;
+      }
+      if (event.data?.type === "hermes-ai-volume-restore") {
+        applyVolume(event.data.volume, { publish: false });
+        return;
+      }
+      if (event.data?.type !== MESSAGE_TYPE) return;
+      focusPlayerRoot();
+      runCommand(event.data.command);
+    });
+    window.addEventListener("beforeunload", () => stopSpeech({ clearHighlight: true }));
+
+    pinPlayer();
+    index = 0;
+    if (!selectFounderTakeaways()) mark({ behavior: "auto", scroll: false });
+    updateControls();
+    window.parent?.postMessage({ type: "hermes-brief-player-ready" }, "*");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
+})();
+</script><!-- V34 GOLD MASTER INLINE CONTROLLER: keeps AI date changes inside one stable offline frame while preserving per-date card state. -->
+<style id="hermes-ai-stable-date-frame-style">
+/* GOLD MASTER STYLE: hermes-ai-stable-date-frame-style
+Purpose: Makes one stable full-window frame own standalone AI date changes so fullscreen, focus, active-card position, and narration settings survive file swaps.
+Restore notes: Keep with the export navigation controller and sibling AI HTML files. The frame is activated only after an offline date change.
+*/
+/* The stable frame prevents a standalone AI export from losing fullscreen/focus state when dates change. */
+html.hermes-ai-date-frame-active, html.hermes-ai-date-frame-active body { overflow: hidden !important; }
+html.hermes-ai-date-frame-active body > :not(#hermes-ai-stable-date-frame) { display: none !important; }
+#hermes-ai-stable-date-frame { position: fixed !important; inset: 0 !important; z-index: 2147483647 !important; display: block !important; width: 100vw !important; height: 100vh !important; border: 0 !important; background: #0b1020 !important; color-scheme: dark !important; }
+</style><script id="hermes-brief-export-navigation-controller">
+/* GOLD MASTER CONTROLLER: hermes-brief-export-navigation-controller
+Purpose: Owns offline AI archive links and cyclic date changes inside one stable frame while preserving per-date card, viewport, volume, focus, audio-stop, and fullscreen state.
+State: Tracks current date, date-to-file mapping, stable frame, pending viewport/card state, per-date active cards, and persistent volume with a 45% missing-value default.
+Inputs: Archive-link clicks, date/fullscreen/volume postMessage events, localStorage when available, frame load events, and Fullscreen API events.
+Outputs: Sibling-file frame loads, audio-stop and state-restore messages, persisted volume, stable focus, and cyclic date selection.
+Dependencies: All BRIEFS-AI HTML files from the same export folder, browser DOM/iframe/Fullscreen APIs, localStorage when available, and no host API or network.
+Restore notes: Share the complete AI HTML set together and preserve filenames from the inline state map; a lone file still renders but cannot open missing sibling dates.
+*/
+(() => {
+  const state = {"selectedDate":"2026-07-15","archiveDates":["2026-07-20","2026-07-18","2026-07-17","2026-07-16","2026-07-15"],"files":{"2026-07-20":"BRIEFS-AI - 2026-07-20.html","2026-07-18":"BRIEFS-AI - 2026-07-18.html","2026-07-17":"BRIEFS-AI - 2026-07-17.html","2026-07-16":"BRIEFS-AI - 2026-07-16.html","2026-07-15":"BRIEFS-AI - 2026-07-15.html"}};
+  const FILE_TO_DATE = Object.fromEntries(Object.entries(state.files).map(([date, file]) => [file, date]));
+  let currentDate = state.selectedDate;
+  let frame = null;
+  let pendingPosition = { scrollX: 0, scrollY: 0, topicIndex: 0 };
+  const activeCardByDate = new Map();
+  const VOLUME_STORAGE_KEY = "hermes-briefs-ai-volume-v1";
+  let volume = 0.45;
+  try {
+    const storedVolumeRaw = window.localStorage.getItem(VOLUME_STORAGE_KEY);
+    if (storedVolumeRaw !== null) {
+      const storedVolume = Number(storedVolumeRaw);
+      if (Number.isFinite(storedVolume)) volume = Math.max(0, Math.min(1, storedVolume));
+    }
+  } catch (_reason) {}
+
+  function captureViewportPosition() {
+    const activeCard = window.__hermesAiCaptureActiveCard?.();
+    return activeCard || { scrollX: window.scrollX, scrollY: window.scrollY, topicIndex: 0 };
+  }
+  function safePosition(position) {
+    return {
+      scrollX: Number.isFinite(position?.scrollX) ? Math.max(0, position.scrollX) : 0,
+      scrollY: Number.isFinite(position?.scrollY) ? Math.max(0, position.scrollY) : 0,
+      topicIndex: Number.isInteger(position?.topicIndex) ? position.topicIndex : 0,
+    };
+  }
+
+  function activeFrame() {
+    return document.getElementById("hermes-ai-stable-date-frame");
+  }
+  function publishFullscreenState() {
+    const target = activeFrame();
+    target?.contentWindow?.postMessage({ type: "hermes-ai-fullscreen-state", active: Boolean(document.fullscreenElement) }, "*");
+  }
+  function restoreChildViewport() {
+    const target = activeFrame();
+    target?.contentWindow?.postMessage({ type: "hermes-ai-viewport-restore", position: pendingPosition }, "*");
+  }
+  function restoreChildVolume() {
+    const target = activeFrame();
+    target?.contentWindow?.postMessage({ type: "hermes-ai-volume-restore", volume }, "*");
+  }
+  function focusActiveFrame() {
+    const target = activeFrame();
+    if (!target) return;
+    target.focus({ preventScroll: true });
+    target.contentWindow?.focus();
+  }
+  function publishFrameState() {
+    publishFullscreenState();
+    restoreChildViewport();
+    restoreChildVolume();
+    focusActiveFrame();
+    window.requestAnimationFrame(focusActiveFrame);
+  }
+  function stopActiveAudio() {
+    window.speechSynthesis?.cancel();
+    const target = activeFrame();
+    target?.contentWindow?.postMessage({ type: "hermes-ai-stop-audio" }, "*");
+  }
+  async function toggleStableFullscreen() {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch (_reason) {
+      // Browser fullscreen denial leaves the stable date frame unchanged.
+    }
+    publishFullscreenState();
+  }
+  function ensureStableFrame() {
+    frame = activeFrame();
+    if (!frame) {
+      frame = document.createElement("iframe");
+      frame.id = "hermes-ai-stable-date-frame";
+      frame.title = "AI Brief date preview";
+      frame.allowFullscreen = true;
+      frame.setAttribute("allow", "fullscreen");
+      frame.addEventListener("load", publishFrameState);
+      document.body.appendChild(frame);
+    }
+    document.documentElement.classList.add("hermes-ai-date-frame-active");
+    return frame;
+  }
+  function requestFile(file, position = captureViewportPosition()) {
+    if (!file) return;
+    let viewportPosition = safePosition(position);
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: "hermes-ai-export-date-load", file, position: viewportPosition }, "*");
+      return;
+    }
+    const destinationDate = FILE_TO_DATE[file] || currentDate;
+    activeCardByDate.set(currentDate, viewportPosition.topicIndex);
+    const rememberedTopicIndex = activeCardByDate.get(destinationDate);
+    if (Number.isInteger(rememberedTopicIndex)) {
+      viewportPosition = { ...viewportPosition, topicIndex: rememberedTopicIndex };
+    } else {
+      activeCardByDate.set(destinationDate, viewportPosition.topicIndex);
+    }
+    stopActiveAudio();
+    pendingPosition = viewportPosition;
+    currentDate = destinationDate;
+    const target = ensureStableFrame();
+    if (target.getAttribute("src") !== file) target.src = file;
+    else restoreChildViewport();
+  }
+  function navigate(direction, position = captureViewportPosition()) {
+    const current = state.archiveDates.indexOf(currentDate);
+    const offset = direction === "newer" ? -1 : direction === "older" ? 1 : 0;
+    if (current < 0 || offset === 0 || state.archiveDates.length === 0) return;
+    // Standalone exports use the same archive ring as the live dashboard:
+    // crossing either boundary continues at the opposite end instead of stopping.
+    const targetIndex = (current + offset + state.archiveDates.length) % state.archiveDates.length;
+    const date = state.archiveDates[targetIndex];
+    requestFile(date && state.files[date], position);
+  }
+  document.querySelectorAll("#hermes-brief-export-shell a[href]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const file = link.getAttribute("href");
+      if (!file) return;
+      event.preventDefault();
+      requestFile(file);
+    });
+  });
+  window.addEventListener("message", (event) => {
+    const target = activeFrame();
+    if (event.source !== window && event.source !== target?.contentWindow) return;
+    if (event.data?.type === "hermes-ai-export-date-load") {
+      requestFile(event.data.file, event.data.position);
+      return;
+    }
+    if (event.data?.type === "hermes-brief-date-navigation") {
+      navigate(event.data.direction, event.data.position);
+      return;
+    }
+    if (event.data?.type === "hermes-ai-volume-change") {
+      const nextVolume = Number(event.data.volume);
+      if (!Number.isFinite(nextVolume) || nextVolume < 0 || nextVolume > 1) return;
+      volume = nextVolume;
+      try { window.localStorage.setItem(VOLUME_STORAGE_KEY, String(volume)); } catch (_reason) {}
+      return;
+    }
+    if (event.data?.type === "hermes-ai-fullscreen-toggle") void toggleStableFullscreen();
+  });
+  document.addEventListener("fullscreenchange", publishFullscreenState);
+})();
+</script><!-- HERMES_BRIEFS_EXPORT_MANIFEST {"accepted_ui":"v61-date-load-keyboard-focus","export_schema":"briefs-v34-gold-master","format":"html","kind":"ai","html_self_contained":true,"inline_css":true,"inline_javascript":true,"gold_master_documented":true,"style_comment_contract":"purpose-and-restore","script_comment_contract":"purpose-state-inputs-outputs-dependencies-and-restore","companion_html_pattern":"BRIEFS-AI - YYYY-MM-DD.html","purpose":"Standalone visual and interactive recreation of the accepted Briefs dashboard archive."} --></body></html>

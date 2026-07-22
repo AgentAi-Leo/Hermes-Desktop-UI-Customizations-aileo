@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AgentAi-Leo/Hermes-Desktop-UI-Customizations-aileo/briefs/schemas/ai-brief-data-v1.schema.json",
+  "title": "AI Morning Brief data v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "kind", "date", "timezone", "generated_at", "founder_takeaways", "topics"],
+  "properties": {
+    "contract_version": {"const": "ai-brief-data-v1"},
+    "kind": {"const": "ai"},
+    "date": {"type": "string", "format": "date"},
+    "timezone": {"const": "America/Los_Angeles"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "founder_takeaways": {
+      "type": "array", "minItems": 5, "maxItems": 7,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["headline", "detail"],
+        "properties": {
+          "headline": {"type": "string", "minLength": 1},
+          "detail": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "topics": {
+      "type": "array", "minItems": 5, "maxItems": 7,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["number", "headline", "summary", "why_it_matters", "actionable_implication", "sources"],
+        "properties": {
+          "number": {"type": "integer", "minimum": 1, "maximum": 7},
+          "headline": {"type": "string", "minLength": 1},
+          "summary": {"type": "string", "minLength": 1},
+          "why_it_matters": {"type": "string", "minLength": 1},
+          "actionable_implication": {"type": "string", "minLength": 1},
+          "sources": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["label", "url"],
+              "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

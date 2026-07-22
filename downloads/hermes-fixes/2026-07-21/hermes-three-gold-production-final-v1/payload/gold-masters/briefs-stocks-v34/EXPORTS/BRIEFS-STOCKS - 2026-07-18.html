@@ -1,0 +1,466 @@
+<!doctype html><html lang="en" data-hermes-canonical-stock="v26"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; base-uri 'none'; form-action 'none'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Stock Brief</title><style id="hermes-v25-stock-base-style">
+/* GOLD MASTER STYLE: hermes-v25-stock-base-style
+Purpose: Defines the canonical dark Stocks canvas, color tokens, hero, portfolio table, quote rows, movement colors, and base responsive fallback.
+Restore notes: Keep this block first. It supplies safe fallback styling before the accepted Stocks hero and row refinements are applied.
+*/
+:root{color-scheme:dark;--bg:#0b1020;--panel:#111827;--text:#eef3ff;--muted:#aab8ca;--line:#334155;--yellow:#ffd166;--cyan:#67e8f9;--up:#4ade80;--down:#fb7185}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}body{padding:32px 28px 64px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.hero{padding:28px;border:1px solid #263456;border-radius:22px;background:linear-gradient(135deg,#182345,#10182f)}.pill{display:inline-block;margin-bottom:18px;padding:10px 22px;border-radius:999px;background:var(--yellow);color:var(--bg);font-size:22px;font-weight:800}.heading{display:flex;justify-content:space-between;gap:28px}.hero h1{margin:0;font-size:64px;line-height:1.05}.date{color:var(--cyan);font-size:27px}.summary{text-align:right;font-variant-numeric:tabular-nums}.summary-label{display:block;color:var(--yellow);font-size:22px;font-weight:850;letter-spacing:.08em}.summary-value{display:block;font-size:64px;line-height:1.05}.positive{color:var(--up)}.negative{color:var(--down)}.portfolio{margin:18px 0 22px;padding:18px;border:1px solid rgba(138,180,255,.45);border-radius:14px;background:rgba(10,24,42,.72)}.portfolio h2{margin:0 0 4px;color:var(--yellow)}.table-wrap{overflow-x:auto}table{width:100%;min-width:1200px;border-collapse:collapse;font-variant-numeric:tabular-nums}th,td{padding:8px 9px;border-bottom:1px solid rgba(255,255,255,.12);text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left}.grid{display:flex;flex-direction:column;gap:10px}.stock-row{display:grid;grid-template-columns:minmax(220px,1.45fr) repeat(5,minmax(95px,1fr));align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--line);border-radius:16px;background:var(--panel)}.ticker{display:block;color:var(--yellow);font-size:31px;font-weight:850}.company{display:block;color:var(--text);font-size:18px}.price{display:block;font-size:27px;font-weight:850}.movement{display:block;font-size:18px;font-weight:760}.metric span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase}.metric strong{font-size:16px}a{color:var(--cyan)}@media(max-width:900px){.heading{flex-direction:column}.summary{text-align:left}.hero h1,.summary-value{font-size:48px}.stock-row{grid-template-columns:1fr 1fr}}
+</style><style id="hermes-brief-player-style">
+/* GOLD MASTER STYLE: hermes-brief-player-style
+Purpose: Styles the fixed AI narration toolbar, date controls, active-card states, portfolio compatibility rules, canonical Stock rows, and responsive layouts.
+Restore notes: Preserve its selectors with the player controller. The normal-flow placeholder and --hermes-player-height prevent content from hiding under the fixed toolbar.
+*/
+html, body { width: 100% !important; max-width: none !important; overflow-x: hidden !important; }
+.wrap { width: 100% !important; max-width: none !important; margin: 0 !important; }
+.hermes-brief-player-sticky {
+  position: fixed !important;
+  inset: 0 0 auto 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+  z-index: 2147483647 !important;
+  margin: 0 !important;
+  border-radius: 0 0 14px 14px !important;
+  background: var(--bg, #0f1117) !important;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .42), 0 1px 0 rgba(255, 255, 255, .12) !important;
+  padding-top: max(10px, env(safe-area-inset-top)) !important;
+  isolation: isolate;
+}
+.hermes-brief-player-placeholder { display: block !important; width: 100% !important; }
+.hermes-brief-player-sticky input[type="range"] { width: 137.5px !important; min-width: 137.5px !important; height: 28px !important; cursor: pointer !important; }
+.hermes-brief-player-sticky button { min-width: 38px !important; min-height: 38px !important; }
+.hermes-brief-player-sticky button.hermes-command-active,
+.hermes-brief-player-sticky button:active {
+  border-color: var(--accent, var(--link, #8ab4ff)) !important;
+  color: var(--accent, var(--link, #8ab4ff)) !important;
+  box-shadow: 0 0 0 2px var(--accent, var(--link, #8ab4ff)) !important;
+}
+.hermes-brief-player-status { color: var(--muted, #93a4bd); font-size: 12px; white-space: nowrap; }
+#hermes-brief-player .hermes-player-shell { position: relative !important; display: flex; min-height: 50px; align-items: center; gap: 9px; padding: 8px 16px 10px; color: var(--text, #f4f7fb); }
+#hermes-brief-player .hermes-player-volume { display: inline-flex; align-items: center; gap: 7px; color: var(--muted, #aab8ca); font-size: 12px; white-space: nowrap; }
+#hermes-brief-player #tts-speed { min-width: 58px !important; height: 36px !important; min-height: 36px !important; padding: 0 13px !important; border: 1px solid rgba(255,255,255,.16) !important; border-radius: 999px !important; background: #05070c !important; color: #f7f8fb !important; font-size: 13px !important; font-weight: 600 !important; font-variant-numeric: tabular-nums !important; }
+#hermes-brief-player #tts-speed:hover { border-color: rgba(255,255,255,.34) !important; }
+#hermes-brief-player .hermes-date-nav { position: absolute !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; display: inline-flex !important; align-items: center !important; gap: 18px !important; margin: 0 !important; vertical-align: middle !important; }
+#hermes-brief-player .hermes-date-nav-label { display: inline-flex !important; min-height: 42px !important; align-items: center !important; padding: 0 16px !important; border-radius: 999px !important; background: #67e8f9 !important; color: #07111f !important; font-size: 17px !important; line-height: 42px !important; font-weight: 850 !important; letter-spacing: .02em !important; white-space: nowrap !important; }
+#hermes-brief-player .hermes-date-nav button { width: 42px !important; height: 42px !important; min-width: 42px !important; min-height: 42px !important; margin: 0 !important; border: 1px solid #67e8f9 !important; border-radius: 999px !important; background: rgba(103, 232, 249, .10) !important; color: #67e8f9 !important; font-size: 26px !important; line-height: 1 !important; }
+#hermes-brief-player + .hero, #hermes-brief-player ~ .hero { scroll-margin-top: var(--hermes-player-height, 10rem); }
+header .tts, header .player { display: none !important; }
+.card, .hermes-playable-card { width: 100% !important; max-width: none !important; scroll-margin-top: var(--hermes-player-height, 10rem) !important; }
+.card[role="button"], .hermes-playable-card[role="button"] { cursor: pointer !important; }
+.card[role="button"]:hover, .hermes-playable-card[role="button"]:hover { border-color: var(--accent, var(--link, #8ab4ff)) !important; }
+.card[role="button"]:focus-visible, .hermes-playable-card[role="button"]:focus-visible { outline: 2px solid var(--accent, var(--link, #8ab4ff)) !important; outline-offset: 2px; }
+.hermes-playable-card.active,
+.hermes-playable-card[aria-current="true"],
+.hermes-playable-card.active:hover,
+.hermes-playable-card[aria-current="true"]:hover,
+.hermes-playable-card.active:focus-visible,
+.hermes-playable-card[aria-current="true"]:focus-visible {
+  border-color: #ffd166 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+/* AI topic headlines use the concise July 14 visual hierarchy. */
+.hermes-playable-card h2, .hermes-playable-card h3 { color: var(--hot, #ffd166) !important; }
+.hermes-playable-card.takeaways h2 { color: #67e8f9 !important; text-transform: uppercase !important; letter-spacing: .035em !important; }
+.hermes-playable-card.takeaways ol { margin: 1.25rem 0 0 !important; padding-left: 2.15rem !important; }
+.hermes-playable-card.takeaways li { font-size: 1.2em !important; line-height: 1.58 !important; margin: 0 0 1.15rem !important; }
+.hermes-playable-card.takeaways li > strong:first-child { display: block !important; color: #67e8f9 !important; font-size: 1.35em !important; line-height: 1.25 !important; margin: 0 0 .32rem !important; }
+.hermes-playable-card.takeaways li::marker { color: #67e8f9 !important; font-size: 1.35em !important; font-weight: 850 !important; }
+/* Cron dates are metadata, not a secondary hierarchy. Keep them consistently cyan. */
+header .date, header .sub { color: #67e8f9 !important; }
+.hermes-portfolio-comparison { margin: 18px 0 22px; padding: 18px; border: 1px solid rgba(138, 180, 255, .45); border-radius: 14px; background: rgba(10, 24, 42, .72); color: var(--text, #f4f7fb); }
+.hermes-portfolio-comparison h2 { color: #ffd166 !important; margin: 0 0 4px; font-size: clamp(28px, 3.08vw, 39px); }
+.hermes-portfolio-comparison .hermes-portfolio-note { margin: 0 0 14px; color: var(--muted, #aab8ca); font-size: 18px; }
+.hermes-portfolio-table-wrap { width: 100%; overflow-x: auto; }
+.hermes-portfolio-table { width: 100%; min-width: 1480px; table-layout: fixed; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.hermes-portfolio-table th, .hermes-portfolio-table td { padding: 8px 9px; border-bottom: 1px solid rgba(255, 255, 255, .12); text-align: right; white-space: nowrap; }
+.hermes-portfolio-table th { font-size: 14.7px; }
+.hermes-portfolio-table td { font-size: 18.2px; }
+.hermes-portfolio-table th:first-child, .hermes-portfolio-table td:first-child { width: 20%; min-width: 230px; }
+/* Stock quote cards are intentionally transformed into concise full-width rows. */
+[aria-label="Stock price cards"] { display: flex !important; flex-direction: column !important; gap: 10px !important; }
+[aria-label="Stock price cards"] .card { display: grid !important; grid-template-columns: minmax(210px, 1.45fr) repeat(5, minmax(92px, 1fr)) !important; grid-template-rows: auto auto; gap: 4px 14px !important; align-items: center !important; margin: 0 !important; padding: 16px 18px !important; }
+[aria-label="Stock price cards"] .card h2 { grid-column: 1; grid-row: 1 / span 2; margin: 0 !important; }
+.hermes-card-daily-change { display: inline-block; margin-left: 10px; font-size: .9em; font-weight: 760; }
+[aria-label="Stock price cards"] .card > .change,
+[aria-label="Stock price cards"] .card > p.positive,
+[aria-label="Stock price cards"] .card > p.negative { display: none !important; }
+[aria-label="Stock price cards"] .card .stats { display: contents !important; }
+[aria-label="Stock price cards"] .card .stats > * { min-width: 0; margin: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(n+6) { display: none !important; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(1) { grid-column: 2; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(2) { grid-column: 3; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(3) { grid-column: 4; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(4) { grid-column: 5; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats > *:nth-child(5) { grid-column: 6; grid-row: 1 / span 2; }
+[aria-label="Stock price cards"] .card .stats .label { display: block; margin-bottom: 2px; font-size: 10px; letter-spacing: .07em; text-transform: uppercase; }
+[aria-label="Stock price cards"] .card .stats strong { font-size: 1rem; }
+@media (max-width: 840px) { [aria-label="Stock price cards"] .card { grid-template-columns: minmax(190px, 1fr) repeat(3, minmax(88px, 1fr)) !important; } [aria-label="Stock price cards"] .card .stats > *:nth-child(1) { grid-column: 2; grid-row: 1; } [aria-label="Stock price cards"] .card .stats > *:nth-child(2) { grid-column: 3; grid-row: 1; } [aria-label="Stock price cards"] .card .stats > *:nth-child(3) { grid-column: 4; grid-row: 1; } [aria-label="Stock price cards"] .card .stats > *:nth-child(4) { grid-column: 2; grid-row: 2; } [aria-label="Stock price cards"] .card .stats > *:nth-child(5) { grid-column: 3; grid-row: 2; } }
+@media (max-width: 620px) { [aria-label="Stock price cards"] .card { grid-template-columns: 1fr 1fr !important; } [aria-label="Stock price cards"] .card h2 { grid-column: 1 / -1; grid-row: auto; } [aria-label="Stock price cards"] .card .stats > * { grid-column: auto !important; grid-row: auto !important; } }
+.hermes-portfolio-table th:first-child, .hermes-portfolio-table td:first-child { text-align: left; }
+.hermes-portfolio-table thead th { color: var(--muted, #aab8ca); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.hermes-portfolio-table tbody tr:hover { background: rgba(138, 180, 255, .07); }
+.hermes-portfolio-position { display: block; font-weight: 750; }
+.hermes-portfolio-meta { display: block; margin-top: 3px; color: var(--muted, #aab8ca); font-size: 15.25px; font-weight: 500; }
+.hermes-portfolio-shares { color: #ffd766; font-weight: 800; }
+.hermes-portfolio-table thead .hermes-portfolio-shares { color: #ffd766; }
+.hermes-portfolio-purchase { color: #ffd766; font-weight: 800; }
+.hermes-portfolio-table thead .hermes-portfolio-purchase { color: #ffd766; }
+.hermes-portfolio-positive { color: #4ade80; font-weight: 750; }
+.hermes-portfolio-negative { color: #fb7185; font-weight: 750; }
+.hermes-card-inline-price { display: block; margin-top: .2rem; font-size: 1.35rem; font-weight: 850; white-space: nowrap; }
+/* Preserve each archived brief's original card/grid layout.  Only the price moves beneath the ticker. */
+.card h2 { display: block !important; }
+.hermes-portfolio-unavailable { color: var(--muted, #aab8ca); }
+.hermes-portfolio-table tfoot td { border-top: 2px solid rgba(138, 180, 255, .55); border-bottom: 0; font-weight: 800; }
+@media (max-width: 700px) {
+  .wrap { padding: 10px 8px 28px !important; }
+  .hermes-brief-player-sticky { padding: max(8px, env(safe-area-inset-top)) 8px 8px !important; }
+  #hermes-brief-player .hermes-player-shell { display: grid !important; grid-template-columns: repeat(3, auto) minmax(96px, 1fr) !important; grid-template-rows: auto auto !important; gap: 8px !important; padding: 6px !important; }
+  #hermes-brief-player .hermes-player-volume { min-width: 0 !important; justify-self: stretch !important; }
+  #hermes-brief-player .hermes-date-nav { position: static !important; grid-column: 1 / -1 !important; grid-row: 2 !important; justify-self: center !important; gap: 12px !important; transform: none !important; }
+  #hermes-brief-player .hermes-date-nav-label { min-height: 34px !important; font-size: 30px !important; line-height: 34px !important; }
+  #hermes-brief-player .hermes-date-nav button { width: 36px !important; height: 36px !important; min-width: 36px !important; min-height: 36px !important; font-size: 22px !important; }
+  .hermes-brief-player-sticky button { min-width: 36px !important; min-height: 36px !important; }
+  .hermes-brief-player-sticky input[type="range"] { width: 100% !important; min-width: 0 !important; max-width: 160px !important; }
+  .hermes-portfolio-comparison { margin: 10px 0 16px; padding: 12px; }
+}
+/* V26: archive-independent full-width Stock rows. */
+.hermes-stock-row { grid-column: 1 / -1 !important; width: 100% !important; max-width: none !important; display: grid !important; grid-template-columns: minmax(280px, 1.45fr) repeat(5, minmax(118px, 1fr)) !important; grid-template-rows: auto auto !important; gap: 6px 22px !important; align-items: center !important; margin: 0 !important; padding: 15px 20px !important; }
+.hermes-stock-row h2 { grid-column: 1 !important; grid-row: 1 / span 2 !important; margin: 0 !important; }
+.hermes-stock-row .hermes-card-company { display: inline !important; margin-left: 9px !important; color: var(--muted, #aab8ca) !important; font-size: .68em !important; font-weight: 550 !important; }
+.hermes-stock-row .hermes-card-daily-change { display: inline !important; margin-left: 10px !important; font-size: .78em !important; }
+.hermes-stock-row .hermes-card-inline-price { display: block !important; margin-top: 5px !important; font-size: 1.42rem !important; }
+.hermes-stock-row > .change, .hermes-stock-row > p.positive, .hermes-stock-row > p.negative, .hermes-stock-row > .company { display: none !important; }
+.hermes-stock-row .stats { display: contents !important; }
+.hermes-stock-row .stats > * { min-width: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important; background: transparent !important; }
+.hermes-stock-row .stats > *:nth-child(n+6) { display: none !important; }
+.hermes-stock-row .stats > *:nth-child(1) { grid-column: 2 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(2) { grid-column: 3 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(3) { grid-column: 4 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(4) { grid-column: 5 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats > *:nth-child(5) { grid-column: 6 !important; grid-row: 1 / span 2 !important; }
+.hermes-stock-row .stats .label { display: block !important; margin-bottom: 3px !important; font-size: 11px !important; letter-spacing: .08em !important; text-transform: uppercase !important; }
+.hermes-stock-row .stats strong { font-size: 1.08rem !important; }
+@media (max-width: 940px) { .hermes-stock-row { grid-template-columns: minmax(230px, 1fr) repeat(3, minmax(100px, 1fr)) !important; } .hermes-stock-row .stats > *:nth-child(1) { grid-column: 2 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(2) { grid-column: 3 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(3) { grid-column: 4 !important; grid-row: 1 !important; } .hermes-stock-row .stats > *:nth-child(4) { grid-column: 2 !important; grid-row: 2 !important; } .hermes-stock-row .stats > *:nth-child(5) { grid-column: 3 !important; grid-row: 2 !important; } }
+@media (max-width: 680px) { .hermes-stock-row { grid-template-columns: 1fr 1fr !important; } .hermes-stock-row h2 { grid-column: 1 / -1 !important; grid-row: auto !important; } .hermes-stock-row .stats > * { grid-column: auto !important; grid-row: auto !important; } }
+/* Stock archives are rewritten to a stable, canonical row markup rather than restyled opportunistically. */
+.hermes-stock-today-date-pill { display: inline-flex !important; width: max-content !important; max-width: 100% !important; align-items: center !important; margin: 6.6px 0 9.9px !important; padding: 5.5px 12.1px !important; border-radius: 999px !important; background: #ffffff !important; color: #0b1020 !important; font-family: inherit !important; font-size: clamp(12.1px, 1.43vw, 18.7px) !important; font-weight: 850 !important; line-height: 1.1 !important; letter-spacing: .02em !important; white-space: nowrap !important; }
+main.grid { display: flex !important; flex-direction: column !important; gap: 8px !important; }
+.hermes-stock-row { grid-column: 1 / -1 !important; width: 100% !important; max-width: none !important; min-width: 0 !important; box-sizing: border-box !important; display: grid !important; grid-template-columns: minmax(220px, 280px) minmax(150px, 190px) minmax(0, 1fr) !important; gap: 14px !important; align-items: center !important; margin: 0 !important; padding: 10px 20px !important; border: 1px solid var(--line, #334155) !important; border-radius: 16px !important; background: var(--panel, #111827) !important; box-shadow: none !important; }
+.hermes-stock-identity { grid-column: 1 !important; display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; justify-content: center !important; }
+.hermes-stock-title { display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; gap: 5px !important; }
+.hermes-stock-ticker { color: #ffe08a !important; font-size: 1.55rem !important; font-weight: 850 !important; letter-spacing: .02em !important; }
+.hermes-stock-company { min-width: 0 !important; color: var(--text, #f4f7fb) !important; font-size: 1.35rem !important; font-weight: 750 !important; line-height: 1.2 !important; letter-spacing: .025em !important; text-transform: uppercase !important; overflow-wrap: anywhere !important; }
+.hermes-stock-change { display: block !important; margin-top: 12px !important; font-size: 1.22rem !important; font-weight: 800 !important; line-height: 1.2 !important; white-space: nowrap !important; }
+.hermes-stock-current-price { grid-column: 2 !important; display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; justify-content: center !important; }
+.hermes-stock-current-label { color: var(--muted, #aab8ca) !important; font-size: clamp(.82rem, 1vw, 1.15rem) !important; font-weight: 700 !important; letter-spacing: .055em !important; line-height: 1.2 !important; }
+.hermes-stock-price { display: block !important; margin-top: 7px !important; color: #ffe08a !important; font-size: 2.3rem !important; line-height: 1 !important; font-variant-numeric: tabular-nums !important; }
+.hermes-stock-metrics { grid-column: 3 !important; display: grid !important; min-width: 0 !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 12px !important; align-items: center !important; margin: 0 !important; }
+.hermes-stock-metrics > div { min-width: 0 !important; }
+.hermes-stock-metrics dt { max-width: 100% !important; color: var(--muted, #aab8ca) !important; font-size: clamp(.82rem, 1vw, 1.15rem) !important; font-weight: 700 !important; letter-spacing: .055em !important; line-height: 1.2 !important; text-transform: uppercase !important; overflow-wrap: anywhere !important; }
+.hermes-stock-metrics dd { max-width: 100% !important; margin: 7px 0 0 !important; color: var(--text, #f4f7fb) !important; font-size: clamp(1.05rem, 1.55vw, 1.9rem) !important; font-weight: 800 !important; line-height: 1.15 !important; font-variant-numeric: tabular-nums !important; white-space: nowrap !important; }
+.hermes-stock-row time, .hermes-stock-row [class*="timestamp"], .hermes-stock-row [class*="as-of"] { display: none !important; }
+@media (max-width: 1200px) { .hermes-stock-company { font-size: 1.05rem !important; } .hermes-stock-metrics { gap: 8px !important; } }
+@media (max-width: 900px) { .hermes-stock-today-date-pill { font-size: 14.3px !important; } }
+@media (max-width: 1100px) { .hermes-stock-row { grid-template-columns: minmax(0, 1fr) minmax(150px, 190px) !important; gap: 10px 16px !important; } .hermes-stock-identity { grid-column: 1 !important; } .hermes-stock-current-price { grid-column: 2 !important; } .hermes-stock-metrics { grid-column: 1 / -1 !important; grid-row: 2 !important; width: 100% !important; } }
+@media (max-width: 760px) { .hermes-stock-row { grid-template-columns: 1fr !important; gap: 12px !important; padding: 14px !important; } .hermes-stock-identity, .hermes-stock-current-price, .hermes-stock-metrics { grid-column: 1 !important; } .hermes-stock-current-price { grid-row: 2 !important; } .hermes-stock-metrics { grid-row: 3 !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 16px 22px !important; } }
+</style><style id="hermes-stock-hero-style">
+/* GOLD MASTER STYLE: hermes-stock-hero-style
+Purpose: Locks the accepted Stocks title, date metadata, Summary placement, fullscreen control, responsive hero geometry, and compact-height behavior.
+Restore notes: Load after the base/player styles and keep Portfolio Position Comparison plus five-metric quote-row selectors unchanged.
+*/
+/* v26-responsive-canonical-stock-hero */
+:root { color-scheme: dark !important; --bg: #0b1020 !important; --panel: #111827 !important; --text: #eef3ff !important; --muted: #aab8ca !important; --line: #334155 !important; }
+html, body { width: 100% !important; max-width: none !important; min-height: 100% !important; margin: 0 !important; background: #0b1020 !important; color: #eef3ff !important; }
+body { box-sizing: border-box !important; padding: 32px 28px 64px !important; overflow-x: hidden !important; }
+body > main { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 28px !important; }
+body > header, body > main > header, .wrap > header, .hero { box-sizing: border-box !important; width: 100% !important; max-width: none !important; margin: 0 0 22px !important; padding: 28px !important; border: 1px solid #263456 !important; border-radius: 22px !important; background: linear-gradient(135deg, #182345, #10182f) !important; color: #eef3ff !important; box-shadow: 0 20px 60px rgba(0,0,0,.25) !important; }
+html body .hero .pill, html body header .pill { display: inline-block !important; visibility: visible !important; position: static !important; inset: auto !important; width: auto !important; height: auto !important; opacity: 1 !important; clip: auto !important; clip-path: none !important; transform: none !important; overflow: visible !important; margin: 0 !important; padding: 10px 22px !important; border-radius: 999px !important; background: #ffd166 !important; color: #0b1020 !important; font-size: 22px !important; font-weight: 800 !important; line-height: 1.2 !important; letter-spacing: .02em !important; white-space: nowrap !important; }
+body > header h1, body > main > header h1, .wrap > header h1, .hero h1 { margin: 0 0 10px !important; color: #eef3ff !important; font-size: clamp(42px, 5vw, 64px) !important; line-height: 1.05 !important; letter-spacing: .015em !important; overflow-wrap: anywhere !important; }
+.hermes-stock-title-row { display: flex !important; min-width: 0 !important; align-items: center !important; flex-wrap: wrap !important; gap: 16px !important; margin: 0 0 10px !important; }
+.hermes-stock-title-row h1 { margin: 0 !important; }
+.hermes-stock-hero-left { display: flex !important; min-width: 0 !important; flex-direction: column !important; align-items: flex-start !important; }
+.hermes-stock-meta-stack { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; margin-top: 8.4px !important; }
+.hermes-stock-meta-stack > #hermes-stock-date-pill, .hermes-stock-meta-stack > .date, .hermes-stock-meta-stack > .sub { margin: 0 !important; }
+.hermes-stock-meta-stack > .sub { line-height: 1.4 !important; }
+.hermes-stock-heading-row { display: flex !important; min-width: 0 !important; align-items: flex-start !important; justify-content: space-between !important; gap: clamp(18px, 3vw, 48px) !important; }
+.hermes-stock-heading-row .hermes-stock-title-row { min-width: 0 !important; }
+.hermes-stock-summary-stack { display: flex !important; flex: 0 0 auto !important; flex-direction: column !important; align-items: flex-end !important; gap: 12px !important; margin-left: auto !important; transform: translateY(25%) !important; }
+.hermes-stock-portfolio-summary { margin: 0 !important; text-align: right !important; font-variant-numeric: tabular-nums !important; }
+.hermes-stock-summary-label { display: block !important; margin: 0 0 5px !important; color: #ffd166 !important; font-size: clamp(18px, 1.72vw, 22px) !important; line-height: 1.1 !important; font-weight: 850 !important; letter-spacing: .08em !important; }
+.hermes-stock-summary-value { display: block !important; font-size: clamp(36px, 4.45vw, 56.96px) !important; line-height: 1.05 !important; font-weight: 400 !important; white-space: nowrap !important; }
+#hermes-stock-fullscreen-button { display: inline-grid !important; width: 44px !important; height: 44px !important; flex: 0 0 44px !important; place-items: center !important; padding: 0 !important; border: 1px solid #67e8f9 !important; border-radius: 10px !important; background: rgba(103,232,249,.10) !important; color: #67e8f9 !important; cursor: pointer !important; }
+#hermes-stock-fullscreen-button:hover, #hermes-stock-fullscreen-button:focus-visible { background: #67e8f9 !important; color: #0b1020 !important; outline: none !important; }
+#hermes-stock-fullscreen-button svg { width: 26px !important; height: 26px !important; fill: none !important; stroke: currentColor !important; stroke-width: 2 !important; stroke-linecap: round !important; stroke-linejoin: round !important; }
+html:fullscreen { overflow-y: auto !important; background: #0b1020 !important; }
+body > header .date, body > main > header .date, .wrap > header .date, .hero .date { margin: 0 !important; color: #eef3ff !important; font-size: clamp(20px, 2.1vw, 27px) !important; line-height: 1.35 !important; overflow-wrap: anywhere !important; }
+@media (max-width: 900px) {
+  body { padding: 20px 12px 40px !important; }
+  body > main { padding: 20px !important; }
+  body > header, body > main > header, .wrap > header, .hero { padding: 22px !important; }
+  .hermes-stock-heading-row { flex-direction: column !important; }
+  .hermes-stock-summary-stack { width: 100% !important; align-items: flex-start !important; margin-left: 0 !important; transform: none !important; }
+  .hermes-stock-portfolio-summary { text-align: left !important; }
+}
+@media (max-width: 560px) {
+  body { padding: 12px 8px 28px !important; }
+  body > main { padding: 14px !important; }
+  body > header, body > main > header, .wrap > header, .hero { padding: 18px !important; border-radius: 16px !important; }
+  .hermes-stock-title-row { gap: 10px !important; }
+  .hermes-stock-meta-stack { gap: 10px !important; margin-top: 5.4px !important; }
+  #hermes-stock-fullscreen-button { width: 40px !important; height: 40px !important; flex-basis: 40px !important; }
+  html body .hero .pill, html body header .pill { padding: 8px 16px !important; font-size: 18px !important; }
+}
+@media (max-height: 900px) and (min-width: 1100px) {
+  body { padding: 14px 18px 36px !important; }
+  body > header, body > main > header, .wrap > header, .hero { margin-bottom: 16px !important; padding: 20px 24px !important; }
+  .hermes-stock-heading-row { align-items: center !important; }
+  .hermes-stock-summary-stack { gap: 8px !important; }
+  .hermes-stock-meta-stack { gap: 10px !important; margin-top: 5.4px !important; }
+  html body .hero .pill, html body header .pill { padding: 8px 18px !important; font-size: 18px !important; }
+  body > header .date, body > main > header .date, .wrap > header .date, .hero .date { font-size: 21px !important; }
+}
+</style><style id="hermes-brief-export-shell-style">
+/* GOLD MASTER STYLE: hermes-brief-export-shell-style
+Purpose: Styles the offline archive index, selected-date state, and visible gold-master provenance banner above the canonical brief.
+Restore notes: This shell is export-only. It may be removed when restoring into the live dashboard, but keep it when sharing files as an offline archive set.
+*/
+/* Dashboard-owned export shell: archive links and selected-date state remain visible offline. */
+#hermes-brief-export-shell { margin: 0; padding: 22px 28px; border-bottom: 1px solid #263456; background: linear-gradient(135deg, #10182f, #0b1020); color: #eef3ff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+#hermes-brief-export-shell .hermes-export-title { color: #ffd166; font: 800 24px/1.2 system-ui, sans-serif; letter-spacing: .08em; }
+#hermes-brief-export-shell .hermes-export-meta { margin-top: 14px; color: #67e8f9; }
+#hermes-brief-export-shell .hermes-export-dates { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+#hermes-brief-export-shell .hermes-export-dates a { padding: 8px 14px; border: 1px solid #67e8f9; border-radius: 999px; background: rgba(103,232,249,.08); color: #67e8f9; text-decoration: none; }
+#hermes-brief-export-shell .hermes-export-dates a:hover, #hermes-brief-export-shell .hermes-export-dates a:focus-visible { background: #67e8f9; color: #0b1020; outline: none; }
+#hermes-brief-export-shell .hermes-export-dates [aria-current="date"] { border-color: #ffd166; background: #ffd166; color: #0b1020; font-weight: 850; }
+</style></head><body id="hermes-stock-canonical"><!-- BEGIN DASHBOARD-OWNED EXPORT SHELL --><!--
+V34 SELF-CONTAINED GOLD MASTER GUIDE
+GOLD MASTER RESTORATION MAP
+1. HTML ownership: semantic brief structure and date-specific content are inline in this document body. GOLD MASTER HTML comments identify the canonical restore boundaries.
+2. CSS ownership: every style block is inline and begins with a GOLD MASTER STYLE header describing its purpose and restore order.
+3. JavaScript ownership: every controller is inline and begins with a GOLD MASTER CONTROLLER header describing purpose, state, inputs, outputs, dependencies, and restore notes.
+4. Security boundary: the inline Content-Security-Policy denies network connections, external code, media, objects, workers, forms, and base-URL changes; AI allows only same-folder/file frames for offline date navigation.
+5. Offline contract: No external scripts, stylesheets, fonts, images, APIs, or build step are required. Browser-native DOM, Fullscreen, localStorage, iframe, and Web Speech APIs are used only where documented.
+6. Archive contract: date navigation is cyclic, so crossing either archive boundary continues at the opposite end. Share all same-kind HTML files together without renaming them to retain date navigation.
+7. Data boundary: cron/model content is treated as data and cannot supply layout, styles, controls, navigation, or executable code.
+8. Companion Markdown: semantic content and hierarchy only; CSS and browser interactions intentionally live in this companion self-contained HTML file.
+9. Companion CSV (Stocks): data-only Position Comparison rows with a fixed schema; CSV has no presentation or executable-code layer and therefore no inline comments.
+--><section id="hermes-brief-export-shell" data-hermes-exclude-from-player><div class="hermes-export-title">BRIEFS-STOCKS</div><div class="hermes-export-meta">Self-contained dashboard export · 2026-07-18</div><div class="hermes-export-dates" aria-label="Archive dates"><a href="BRIEFS-STOCKS - 2026-07-20.html">2026-07-20</a><a href="BRIEFS-STOCKS - 2026-07-18.html" aria-current="date">2026-07-18</a><a href="BRIEFS-STOCKS - 2026-07-17.html">2026-07-17</a><a href="BRIEFS-STOCKS - 2026-07-16.html">2026-07-16</a><a href="BRIEFS-STOCKS - 2026-07-15.html">2026-07-15</a></div></section><!-- END DASHBOARD-OWNED EXPORT SHELL --><!-- GOLD MASTER HTML: Canonical Stocks structure. Header/Summary, Portfolio Position Comparison, and quote rows are semantic content; CSS and JavaScript remain separate inline ownership layers. --><header class="hero" data-hermes-date-normalized="true"><div class="hermes-stock-heading-row"><div class="hermes-stock-hero-left"><div class="hermes-stock-title-row"><h1>Stock Brief</h1><button id="hermes-stock-fullscreen-button" type="button" aria-label="Enter Stock Brief fullscreen" title="Enter fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg></button></div><div class="hermes-stock-meta-stack"><span id="hermes-stock-date-pill" data-hermes-stock-date-pill="true" class="pill" role="status" aria-label="Stock brief date: July 18, 2026 - Sat.">July 18, 2026 - Sat.</span><p class="date">2pm - America/Los_Angeles</p><div class="sub">Yahoo Finance snapshot generated at end-of-day after U.S. close · $USD</div></div></div><div class="hermes-stock-summary-stack"><div id="hermes-stock-portfolio-summary" class="hermes-stock-portfolio-summary" role="status" aria-label="Available-position total gain or loss: +$64,062.26"><span class="hermes-stock-summary-label">SUMMARY</span><strong class="hermes-stock-summary-value hermes-portfolio-positive">+$64,062.26</strong></div></div></div></header><!-- GOLD MASTER HTML: Portfolio Position Comparison is the restore-safe position table and must remain above daily quote rows. --><section id="hermes-portfolio-comparison" class="hermes-portfolio-comparison" aria-labelledby="hermes-portfolio-title">
+    <h2 id="hermes-portfolio-title">Portfolio Position Comparison</h2>
+    <p class="hermes-portfolio-note">Daily prices compared with your purchase lots. Precise basis uses shares × purchased price.</p>
+    <div class="hermes-portfolio-table-wrap">
+      <table class="hermes-portfolio-table" aria-label="Portfolio positions compared with current stock brief prices">
+        <thead><tr><th>Position</th><th class="hermes-portfolio-shares">Shares</th><th class="hermes-portfolio-purchase">Purchased price</th><th>CURRENT PRICE</th><th>TOTAL +/-</th><th>DAY +/-</th><th>COST BASIS</th><th>CURRENT VALUE</th><th>GAIN / LOSS</th><th>RETURN</th></tr></thead>
+        <tbody><tr><td><span class="hermes-portfolio-position">APPLE-1 · AAPL</span><span class="hermes-portfolio-meta">5/29/24</span></td><td class="hermes-portfolio-shares">146</td><td class="hermes-portfolio-purchase">$191.00</td><td>$333.74</td><td class="hermes-portfolio-positive">+$142.74</td><td class="hermes-portfolio-day hermes-portfolio-positive">+$0.48</td><td>$27,886.00</td><td>$48,726.04</td><td class="hermes-portfolio-positive">+$20,840.04</td><td class="hermes-portfolio-positive">+74.73%</td></tr><tr><td><span class="hermes-portfolio-position">DISNEY · DIS</span><span class="hermes-portfolio-meta">8/05/66</span></td><td class="hermes-portfolio-shares">268</td><td class="hermes-portfolio-purchase">$25.00</td><td>$97.67</td><td class="hermes-portfolio-positive">+$72.67</td><td class="hermes-portfolio-day hermes-portfolio-negative">-$2.04</td><td>$6,700.00</td><td>$26,175.56</td><td class="hermes-portfolio-positive">+$19,475.56</td><td class="hermes-portfolio-positive">+290.68%</td></tr><tr><td><span class="hermes-portfolio-position">NVIDIA · NVDA</span><span class="hermes-portfolio-meta">5/29/24</span></td><td class="hermes-portfolio-shares">204</td><td class="hermes-portfolio-purchase">$123.00</td><td>$202.81</td><td class="hermes-portfolio-positive">+$79.81</td><td class="hermes-portfolio-day hermes-portfolio-negative">-$4.59</td><td>$25,092.00</td><td>$41,373.24</td><td class="hermes-portfolio-positive">+$16,281.24</td><td class="hermes-portfolio-positive">+64.89%</td></tr><tr><td><span class="hermes-portfolio-position">AMAZON-1 · AMZN</span><span class="hermes-portfolio-meta">5/29/24</span></td><td class="hermes-portfolio-shares">138</td><td class="hermes-portfolio-purchase">$181.00</td><td>$247.23</td><td class="hermes-portfolio-positive">+$66.23</td><td class="hermes-portfolio-day hermes-portfolio-negative">-$2.66</td><td>$24,978.00</td><td>$34,117.74</td><td class="hermes-portfolio-positive">+$9,139.74</td><td class="hermes-portfolio-positive">+36.59%</td></tr><tr><td><span class="hermes-portfolio-position">APPLE-2 · AAPL</span><span class="hermes-portfolio-meta">4/28/26</span></td><td class="hermes-portfolio-shares">57</td><td class="hermes-portfolio-purchase">$266.00</td><td>$333.74</td><td class="hermes-portfolio-positive">+$67.74</td><td class="hermes-portfolio-day hermes-portfolio-positive">+$0.48</td><td>$15,162.00</td><td>$19,023.18</td><td class="hermes-portfolio-positive">+$3,861.18</td><td class="hermes-portfolio-positive">+25.47%</td></tr><tr><td><span class="hermes-portfolio-position">ALPHABET-1 · GOOGL</span><span class="hermes-portfolio-meta">4/21/26</span></td><td class="hermes-portfolio-shares">101</td><td class="hermes-portfolio-purchase">$336.00</td><td>$346.77</td><td class="hermes-portfolio-positive">+$10.77</td><td class="hermes-portfolio-day hermes-portfolio-negative">-$7.69</td><td>$33,936.00</td><td>$35,023.77</td><td class="hermes-portfolio-positive">+$1,087.77</td><td class="hermes-portfolio-positive">+3.21%</td></tr><tr><td><span class="hermes-portfolio-position">ALPHABET-2 · GOOGL</span><span class="hermes-portfolio-meta">4/28/26</span></td><td class="hermes-portfolio-shares">106</td><td class="hermes-portfolio-purchase">$349.00</td><td>$346.77</td><td class="hermes-portfolio-negative">-$2.23</td><td class="hermes-portfolio-day hermes-portfolio-negative">-$7.69</td><td>$36,994.00</td><td>$36,757.62</td><td class="hermes-portfolio-negative">-$236.38</td><td class="hermes-portfolio-negative">-0.64%</td></tr><tr><td><span class="hermes-portfolio-position">AMAZON-2 · AMZN</span><span class="hermes-portfolio-meta">4/29/26</span></td><td class="hermes-portfolio-shares">65</td><td class="hermes-portfolio-purchase">$268.00</td><td>$247.23</td><td class="hermes-portfolio-negative">-$20.77</td><td class="hermes-portfolio-day hermes-portfolio-negative">-$2.66</td><td>$17,420.00</td><td>$16,069.95</td><td class="hermes-portfolio-negative">-$1,350.05</td><td class="hermes-portfolio-negative">-7.75%</td></tr><tr><td><span class="hermes-portfolio-position">MICROSOFT · MSFT</span><span class="hermes-portfolio-meta">4/21/26</span></td><td class="hermes-portfolio-shares">83</td><td class="hermes-portfolio-purchase">$419.00</td><td>$393.82</td><td class="hermes-portfolio-negative">-$25.18</td><td class="hermes-portfolio-day hermes-portfolio-negative">-$7.28</td><td>$34,777.00</td><td>$32,687.06</td><td class="hermes-portfolio-negative">-$2,089.94</td><td class="hermes-portfolio-negative">-6.01%</td></tr><tr><td><span class="hermes-portfolio-position">SNAP · SNAP</span><span class="hermes-portfolio-meta">2/3/26</span></td><td class="hermes-portfolio-shares">1,786</td><td class="hermes-portfolio-purchase">$6.18</td><td>$4.53</td><td class="hermes-portfolio-negative">-$1.65</td><td class="hermes-portfolio-day hermes-portfolio-negative">-$0.16</td><td>$11,037.48</td><td>$8,090.58</td><td class="hermes-portfolio-negative">-$2,946.90</td><td class="hermes-portfolio-negative">-26.70%</td></tr></tbody>
+        <tfoot><tr><td colspan="6">Available-position total</td><td>$233,982.48</td><td>$298,044.74</td><td class="hermes-portfolio-positive">+$64,062.26</td><td class="hermes-portfolio-positive">+27.38%</td></tr></tfoot>
+      </table>
+    </div>
+  </section><!-- GOLD MASTER HTML: Canonical daily quote rows use ticker, company, movement, current price, and exactly five metrics. --><main id="hermes-stock-canonical-quotes" class="grid" aria-label="Canonical tracked stock prices"><h2 id="hermes-stock-today-date-pill" class="hermes-stock-today-date-pill" aria-label="Daily stock prices for July 18, 2026 - Sat.">July 18, 2026 - Sat.</h2><section class="hermes-stock-row" data-ticker="AAPL"><div class="hermes-stock-identity"><div class="hermes-stock-title"><span class="hermes-stock-ticker">AAPL</span><span class="hermes-stock-company">APPLE INC.</span></div><span class="hermes-stock-change hermes-portfolio-positive">▲ +$0.48 (+0.14%)</span></div><div class="hermes-stock-current-price hermes-portfolio-positive"><span class="hermes-stock-current-label">CURRENT PRICE</span><strong class="hermes-stock-price hermes-portfolio-positive">$333.74</strong></div><dl class="hermes-stock-metrics"><div><dt>Day High</dt><dd>$334.99</dd></div><div><dt>Day Low</dt><dd>$329.00</dd></div><div><dt>52-week High</dt><dd>$334.99</dd></div><div><dt>52-week Low</dt><dd>$201.50</dd></div><div><dt>Volume</dt><dd>63,407,100</dd></div></dl></section><section class="hermes-stock-row" data-ticker="AMZN"><div class="hermes-stock-identity"><div class="hermes-stock-title"><span class="hermes-stock-ticker">AMZN</span><span class="hermes-stock-company">AMAZON.COM, INC.</span></div><span class="hermes-stock-change hermes-portfolio-negative">▼ -$2.66 (-1.06%)</span></div><div class="hermes-stock-current-price hermes-portfolio-negative"><span class="hermes-stock-current-label">CURRENT PRICE</span><strong class="hermes-stock-price hermes-portfolio-negative">$247.23</strong></div><dl class="hermes-stock-metrics"><div><dt>Day High</dt><dd>$250.24</dd></div><div><dt>Day Low</dt><dd>$243.59</dd></div><div><dt>52-week High</dt><dd>$278.56</dd></div><div><dt>52-week Low</dt><dd>$196.00</dd></div><div><dt>Volume</dt><dd>43,572,400</dd></div></dl></section><section class="hermes-stock-row" data-ticker="NVDA"><div class="hermes-stock-identity"><div class="hermes-stock-title"><span class="hermes-stock-ticker">NVDA</span><span class="hermes-stock-company">NVIDIA CORP.</span></div><span class="hermes-stock-change hermes-portfolio-negative">▼ -$4.59 (-2.21%)</span></div><div class="hermes-stock-current-price hermes-portfolio-negative"><span class="hermes-stock-current-label">CURRENT PRICE</span><strong class="hermes-stock-price hermes-portfolio-negative">$202.81</strong></div><dl class="hermes-stock-metrics"><div><dt>Day High</dt><dd>$206.65</dd></div><div><dt>Day Low</dt><dd>$197.97</dd></div><div><dt>52-week High</dt><dd>$236.54</dd></div><div><dt>52-week Low</dt><dd>$164.07</dd></div><div><dt>Volume</dt><dd>144,281,900</dd></div></dl></section><section class="hermes-stock-row" data-ticker="SNAP"><div class="hermes-stock-identity"><div class="hermes-stock-title"><span class="hermes-stock-ticker">SNAP</span><span class="hermes-stock-company">SNAP INC.</span></div><span class="hermes-stock-change hermes-portfolio-negative">▼ -$0.16 (-3.41%)</span></div><div class="hermes-stock-current-price hermes-portfolio-negative"><span class="hermes-stock-current-label">CURRENT PRICE</span><strong class="hermes-stock-price hermes-portfolio-negative">$4.53</strong></div><dl class="hermes-stock-metrics"><div><dt>Day High</dt><dd>$4.64</dd></div><div><dt>Day Low</dt><dd>$4.43</dd></div><div><dt>52-week High</dt><dd>$10.41</dd></div><div><dt>52-week Low</dt><dd>$3.81</dd></div><div><dt>Volume</dt><dd>42,844,200</dd></div></dl></section><section class="hermes-stock-row" data-ticker="GOOGL"><div class="hermes-stock-identity"><div class="hermes-stock-title"><span class="hermes-stock-ticker">GOOGL</span><span class="hermes-stock-company">ALPHABET INC.</span></div><span class="hermes-stock-change hermes-portfolio-negative">▼ -$7.69 (-2.17%)</span></div><div class="hermes-stock-current-price hermes-portfolio-negative"><span class="hermes-stock-current-label">CURRENT PRICE</span><strong class="hermes-stock-price hermes-portfolio-negative">$346.77</strong></div><dl class="hermes-stock-metrics"><div><dt>Day High</dt><dd>$348.52</dd></div><div><dt>Day Low</dt><dd>$341.36</dd></div><div><dt>52-week High</dt><dd>$408.61</dd></div><div><dt>52-week Low</dt><dd>$186.15</dd></div><div><dt>Volume</dt><dd>29,959,300</dd></div></dl></section><section class="hermes-stock-row" data-ticker="MSFT"><div class="hermes-stock-identity"><div class="hermes-stock-title"><span class="hermes-stock-ticker">MSFT</span><span class="hermes-stock-company">MICROSOFT CORP.</span></div><span class="hermes-stock-change hermes-portfolio-negative">▼ -$7.28 (-1.82%)</span></div><div class="hermes-stock-current-price hermes-portfolio-negative"><span class="hermes-stock-current-label">CURRENT PRICE</span><strong class="hermes-stock-price hermes-portfolio-negative">$393.82</strong></div><dl class="hermes-stock-metrics"><div><dt>Day High</dt><dd>$398.39</dd></div><div><dt>Day Low</dt><dd>$389.39</dd></div><div><dt>52-week High</dt><dd>$555.45</dd></div><div><dt>52-week Low</dt><dd>$349.20</dd></div><div><dt>Volume</dt><dd>33,049,800</dd></div></dl></section><section class="hermes-stock-row" data-ticker="DIS"><div class="hermes-stock-identity"><div class="hermes-stock-title"><span class="hermes-stock-ticker">DIS</span><span class="hermes-stock-company">THE WALT DISNEY CO.</span></div><span class="hermes-stock-change hermes-portfolio-negative">▼ -$2.04 (-2.05%)</span></div><div class="hermes-stock-current-price hermes-portfolio-negative"><span class="hermes-stock-current-label">CURRENT PRICE</span><strong class="hermes-stock-price hermes-portfolio-negative">$97.67</strong></div><dl class="hermes-stock-metrics"><div><dt>Day High</dt><dd>$99.79</dd></div><div><dt>Day Low</dt><dd>$97.05</dd></div><div><dt>52-week High</dt><dd>$123.40</dd></div><div><dt>52-week Low</dt><dd>$92.19</dd></div><div><dt>Volume</dt><dd>10,496,500</dd></div></dl></section></main><script id="hermes-stock-interaction-controller">
+/* GOLD MASTER CONTROLLER: hermes-stock-interaction-controller
+Purpose: Owns Stocks fullscreen, viewport capture/restore, and parent-directed archive-date navigation.
+State: Tracks fullscreen state and a requestAnimationFrame throttle for viewport publication.
+Inputs: Fullscreen button, Enter/arrow/[ and ] keys, scroll events, Fullscreen API events, and validated parent messages.
+Outputs: Fullscreen state, viewport messages, restored scroll position, and archive-navigation messages.
+Dependencies: Browser DOM, Fullscreen API, requestAnimationFrame, and same-package parent message contracts; no network or external library.
+Restore notes: Keep with the canonical Stocks hero/fullscreen button and do not add the AI narration controller to Stocks exports.
+*/
+(() => {
+  const fullscreenButton = document.getElementById("hermes-stock-fullscreen-button");
+  let fullscreenActive = Boolean(document.fullscreenElement);
+  function updateFullscreenButton(active = fullscreenActive) {
+    if (!fullscreenButton) return;
+    fullscreenActive = active;
+    fullscreenButton.setAttribute("aria-label", active ? "Exit Stock Brief fullscreen" : "Enter Stock Brief fullscreen");
+    fullscreenButton.setAttribute("title", active ? "Exit fullscreen" : "Enter fullscreen");
+  }
+  async function toggleFullscreen() {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: "hermes-stock-fullscreen-toggle" }, "*");
+      return;
+    }
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch (_reason) {
+      // Browser fullscreen denial leaves the current layout unchanged.
+    }
+    updateFullscreenButton(Boolean(document.fullscreenElement));
+  }
+  fullscreenButton?.addEventListener("click", toggleFullscreen);
+  document.addEventListener("fullscreenchange", () => updateFullscreenButton(Boolean(document.fullscreenElement)));
+  function captureViewportPosition() {
+    return {
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    };
+  }
+  function publishViewportState() {
+    if (window.parent === window) return;
+    window.parent.postMessage({ type: "hermes-stock-viewport-state", position: captureViewportPosition() }, "*");
+  }
+  function restoreViewport(position) {
+    if (!position || typeof position !== "object") return;
+    const targetX = Number.isFinite(position.scrollX) ? Math.max(0, position.scrollX) : 0;
+    const targetY = Number.isFinite(position.scrollY) ? Math.max(0, position.scrollY) : 0;
+    let framesRemaining = 8;
+    const applyPosition = () => {
+      window.scrollTo(targetX, targetY);
+      framesRemaining -= 1;
+      if (framesRemaining > 0) {
+        requestAnimationFrame(applyPosition);
+        return;
+      }
+      publishViewportState();
+    };
+    requestAnimationFrame(() => requestAnimationFrame(applyPosition));
+  }
+  let viewportFrame = 0;
+  window.addEventListener("scroll", () => {
+    if (viewportFrame) return;
+    viewportFrame = requestAnimationFrame(() => {
+      viewportFrame = 0;
+      publishViewportState();
+    });
+  }, { passive: true });
+  window.addEventListener("message", (event) => {
+    if (event.source !== window.parent) return;
+    if (event.data?.type === "hermes-stock-fullscreen-state") {
+      updateFullscreenButton(Boolean(event.data.active));
+      return;
+    }
+    if (event.data?.type !== "hermes-stock-viewport-restore") return;
+    restoreViewport(event.data.position);
+  });
+  updateFullscreenButton();
+  publishViewportState();
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      void toggleFullscreen();
+      return;
+    }
+    if (
+      event.target instanceof HTMLInputElement ||
+      event.target instanceof HTMLTextAreaElement ||
+      event.target instanceof HTMLSelectElement ||
+      (event.target instanceof Element && event.target.closest('[contenteditable="true"]'))
+    ) return;
+    const direction = event.key === "ArrowLeft" || event.key === "[" ? "newer" : event.key === "ArrowRight" || event.key === "]" ? "older" : null;
+    if (!direction) return;
+    event.preventDefault();
+    window.parent.postMessage({ type: "hermes-brief-date-navigation", direction, position: captureViewportPosition() }, "*");
+  }, true);
+})();
+</script><script id="hermes-stock-section-navigation-controller">
+/* GOLD MASTER CONTROLLER: hermes-stock-section-navigation-controller
+Purpose: Provides fast keyboard movement between the complete Stocks brief top and the daily quote section.
+State: Stateless; derives destinations from canonical section IDs.
+Inputs: Unmodified ArrowUp and ArrowDown keyboard events outside editable controls.
+Outputs: Smooth document or section scrolling with the handled key event consumed.
+Dependencies: Browser DOM and canonical IDs hermes-stock-canonical and hermes-stock-canonical-quotes; no network or external library.
+Restore notes: Keep the canonical IDs or update this controller in the same change so keyboard restoration remains deterministic.
+*/
+(() => {
+  function editableTarget(target) {
+    return target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement ||
+      (target instanceof Element && Boolean(target.closest('[contenteditable="true"]')));
+  }
+  function navigateToSection(key) {
+    if (key === "ArrowUp") {
+      const documentTop = document.getElementById("hermes-stock-canonical");
+      if (!documentTop) return false;
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      return true;
+    }
+    const target = key === "ArrowDown"
+      ? document.getElementById("hermes-stock-canonical-quotes")
+      : null;
+    if (!target) return false;
+    target.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+    return true;
+  }
+  document.addEventListener("keydown", (event) => {
+    if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || editableTarget(event.target)) return;
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    if (!navigateToSection(event.key)) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, true);
+})();
+</script><!-- V34 GOLD MASTER INLINE CONTROLLER: provides offline Stocks date navigation and viewport restoration without a host API. -->
+<script id="hermes-brief-export-navigation-controller">
+/* GOLD MASTER CONTROLLER: hermes-brief-export-navigation-controller
+Purpose: Owns offline Stocks archive links, cyclic date changes, and viewport restoration through a URL hash.
+State: Uses the selected date, date-to-file mapping, and encoded scroll coordinates carried in the destination hash.
+Inputs: Archive-link clicks, date-navigation messages from the inline Stocks controller, and the current viewport.
+Outputs: Sibling-file navigation with a restorable viewport hash and deterministic cyclic boundary wrapping.
+Dependencies: All BRIEFS-STOCKS HTML files from the same export folder and browser location/DOM APIs; no host API or network.
+Restore notes: Share the complete Stocks HTML set together and preserve filenames from the inline state map; a lone file still renders but cannot open missing sibling dates.
+*/
+(() => {
+  const state = {"selectedDate":"2026-07-18","archiveDates":["2026-07-20","2026-07-18","2026-07-17","2026-07-16","2026-07-15"],"files":{"2026-07-20":"BRIEFS-STOCKS - 2026-07-20.html","2026-07-18":"BRIEFS-STOCKS - 2026-07-18.html","2026-07-17":"BRIEFS-STOCKS - 2026-07-17.html","2026-07-16":"BRIEFS-STOCKS - 2026-07-16.html","2026-07-15":"BRIEFS-STOCKS - 2026-07-15.html"}};
+  const VIEWPORT_HASH_PREFIX = "#hermes-stock-viewport=";
+  function captureViewportPosition() {
+    return { scrollX: window.scrollX, scrollY: window.scrollY };
+  }
+  function safePosition(position) {
+    return {
+      scrollX: Number.isFinite(position?.scrollX) ? Math.max(0, position.scrollX) : Math.max(0, window.scrollX),
+      scrollY: Number.isFinite(position?.scrollY) ? Math.max(0, position.scrollY) : Math.max(0, window.scrollY),
+    };
+  }
+  function destination(file, position) {
+    const value = safePosition(position);
+    return file + VIEWPORT_HASH_PREFIX + encodeURIComponent(String(value.scrollX) + "," + String(value.scrollY));
+  }
+  function navigate(direction, position) {
+    const current = state.archiveDates.indexOf(state.selectedDate);
+    const offset = direction === "newer" ? -1 : direction === "older" ? 1 : 0;
+    if (current < 0 || offset === 0 || state.archiveDates.length === 0) return;
+    // Preserve the live dashboard's cyclic date contract in this offline export.
+    // Modulo wrapping keeps [ and ]/visible arrows functional at both boundaries.
+    const targetIndex = (current + offset + state.archiveDates.length) % state.archiveDates.length;
+    const date = state.archiveDates[targetIndex];
+    const file = date && state.files[date];
+    if (file) window.location.href = destination(file, position);
+  }
+  function restoreViewportFromHash() {
+    if (!window.location.hash.startsWith(VIEWPORT_HASH_PREFIX)) return;
+    let decoded = "";
+    try {
+      decoded = decodeURIComponent(window.location.hash.slice(VIEWPORT_HASH_PREFIX.length));
+    } catch (_reason) {
+      return;
+    }
+    const values = decoded.split(",").map(Number);
+    if (!Number.isFinite(values[0]) || !Number.isFinite(values[1])) return;
+    const targetX = Math.max(0, values[0]);
+    const targetY = Math.max(0, values[1]);
+    let framesRemaining = 8;
+    const applyPosition = () => {
+      window.scrollTo(targetX, targetY);
+      framesRemaining -= 1;
+      if (framesRemaining > 0) requestAnimationFrame(applyPosition);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(applyPosition));
+  }
+  document.querySelectorAll("#hermes-brief-export-shell a[href]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const file = link.getAttribute("href");
+      if (!file) return;
+      event.preventDefault();
+      window.location.href = destination(file, captureViewportPosition());
+    });
+  });
+  window.addEventListener("message", (event) => {
+    if (event.source !== window || event.data?.type !== "hermes-brief-date-navigation") return;
+    navigate(event.data.direction, event.data.position);
+  });
+  restoreViewportFromHash();
+})();
+</script><!-- HERMES_BRIEFS_EXPORT_MANIFEST {"accepted_ui":"v74-ticker-above-company","export_schema":"briefs-v34-gold-master","format":"html","kind":"stock","html_self_contained":true,"inline_css":true,"inline_javascript":true,"gold_master_documented":true,"style_comment_contract":"purpose-and-restore","script_comment_contract":"purpose-state-inputs-outputs-dependencies-and-restore","companion_html_pattern":"BRIEFS-STOCKS - YYYY-MM-DD.html","purpose":"Standalone visual and interactive recreation of the accepted Briefs dashboard archive."} --></body></html>

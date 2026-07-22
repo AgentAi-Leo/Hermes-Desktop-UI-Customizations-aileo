@@ -1,0 +1,130 @@
+{
+  "contract_version": "ai-brief-data-v1",
+  "date": "2026-07-18",
+  "founder_takeaways": [
+    {
+      "detail": "Moonshot's Kimi K3 raises the practical value of model portability, but teams should verify weights, licensing, deployment cost, and production quality before committing.",
+      "headline": "Open-weight models are moving closer to the frontier"
+    },
+    {
+      "detail": "A $400 million chip-backed loan for General Compute suggests capital markets increasingly see specialized inference capacity as an asset class, not merely venture experimentation.",
+      "headline": "Inference economics are becoming financeable infrastructure"
+    },
+    {
+      "detail": "Patreon's shift to active crawler blocking shows that platforms promising creator control need enforceable technical controls, monitoring, and explicit exceptions for search indexing.",
+      "headline": "robots.txt is no longer a sufficient AI-content policy"
+    },
+    {
+      "detail": "Memory suppliers' emphasis on high-bandwidth memory is tightening standard-memory supply, so device and edge-AI businesses should revisit component assumptions and pricing resilience.",
+      "headline": "AI demand is raising costs outside the data center"
+    },
+    {
+      "detail": "A federal court's treatment of expert prompts as methodology is a warning to preserve prompt histories and govern sensitive inputs wherever AI contributes to consequential work.",
+      "headline": "Prompts can become discoverable business records"
+    },
+    {
+      "detail": "Employers selling into or operating in Europe should inventory hiring, evaluation, monitoring, and workforce-management AI before the next EU AI Act obligations arrive.",
+      "headline": "EU workplace-AI compliance needs an owner now"
+    },
+    {
+      "detail": "San Francisco's action against nudify apps shows that app stores, payment channels, and other intermediaries may face exposure when they facilitate abusive generative-AI products.",
+      "headline": "Distribution platforms are being pulled into AI-harm enforcement"
+    }
+  ],
+  "generated_at": "2026-07-18T08:00:00-07:00",
+  "kind": "ai",
+  "timezone": "America/Los_Angeles",
+  "topics": [
+    {
+      "actionable_implication": "Add Kimi K3 to the next model evaluation, but gate any production plan on independently tested task quality, serving cost, security review, and the final weight license.",
+      "headline": "Moonshot unveils 2.8-trillion-parameter Kimi K3",
+      "number": 1,
+      "sources": [
+        {
+          "label": "Reuters \u2014 China's Moonshot unveils world's largest open AI model",
+          "url": "https://www.reuters.com/world/china/chinas-moonshot-unveils-worlds-largest-open-ai-model-closing-us-rivals-2026-07-17"
+        }
+      ],
+      "summary": "Chinese startup Moonshot AI unveiled Kimi K3, which Reuters described as the world's largest open-weight AI model. The release intensifies competition with leading U.S. closed models and follows other Chinese labs narrowing reported benchmark gaps.",
+      "why_it_matters": "A stronger open-weight option can reduce dependence on a small set of U.S. API vendors and expand choices for private deployment, customization, and regional distribution."
+    },
+    {
+      "actionable_implication": "Rebid high-volume inference workloads across GPU and specialized-chip providers, using cost per successful task, latency, portability, and capacity guarantees rather than token price alone.",
+      "headline": "General Compute lands $400 million loan against inference chips",
+      "number": 2,
+      "sources": [
+        {
+          "label": "TechCrunch \u2014 Why GPU financiers are turning to inference chips",
+          "url": "https://techcrunch.com/2026/07/17/why-the-first-gpu-financiers-are-turning-to-inference-chips-in-a-400-million-deal"
+        }
+      ],
+      "summary": "AI inference cloud startup General Compute secured a $400 million loan from Upper90, in what TechCrunch reports may be the first financing collateralized by inference-specific chips. The startup is building around SambaNova SN50 silicon rather than Nvidia GPUs.",
+      "why_it_matters": "Debt capital moving into specialized inference hardware signals that cost-efficient model serving is becoming a distinct infrastructure market, with financing models once reserved for GPUs."
+    },
+    {
+      "actionable_implication": "Audit crawler logs, separate search indexing from model training in policy and enforcement, and give customers a clear control surface for AI-use permissions.",
+      "headline": "Patreon begins actively blocking AI training crawlers",
+      "number": 3,
+      "sources": [
+        {
+          "label": "TechCrunch \u2014 Patreon starts blocking AI bots",
+          "url": "https://techcrunch.com/2026/07/17/patreon-stops-asking-ai-bots-not-to-scrape-and-starts-blocking-them"
+        }
+      ],
+      "summary": "Patreon is using Cloudflare's AI Crawl Control to block training crawlers instead of relying on robots.txt. Patreon said tests drove individual crawlers' weekly access attempts from thousands to zero while continuing to allow indexing bots that send users back to the platform.",
+      "why_it_matters": "Content businesses are moving from policy statements to enforceable access controls, making creator consent and machine-readable content rights product and infrastructure requirements."
+    },
+    {
+      "actionable_implication": "Hardware operators should stress-test memory costs, secure alternate supply, and model longer replacement cycles before setting second-half inventory and pricing.",
+      "headline": "AI memory demand spills into consumer-device pricing",
+      "number": 4,
+      "sources": [
+        {
+          "label": "TechCrunch \u2014 AI-driven memory crunch jolts India's smartphone market",
+          "url": "https://techcrunch.com/2026/07/17/ai-driven-memory-crunch-jolts-indias-smartphone-market"
+        }
+      ],
+      "summary": "India's smartphone shipments fell 10% year over year in the April-June quarter, according to Counterpoint data cited by TechCrunch. The report links higher handset prices to memory makers shifting capacity toward more profitable high-bandwidth memory for AI accelerators.",
+      "why_it_matters": "The AI buildout is reallocating semiconductor capacity and transmitting costs into phones and laptops, especially in price-sensitive markets where small bill-of-material increases affect demand."
+    },
+    {
+      "actionable_implication": "Extend litigation holds and records policies to prompts, model versions, source files, outputs, and human review for legal, financial, safety, and other high-stakes workflows.",
+      "headline": "Federal court orders disclosure of an expert witness's AI prompts",
+      "number": 5,
+      "sources": [
+        {
+          "label": "Reuters \u2014 Court orders expert witness AI prompt disclosure",
+          "url": "https://www.reuters.com/legal/legalindustry/court-orders-expert-witness-ai-prompt-disclosure-what-litigators-need-know--pracin-2026-07-17"
+        }
+      ],
+      "summary": "A federal magistrate judge in Connecticut ordered a party to produce generative-AI prompts used by an expert witness while preparing a report. Reuters' legal analysis says the court treated prompts as part of the expert's discoverable methodology, akin to formulas or code.",
+      "why_it_matters": "Prompt histories and AI-assisted workflows can become evidence when they shape consequential outputs, increasing retention, privilege, confidentiality, and reproducibility risks for companies."
+    },
+    {
+      "actionable_implication": "Build a workplace-AI register now, classify each use and legal role, assign accountable owners, preserve human oversight, and obtain compliance evidence from vendors.",
+      "headline": "EU AI Act deadlines put workplace systems under scrutiny",
+      "number": 6,
+      "sources": [
+        {
+          "label": "Reuters \u2014 Workplace AI and the new EU AI Act deadline",
+          "url": "https://www.reuters.com/legal/legalindustry/workplace-ai-how-employers-should-prepare-new-eu-ai-act-deadline--pracin-2026-07-17"
+        }
+      ],
+      "summary": "A Reuters legal analysis highlights the EU AI Act's approaching compliance obligations for workplace AI. Employment uses such as recruitment, worker management, promotion, termination, and task allocation can fall into the law's high-risk framework.",
+      "why_it_matters": "Founders can inherit compliance duties both as providers of employment technology and as deployers using third-party tools, with governance obligations spanning data, documentation, oversight, and vendor management."
+    },
+    {
+      "actionable_implication": "Marketplaces and AI platforms should proactively test high-risk image products, tighten listing and payment rules, document enforcement, and create rapid victim-reporting and removal paths.",
+      "headline": "San Francisco orders Apple and Google to purge nudify apps",
+      "number": 7,
+      "sources": [
+        {
+          "label": "TechCrunch \u2014 Apple and Google ordered to purge nudify apps",
+          "url": "https://techcrunch.com/2026/07/17/apple-and-google-ordered-to-purge-nudify-apps-from-app-stores"
+        }
+      ],
+      "summary": "San Francisco's city attorney ordered Apple and Google to remove dozens of apps that generate non-consensual intimate deepfakes. The city warned that the companies could face civil penalties and asked them to respond within 28 days, according to letters reviewed by TechCrunch.",
+      "why_it_matters": "Enforcement is expanding beyond model makers to app stores and payment intermediaries that distribute and monetize harmful AI applications."
+    }
+  ]
+}

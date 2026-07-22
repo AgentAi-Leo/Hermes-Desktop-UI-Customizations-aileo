@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "release_name": "GOLDEN-FINAL_LAYOUT-R52-GIT-WATCH-v1-JB",
+  "package_folder": "GOLDEN-FINAL_LAYOUT-R52-GIT-WATCH-v1-JB",
+  "package_zip": "GOLDEN-FINAL_LAYOUT-R52-GIT-WATCH-v1-JB.zip",
+  "display_name": "GIT WATCH",
+  "runtime_identity": "git-comments-v27-review",
+  "release_date_local": "2026-07-20",
+  "source": {
+    "repository": "AgentAi-Leo/Hermes-Desktop-UI-Customizations-aileo",
+    "commit": "b09c990e4b19cc18c6932d58e9340c59c77d6e39",
+    "revision_zip": "Hermes-Git-Watch-V27-UI-Refinements-Revision-52-2026-07-20.zip",
+    "revision_zip_bytes": 59475,
+    "revision_zip_sha256": "6acc841439f55f578b7a7b578e56dfc95e250a3fdcb75231c7bae35c49bb4569"
+  },
+  "frozen_payload_sha256": {
+    "payload/dashboard/dist/index.js": "3f007932e2d39602147b7f35a26dc402edd64de0b3a1849e3fd06fd1ed4e2d4e",
+    "payload/dashboard/plugin_api.py": "c51f72ab253b8f156b1c4955fd4298911e7635cb95790828189098e54f77043c",
+    "payload/scripts/github-comments-checker-v27-review.sh": "73384b045ba96c18ff12eb82f6a5a23455f20e701b287d976ece0443c88df076",
+    "payload/dashboard/manifest.json": "173768da0abae910be056690f2e219bb581ef76f31dcbbc190e10ab7d5156b8f"
+  },
+  "operations": {
+    "install_or_restore": "preserve existing watchlist and archive data",
+    "factory_reset": "replace data only after explicit confirmation and backup",
+    "uninstall": "remove only the namespaced Golden Release installation after backup",
+    "rollback": "restore the exact pre-operation state from a backup-specific launcher"
+  },
+  "scope": {
+    "installs": ["git-comments-v27-review dashboard plugin", "profile-scoped Git Watch checker"],
+    "does_not_modify": ["Briefs AI", "Briefs Stocks", "production git-comments plugin", "other Hermes profiles"],
+    "credentials_bundled": false,
+    "private_watchlist_data_bundled": false
+  }
+}
