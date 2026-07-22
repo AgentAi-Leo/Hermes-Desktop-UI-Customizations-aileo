@@ -75,6 +75,7 @@ WEB_SERVER="$AGENT_ROOT/hermes_cli/web_server.py"
 BRIEFS_API_PATCHER="$BRIEFS_PAYLOAD/server/patch_briefs_api.py"
 BRIEFS_API_FRAGMENT="$BRIEFS_PAYLOAD/server/briefs_api_block.pyfrag"
 BRIEFS_NAV_PATCHER="$BRIEFS_PAYLOAD/dashboard/patch_briefs_navigation.py"
+THREE_GOLD_SIDEBAR_PATCHER="$BRIEFS_PAYLOAD/dashboard/patch_three_gold_sidebar.py"
 BRIEFS_DASHBOARD_API_PATCHER="$BRIEFS_PAYLOAD/dashboard/patch_briefs_dashboard_api.py"
 NEW_SOURCE="$BRIEFS_PAYLOAD/dashboard/src/lib/briefs.ts"
 NEW_TEST_SOURCE="$BRIEFS_PAYLOAD/dashboard/src/lib/briefs.test.ts"
@@ -141,7 +142,7 @@ verify_package() {
   for required in \
     "$PACKAGE_DIR/PRODUCTION-MANIFEST.json" \
     "$PACKAGE_DIR/CHECKSUMS.sha256" \
-    "$NEW_SOURCE" "$NEW_TEST_SOURCE" "$NEW_PAGE_SOURCE" "$BRIEFS_NAV_PATCHER" \
+    "$NEW_SOURCE" "$NEW_TEST_SOURCE" "$NEW_PAGE_SOURCE" "$BRIEFS_NAV_PATCHER" "$THREE_GOLD_SIDEBAR_PATCHER" \
     "$BRIEFS_API_PATCHER" "$BRIEFS_API_FRAGMENT" \
     "$BRIEFS_PAYLOAD/server/legacy_briefs_api_block.pyfrag" \
     "$GIT_PAYLOAD/dashboard/dist/index.js" \
@@ -159,7 +160,7 @@ verify_package() {
   (cd "$GOLD_PAYLOAD/briefs-stocks-v34" && bash VERIFY_BRIEFS_STOCKS_V34.command </dev/null >/dev/null)
   (cd "$GOLD_PAYLOAD/git-watch-r52" && bash 4_VERIFY_GIT_WATCH_PACKAGE.command </dev/null >/dev/null)
   node --check "$GIT_PAYLOAD/dashboard/dist/index.js" >/dev/null
-  "$PYTHON" -m py_compile "$GIT_PAYLOAD/dashboard/plugin_api.py" "$BRIEFS_API_PATCHER" "$BRIEFS_NAV_PATCHER"
+  "$PYTHON" -m py_compile "$GIT_PAYLOAD/dashboard/plugin_api.py" "$BRIEFS_API_PATCHER" "$BRIEFS_NAV_PATCHER" "$THREE_GOLD_SIDEBAR_PATCHER"
   bash -n "$GIT_PAYLOAD/scripts/github-comments-checker-v27-review.sh"
   "$PYTHON" - "$PACKAGE_DIR/PRODUCTION-MANIFEST.json" "$PACKAGE_DIR" <<'PY'
 import hashlib,json,sys
@@ -289,7 +290,13 @@ install_briefs_runtime() {
   atomic_copy "$NEW_SOURCE" "$SOURCE"
   atomic_copy "$NEW_TEST_SOURCE" "$TEST_SOURCE"
   atomic_copy "$NEW_PAGE_SOURCE" "$PAGE_SOURCE"
-  "$PYTHON" "$BRIEFS_NAV_PATCHER" "$APP_SOURCE" apply
+  if "$PYTHON" "$THREE_GOLD_SIDEBAR_PATCHER" "$APP_SOURCE" verify >/dev/null 2>&1; then
+    echo "THREE_GOLD_SIDEBAR=ALREADY_COMPLIANT"
+    echo "THREE_GOLD_SIDEBAR_CONTRACT=PASS"
+  else
+    "$PYTHON" "$BRIEFS_NAV_PATCHER" "$APP_SOURCE" apply
+    "$PYTHON" "$THREE_GOLD_SIDEBAR_PATCHER" "$APP_SOURCE" apply
+  fi
   "$PYTHON" "$BRIEFS_DASHBOARD_API_PATCHER" "$DASHBOARD_API_SOURCE" apply
   local rel
   for rel in "${RUNTIME_FILES[@]}"; do
@@ -305,7 +312,9 @@ verify_briefs_server() {
   "$PYTHON" -m py_compile "$WEB_SERVER"
 }
 verify_briefs_navigation() {
-  "$PYTHON" "$BRIEFS_NAV_PATCHER" "$APP_SOURCE" verify
+  "$PYTHON" "$THREE_GOLD_SIDEBAR_PATCHER" "$APP_SOURCE" verify
+  echo "BRIEFS_NAVIGATION=ENCAPSULATED_BY_THREE_GOLD_SIDEBAR"
+  echo "BRIEFS_NAVIGATION_CONTRACT=PASS"
   "$PYTHON" "$BRIEFS_DASHBOARD_API_PATCHER" "$DASHBOARD_API_SOURCE" verify
 }
 install_dashboard_dist() {
@@ -454,13 +463,18 @@ enabled=plugins.get('enabled',[])
 if enabled is None: enabled=[]
 if not isinstance(enabled,list):
     raise SystemExit('PROFILE_CONFIG_PLUGINS_ENABLED_MUST_BE_LIST')
+retired={'brief-stock','briefs-ai','git-comments'}
+enabled=[name for name in enabled if name not in retired]
 if 'git-comments-v27-review' not in enabled:
     enabled.append('git-comments-v27-review')
 plugins['enabled']=enabled
 disabled=plugins.get('disabled',[])
-if isinstance(disabled,list) and 'git-comments-v27-review' in disabled:
-    plugins['disabled']=[x for x in disabled if x!='git-comments-v27-review']
+if disabled is None: disabled=[]
+if not isinstance(disabled,list):
+    raise SystemExit('PROFILE_CONFIG_PLUGINS_DISABLED_MUST_BE_LIST')
+plugins['disabled']=[name for name in disabled if name!='git-comments-v27-review']
 atomic_yaml_write(path,data,sort_keys=False)
+print('THREE_GOLD_RETIRED_PLUGIN_IDS=REMOVED')
 print('GIT_WATCH_PLUGIN_ALLOWLIST=ENABLED')
 PY
 }
@@ -472,8 +486,15 @@ from pathlib import Path
 data=yaml.safe_load(Path(sys.argv[1]).read_text(encoding='utf-8')) or {}
 plugins=data.get('plugins',{})
 assert isinstance(plugins,dict)
-assert 'git-comments-v27-review' in plugins.get('enabled',[])
-assert 'git-comments-v27-review' not in plugins.get('disabled',[])
+enabled=plugins.get('enabled',[])
+disabled=plugins.get('disabled',[])
+assert isinstance(enabled,list)
+assert isinstance(disabled,list)
+assert 'git-comments-v27-review' in enabled
+assert 'git-comments-v27-review' not in disabled
+for retired in ('brief-stock','briefs-ai','git-comments'):
+    assert retired not in enabled
+print('THREE_GOLD_PLUGIN_CONFIG_CONTRACT=PASS')
 PY
 }
 

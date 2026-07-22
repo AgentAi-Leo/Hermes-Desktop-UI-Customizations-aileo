@@ -212,6 +212,41 @@ class ProductionLifecycleTests(unittest.TestCase):
         )
         self.assertTrue((self.profile / "production-systems/HERMES-THREE-GOLD-PRODUCTION-FINAL-V1/receipt.json").is_file())
 
+    def test_retired_duplicate_plugin_ids_are_removed_and_rollback_restores_config(self):
+        original_config = (
+            "plugins:\n"
+            "  enabled:\n"
+            "    - unrelated-plugin\n"
+            "    - brief-stock\n"
+            "    - briefs-ai\n"
+            "    - git-comments\n"
+            "  disabled:\n"
+            "    - git-comments-v27-review\n"
+            "custom: preserved\n"
+        )
+        self.config.write_text(original_config)
+        self.original = self.capture_original()
+
+        self.install()
+        config = self.parse_yaml(self.config)
+        self.assertEqual(
+            config["plugins"]["enabled"],
+            ["unrelated-plugin", "git-comments-v27-review"],
+        )
+        for retired in ("brief-stock", "briefs-ai", "git-comments"):
+            self.assertNotIn(retired, config["plugins"]["enabled"])
+        self.assertNotIn("git-comments-v27-review", config["plugins"]["disabled"])
+
+        backup = self.latest_backup()
+        rollback = subprocess.run(
+            ["bash", str(backup / "RESTORE_THIS_BACKUP.command")],
+            text=True,
+            capture_output=True,
+        )
+        self.assertEqual(rollback.returncode, 0, rollback.stdout + rollback.stderr)
+        self.assertEqual(self.config.read_text(), original_config)
+        self.assert_original_restored()
+
     def test_exact_host_legacy_api_migrates_and_rollback_restores_legacy_bytes(self):
         legacy = (self.package / "payload/briefs/server/legacy_briefs_api_block.pyfrag").read_text()
         anchor = '@app.get("/api/files")'

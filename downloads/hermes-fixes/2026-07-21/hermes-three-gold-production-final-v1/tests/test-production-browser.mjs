@@ -66,11 +66,27 @@ try {
   const plugins = await authedJson('/api/dashboard/plugins');
   const git = plugins.find(item => item.name === 'git-comments-v27-review');
   ok('Git Watch plugin discovered', git?.label === 'GIT WATCH' && git?.tab?.path === '/git-comments-v27-review');
-  const sidebar = (await page.locator('body').innerText());
-  const aiAt = sidebar.indexOf('BRIEFS-AI');
-  const stocksAt = sidebar.indexOf('BRIEFS-STOCKS');
-  const gitAt = sidebar.indexOf('GIT WATCH');
-  ok('shared sidebar order', aiAt >= 0 && stocksAt > aiAt && gitAt > stocksAt, `${aiAt}/${stocksAt}/${gitAt}`);
+  const customGroup = page.locator('[aria-labelledby="hermes-sidebar-custom-nav-heading"]');
+  const customEntries = await customGroup.locator('a').evaluateAll(links => links.map(link => ({
+    label: link.textContent?.trim(),
+    path: new URL(link.href).pathname,
+  })));
+  const expectedCustomEntries = [
+    { label: 'BRIEFS-AI', path: '/briefs-ai' },
+    { label: 'BRIEF-STOCK', path: '/brief-stock' },
+    { label: 'GIT WATCH', path: '/git-comments-v27-review' },
+  ];
+  ok(
+    'exact CUSTOM labels and paths',
+    JSON.stringify(customEntries) === JSON.stringify(expectedCustomEntries),
+    JSON.stringify(customEntries),
+  );
+  const sectionOrder = await page.locator('#app-sidebar nav [role="group"]').evaluateAll(groups =>
+    groups.map(group => group.getAttribute('aria-labelledby')),
+  );
+  const customAt = sectionOrder.indexOf('hermes-sidebar-custom-nav-heading');
+  const hermesAt = sectionOrder.indexOf('hermes-sidebar-core-nav-heading');
+  ok('CUSTOM precedes HERMES', customAt >= 0 && hermesAt === customAt + 1, JSON.stringify(sectionOrder));
 
   const aiApi = await authedJson('/api/briefs/ai');
   const stocksApi = await authedJson('/api/briefs/stock');
@@ -91,8 +107,8 @@ try {
   ok('AI Takeaways renders', aiText.includes('FOUNDER TAKEAWAYS'));
   await page.screenshot({ path: path.join(evidence, 'candidate-ai.png'), fullPage: true });
 
-  await page.goto(`${base}/briefs-stocks`, { waitUntil: 'networkidle' });
-  await page.getByText('BRIEFS-STOCKS', { exact: true }).last().waitFor();
+  await page.goto(`${base}/brief-stock`, { waitUntil: 'networkidle' });
+  await page.getByText('BRIEF-STOCK', { exact: true }).last().waitFor();
   await waitForFrameText('Portfolio Position Comparison');
   const stockText = await allFrameText();
   ok('Stocks Position Comparison renders', stockText.includes('Portfolio Position Comparison'));

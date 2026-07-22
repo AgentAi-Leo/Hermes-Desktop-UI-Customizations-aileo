@@ -32,6 +32,7 @@ class ProductionFinalContractTests(unittest.TestCase):
             "7_ROLLBACK_BACKUP.command", "scripts/three-gold-production-manager.sh",
             "payload/briefs/server/patch_briefs_api.py",
             "payload/briefs/dashboard/patch_briefs_navigation.py",
+            "payload/briefs/dashboard/patch_three_gold_sidebar.py",
             "payload/briefs/dashboard/patch_briefs_dashboard_api.py",
             "payload/briefs/dashboard/dashboard_api.production-b987.ts",
             "payload/briefs/dashboard/dashboard_api.hardened-generated-at.ts",
@@ -61,10 +62,10 @@ class ProductionFinalContractTests(unittest.TestCase):
         for rel, expected in entries.items():
             self.assertEqual(sha(ROOT / rel), expected, rel)
 
-    def test_source_union_is_exact_twenty_four_file_byte_ledger(self):
+    def test_source_union_is_exact_twenty_five_file_byte_ledger(self):
         ledger = MANIFEST["briefs_source_union"]["files"]
-        self.assertEqual(MANIFEST["briefs_source_union"]["file_count"], 24)
-        self.assertEqual(len(ledger), 24)
+        self.assertEqual(MANIFEST["briefs_source_union"]["file_count"], 25)
+        self.assertEqual(len(ledger), 25)
         for rel, expected in ledger.items():
             self.assertEqual(sha(ROOT / rel), expected, rel)
 
@@ -93,6 +94,7 @@ class ProductionFinalContractTests(unittest.TestCase):
             "scripts/three-gold-production-manager.sh",
             "payload/briefs/server/patch_briefs_api.py",
             "payload/briefs/dashboard/patch_briefs_navigation.py",
+            "payload/briefs/dashboard/patch_three_gold_sidebar.py",
             "payload/briefs/dashboard/patch_briefs_dashboard_api.py",
             "payload/git-watch/scripts/github-comments-checker-v27-review.sh",
         ]
@@ -124,10 +126,25 @@ class ProductionFinalContractTests(unittest.TestCase):
             "install_dashboard_dist",
             "DEPLOYED_DASHBOARD_DIFFERS_FROM_BUILD",
             "THREE_GOLD_NPM",
+            "THREE_GOLD_SIDEBAR_PATCHER",
+            "THREE_GOLD_RETIRED_PLUGIN_IDS=REMOVED",
+            "THREE_GOLD_PLUGIN_CONFIG_CONTRACT=PASS",
         ]:
             self.assertIn(marker, manager)
         self.assertTrue(MANIFEST["runtime_contract"]["launch_root_owner_guard"])
         self.assertTrue(MANIFEST["runtime_contract"]["relocatable_backup_launcher"])
+
+    def test_browser_acceptance_matches_exact_three_gold_sidebar(self):
+        browser = (ROOT / "tests/test-production-browser.mjs").read_text()
+        self.assertIn("hermes-sidebar-custom-nav-heading", browser)
+        self.assertIn("hermes-sidebar-core-nav-heading", browser)
+        self.assertIn("exact CUSTOM labels and paths", browser)
+        self.assertIn("CUSTOM precedes HERMES", browser)
+        self.assertIn("BRIEF-STOCK", browser)
+        self.assertIn("/brief-stock", browser)
+        self.assertIn("/git-comments-v27-review", browser)
+        self.assertNotIn("BRIEFS-STOCKS", browser)
+        self.assertNotIn("/briefs-stocks", browser)
 
     def test_stocks_filename_contracts_remain_surface_owned(self):
         materializer = (ROOT / "payload/briefs/materializer/brief_materializer.py").read_text()
