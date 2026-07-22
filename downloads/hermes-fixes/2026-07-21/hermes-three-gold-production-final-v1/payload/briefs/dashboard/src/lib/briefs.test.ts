@@ -78,7 +78,14 @@ describe("brief helpers", () => {
     expect(briefsPage).toContain('data-hermes-stock-date-navigation');
     expect(briefsPage).toContain('kind === "ai" && !previewLoading && previewUrl && selected');
     expect(briefsPage).not.toContain('kind === "stock" && !previewLoading && previewUrl && selected');
-    expect(app).toContain('to={{ pathname: "/briefs-ai", search: location.search, hash: location.hash }}');
+    const inlineBriefDestination = app.includes(
+      'to={{ pathname: "/briefs-ai", search: location.search, hash: location.hash }}',
+    );
+    const dataDrivenBriefDestination =
+      app.includes('path === "/briefs-ai" || path === "/brief-stock"') &&
+      app.includes('pathname: path, search: location.search, hash: location.hash') &&
+      app.includes('to={briefDestination}');
+    expect(inlineBriefDestination || dataDrivenBriefDestination).toBe(true);
     expect(briefsSource).toContain("left: 50% !important");
     expect(briefsSource).toContain("transform: translate(-50%, -50%) !important");
   });

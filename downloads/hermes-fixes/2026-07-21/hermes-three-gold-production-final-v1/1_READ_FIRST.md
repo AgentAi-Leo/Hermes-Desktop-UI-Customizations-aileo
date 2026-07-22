@@ -11,7 +11,7 @@ Pinned authorities: Briefs-AI V34, Briefs-Stocks V34, and Git Watch Revision 52.
 5. Only then run `5_INSTALL_PRODUCTION.command`.
 6. Run `6_VERIFY_INSTALLED.command` after restart.
 
-The installer backs up dashboard source/build, `web_server.py`, profile config, Git Watch state/runtime, materializers, launch-root mirror, and the prior production-system root. It preserves complete existing Briefs APIs, or inserts the pinned API block only when the contract is absent; partial states fail closed.
+The installer backs up dashboard source/build (including `App.tsx`), `web_server.py`, profile config, Git Watch state/runtime, materializers, launch-root mirror, and the prior production-system root. It preserves complete existing Briefs APIs, or inserts the pinned API block only when the contract is absent; partial states fail closed. Briefs navigation is preserved unchanged when already compliant, migrated only from an audited whole-file `App.tsx` hash, and rejected for every unknown noncompliant variant.
 
 Git Watch launch-root ownership is profile-guarded. A conflicting profile owner or conflicting unowned data stops before mutation. Set `THREE_GOLD_MANAGE_LAUNCH_ROOT=0` only when Hermes is known to discover profile plugins directly.
 

@@ -33,10 +33,11 @@
     }
   },
   "briefs_source_union": {
-    "file_count": 20,
+    "file_count": 21,
     "files": {
+      "payload/briefs/dashboard/patch_briefs_navigation.py": "d8c6d3d1d314a62a509c760017178f64d2ce12307362675494a562ef4f2a85e9",
       "payload/briefs/dashboard/scripts/export-v34.ts": "98a35c023614e494a2043d0f262f08de97160916d37b94db665f1b9eb5e8d6c9",
-      "payload/briefs/dashboard/src/lib/briefs.test.ts": "6b8b70e136ef97bcd813e43b8b4f61dc641a679f53519005009307418d6e7c0f",
+      "payload/briefs/dashboard/src/lib/briefs.test.ts": "0a69161af59a6c6645203c8a7382fac71b079664078b8d36e4b9e43f527dd8eb",
       "payload/briefs/dashboard/src/lib/briefs.ts": "2e0762a52856fd2b1846cf6e21aeeadeca4d23991e0c2db79f466ae0b40aba24",
       "payload/briefs/dashboard/src/pages/BriefsPage.tsx": "4de05bc3cad0c087324de7e247f5afe639a74351d1348974237503a948ad10e7",
       "payload/briefs/materializer/VERSION": "20d2add851bf39edcc6b5e830930f962db7e19dffa2cab8610eed551eda6c302",
@@ -74,6 +75,7 @@
     "launch_root_owner_guard": true,
     "profile_config_backup_restore": true,
     "web_server_backup_restore": true,
+    "app_source_backup_restore": true,
     "relocatable_backup_launcher": true,
     "built_dashboard_promoted_to_served_web_dist": true
   },
