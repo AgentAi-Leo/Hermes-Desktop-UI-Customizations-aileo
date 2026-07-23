@@ -49,17 +49,31 @@ BRAVE="/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
 PROFILE_DIR="{profile_home}/runtime/brave-dash-custom"
 LOG="{profile_home}/logs/brave-debug.log"
 
-if ! /usr/bin/curl -fsS http://127.0.0.1:9222/json/version >/dev/null 2>&1; then
-  /bin/rm -rf "$PROFILE_DIR"
-  /bin/mkdir -p "$PROFILE_DIR"
-  "$BRAVE" --remote-debugging-port=9222 --user-data-dir="$PROFILE_DIR" --no-first-run --no-default-browser-check --disable-session-crashed-bubble about:blank >>"$LOG" 2>&1 &
-  ready=0
-  for _ in {{1..120}}; do
-    if /usr/bin/curl -fsS http://127.0.0.1:9222/json/version >/dev/null 2>&1; then ready=1; break; fi
-    /bin/sleep 0.25
-  done
-  [[ "$ready" == "1" ]] || {{ echo "BRAVE_CDP_READY_TIMEOUT" >>"$LOG"; exit 1; }}
-fi
+PIDS="$(/usr/sbin/lsof -tiTCP:9222 -sTCP:LISTEN 2>/dev/null || true)"
+for pid in $PIDS; do
+  cmd="$(/bin/ps -p "$pid" -o command= 2>/dev/null || true)"
+  if [[ "$cmd" == *"--remote-debugging-port=9222"* && ( "$cmd" == *"$PROFILE_DIR"* || "$cmd" == *"$HOME/.hermes/brave-debug"* ) ]]; then
+    /bin/kill -TERM "$pid"
+  else
+    echo "PORT_9222_OCCUPIED_BY_UNEXPECTED_PROCESS=$pid" >>"$LOG"
+    exit 1
+  fi
+done
+for _ in {{1..80}}; do
+  [[ -z "$(/usr/sbin/lsof -tiTCP:9222 -sTCP:LISTEN 2>/dev/null || true)" ]] && break
+  /bin/sleep 0.25
+done
+[[ -z "$(/usr/sbin/lsof -tiTCP:9222 -sTCP:LISTEN 2>/dev/null || true)" ]] || {{ echo "BRAVE_CDP_PORT_DID_NOT_STOP" >>"$LOG"; exit 1; }}
+
+/bin/rm -rf "$PROFILE_DIR"
+/bin/mkdir -p "$PROFILE_DIR"
+"$BRAVE" --remote-debugging-port=9222 --user-data-dir="$PROFILE_DIR" --window-position=0,33 --window-size=1728,1042 --no-first-run --no-default-browser-check --disable-session-crashed-bubble about:blank >>"$LOG" 2>&1 &
+ready=0
+for _ in {{1..120}}; do
+  if /usr/bin/curl -fsS http://127.0.0.1:9222/json/version >/dev/null 2>&1; then ready=1; break; fi
+  /bin/sleep 0.25
+done
+[[ "$ready" == "1" ]] || {{ echo "BRAVE_CDP_READY_TIMEOUT" >>"$LOG"; exit 1; }}
 
 "$PYTHON" - "$URL" >>"$LOG" 2>&1 <<'PYOPEN'
 import json, sys, time, urllib.parse, urllib.request
