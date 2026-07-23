@@ -44,13 +44,47 @@ url = f"http://127.0.0.1:9120/brief-stock?profile={profile}"
 opener = f'''#!/bin/zsh
 set -u
 URL="{url}"
+PYTHON="{python}"
 BRAVE="/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"
-ENCODED="$({python} -c 'import sys,urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=""))' "$URL")"
-if /usr/bin/curl -fsS -X PUT "http://127.0.0.1:9222/json/new?$ENCODED" >/dev/null 2>&1; then
-  exit 0
+PROFILE_DIR="{profile_home}/runtime/brave-dash-custom"
+LOG="{profile_home}/logs/brave-debug.log"
+
+if ! /usr/bin/curl -fsS http://127.0.0.1:9222/json/version >/dev/null 2>&1; then
+  /bin/rm -rf "$PROFILE_DIR"
+  /bin/mkdir -p "$PROFILE_DIR"
+  "$BRAVE" --remote-debugging-port=9222 --user-data-dir="$PROFILE_DIR" --no-first-run --no-default-browser-check --disable-session-crashed-bubble about:blank >>"$LOG" 2>&1 &
+  ready=0
+  for _ in {{1..120}}; do
+    if /usr/bin/curl -fsS http://127.0.0.1:9222/json/version >/dev/null 2>&1; then ready=1; break; fi
+    /bin/sleep 0.25
+  done
+  [[ "$ready" == "1" ]] || {{ echo "BRAVE_CDP_READY_TIMEOUT" >>"$LOG"; exit 1; }}
 fi
-"$BRAVE" --remote-debugging-port=9222 --user-data-dir="$HOME/.hermes/brave-debug" --no-first-run --no-default-browser-check "$URL" >>"{profile_home}/logs/brave-debug.log" 2>&1 &
-exit 0
+
+"$PYTHON" - "$URL" >>"$LOG" 2>&1 <<'PYOPEN'
+import json, sys, time, urllib.parse, urllib.request
+base = "http://127.0.0.1:9222"
+url = sys.argv[1]
+new_request = urllib.request.Request(base + "/json/new?" + urllib.parse.quote(url, safe=""), method="PUT")
+with urllib.request.urlopen(new_request, timeout=5) as response:
+    keep = json.load(response)["id"]
+with urllib.request.urlopen(base + "/json/list", timeout=5) as response:
+    targets = json.load(response)
+for target in targets:
+    if target.get("type") == "page" and target.get("id") != keep:
+        close_url = base + "/json/close/" + urllib.parse.quote(target["id"], safe="")
+        try:
+            urllib.request.urlopen(close_url, timeout=5).read()
+        except Exception:
+            close_request = urllib.request.Request(close_url, method="PUT")
+            urllib.request.urlopen(close_request, timeout=5).read()
+time.sleep(0.25)
+with urllib.request.urlopen(base + "/json/list", timeout=5) as response:
+    pages = [target for target in json.load(response) if target.get("type") == "page"]
+if len(pages) != 1 or pages[0].get("id") != keep or pages[0].get("url") != url:
+    raise SystemExit("BRAVE_SINGLE_FRESH_TAB_VERIFY_FAILED")
+print("BRAVE_SINGLE_FRESH_TAB=PASS")
+PYOPEN
 '''
 
 service = f'''#!/bin/zsh
