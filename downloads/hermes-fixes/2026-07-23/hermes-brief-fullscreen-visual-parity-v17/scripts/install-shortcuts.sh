@@ -1,0 +1,292 @@
+#!/bin/bash
+set -Eeuo pipefail
+
+MODE="${1:-install}"
+SCRIPT_DIR="$(cd "$(/usr/bin/dirname "$0")" && pwd -P)"
+PKG="$(cd "$SCRIPT_DIR/.." && pwd -P)"
+HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
+PROFILE="${HERMES_PROFILE:-local-ai-assist1}"
+AGENT_ROOT="${HERMES_AGENT_ROOT:-$HERMES_HOME/hermes-agent}"
+PROFILE_HOME="$HERMES_HOME/profiles/$PROFILE"
+WEB="$AGENT_ROOT/web"
+DIST="$AGENT_ROOT/hermes_cli/web_dist"
+PYTHON="$AGENT_ROOT/venv/bin/python"
+NPM="$(command -v npm || true)"
+LABEL="com.aileo.hermes-local-ai-assist1-dashboard"
+DOMAIN="gui/$(/usr/bin/id -u)"
+BACKUP_ROOT="$PROFILE_HOME/backups/hermes-brief-fullscreen-visual-parity-v17"
+STAMP="$(/bin/date +%Y%m%d-%H%M%S)-$$"
+BACKUP="${BACKUP_OVERRIDE:-$BACKUP_ROOT/$STAMP-install}"
+TOUCHED=0
+RESTORING=0
+
+SOURCE_RELS=(
+  "web/src/App.tsx"
+  "web/src/lib/three-gold-shortcuts.ts"
+  "web/src/lib/three-gold-shortcuts.test.ts"
+  "web/src/lib/briefs.ts"
+  "web/src/lib/briefs.test.ts"
+  "web/src/pages/BriefsPage.tsx"
+  "web/src/lib/persistent-fullscreen.ts"
+  "web/src/lib/persistent-fullscreen.test.ts"
+)
+BACKUP_RELS=("${SOURCE_RELS[@]}" "hermes_cli/web_dist")
+
+verify_package() {
+  "$PYTHON" - "$PKG/CHECKSUMS.sha256" "$PKG" <<'PY'
+import hashlib,sys
+from pathlib import Path
+ledger=Path(sys.argv[1]).resolve(); root=Path(sys.argv[2]).resolve(); listed=set()
+for number,line in enumerate(ledger.read_text(encoding='utf-8').splitlines(),1):
+    if not line.strip(): continue
+    try: want,rel=line.split('  ',1)
+    except ValueError: raise SystemExit(f'INVALID_CHECKSUM_LINE={number}')
+    if rel in listed: raise SystemExit(f'DUPLICATE_CHECKSUM_PATH={rel}')
+    listed.add(rel); p=root/rel
+    if not p.is_file() or p.is_symlink(): raise SystemExit(f'CHECKSUM_INVALID_FILE={rel}')
+    if hashlib.sha256(p.read_bytes()).hexdigest()!=want: raise SystemExit(f'CHECKSUM_MISMATCH={rel}')
+actual={p.relative_to(root).as_posix() for p in root.rglob('*') if p.is_file() and p.resolve()!=ledger}
+if actual!=listed:
+    for rel in sorted(actual-listed): print(f'CHECKSUM_UNLEDGERED_FILE={rel}')
+    for rel in sorted(listed-actual): print(f'CHECKSUM_LEDGER_MISSING_FILE={rel}')
+    raise SystemExit(1)
+print('PERSISTENT_CUSTOM_FULLSCREEN_PACKAGE=PASS')
+PY
+}
+
+preflight() {
+  verify_package
+  [[ -x "$PYTHON" ]] || { echo "MISSING_HERMES_VENV_PYTHON=$PYTHON"; return 1; }
+  [[ -n "$NPM" && -x "$NPM" ]] || { echo "MISSING_NPM=YES"; return 1; }
+  [[ -f "$WEB/package.json" ]] || { echo "MISSING_WEB_PACKAGE_JSON=$WEB/package.json"; return 1; }
+  "$PYTHON" - "$PKG" "$AGENT_ROOT" <<'PY'
+import hashlib,sys
+from pathlib import Path
+pkg,root=map(Path,sys.argv[1:])
+expected={
+ 'web/src/App.tsx':('880c7de7b1304c8b6a4527f6717aceb4f9ad9f80ff66590252bfc55beeef964a',{'9bdbf9a04260cd2eccb34be0568b8f8832d4f13147f4746accd31d3342cb6ffc','1b51a2aeaaa82e6f79e8e03f57885ce905ff91f00d3441d38a31c63d2d503bbc','738460661a74426b4e4da2fde482aee5a54b17e6f575d5dde1c1702161620faf','880c7de7b1304c8b6a4527f6717aceb4f9ad9f80ff66590252bfc55beeef964a'},False),
+ 'web/src/lib/three-gold-shortcuts.ts':('85f9b2f9446327c42a43d383c2f667d6b49e8f4e541de290b5c2f0fb303085e7',{'afe54a65e7216454c45e61e0f386cb9a16368a2bad42550b1eb2603d7d4d9cb0','85f9b2f9446327c42a43d383c2f667d6b49e8f4e541de290b5c2f0fb303085e7'},False),
+ 'web/src/lib/three-gold-shortcuts.test.ts':('a17ca242d7e414a584ca9bbf27f75b988077a1aa01d3197b286aabfba944f916',{'ea47f2bffc11e3acce13ac6ec3ebfc59fb31f0c14b8da534378391c3e376a8d2','a17ca242d7e414a584ca9bbf27f75b988077a1aa01d3197b286aabfba944f916'},False),
+ 'web/src/lib/briefs.ts':('3ff34af34f186a7a1052c5d6bf52180ae23fb0a954ea3a67bfca49ec412d5281',{'2e0762a52856fd2b1846cf6e21aeeadeca4d23991e0c2db79f466ae0b40aba24','3ff34af34f186a7a1052c5d6bf52180ae23fb0a954ea3a67bfca49ec412d5281'},False),
+ 'web/src/lib/briefs.test.ts':('f56c565336117cab5838b6b915cf4fe9244086e8063f7bbe0bce4f5a3c076dfe',{'0a69161af59a6c6645203c8a7382fac71b079664078b8d36e4b9e43f527dd8eb','00fd00e6b0f5f9262afe72e1648999a79c9861f42e477885f9082732aca4f721','f56c565336117cab5838b6b915cf4fe9244086e8063f7bbe0bce4f5a3c076dfe'},False),
+ 'web/src/pages/BriefsPage.tsx':('23a01c959d66972c5b64d22598ed227f130534a76b3f61824769e83b25e3aa8c',{'4de05bc3cad0c087324de7e247f5afe639a74351d1348974237503a948ad10e7','646cd3df8467f6f2adee3d2bec89397af3c8849d7872938adf81c3e405445238','23a01c959d66972c5b64d22598ed227f130534a76b3f61824769e83b25e3aa8c'},False),
+ 'web/src/lib/persistent-fullscreen.ts':('fc536fb1115332a19c4ac22ac5f3931a66cb7b593dfc1c5e967df43e5e835b56',{'f029c30327f8f4011d864308c992a13653c79cad557536c42a662da9b6ff347e','fc536fb1115332a19c4ac22ac5f3931a66cb7b593dfc1c5e967df43e5e835b56'},True),
+ 'web/src/lib/persistent-fullscreen.test.ts':('9534e015c8db54f0eda623cc20809f120ad764fddf9d3e37301a352b3c208eb9',{'b96273d36626fefe2577b566d8e918a67d14c0eb5c7de200cd3dc21ad8b70197','9534e015c8db54f0eda623cc20809f120ad764fddf9d3e37301a352b3c208eb9'},True),
+}
+def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+for rel,(new,accepted,may_missing) in expected.items():
+    payload=pkg/'payload'/rel
+    if not payload.is_file() or sha(payload)!=new: raise SystemExit(f'INVALID_PERSISTENT_FULLSCREEN_PAYLOAD={rel}')
+    target=root/rel
+    if not target.exists():
+        if may_missing: print(f'PERSISTENT_FULLSCREEN_PREDECESSOR_MISSING={rel}'); continue
+        raise SystemExit(f'MISSING_REQUIRED_TARGET={rel}')
+    got=sha(target)
+    if got not in accepted: raise SystemExit(f'UNKNOWN_PERSISTENT_FULLSCREEN_PREDECESSOR={rel} SHA256={got}')
+    print(f'PERSISTENT_FULLSCREEN_PREDECESSOR_ACCEPTED={rel} SHA256={got}')
+print('PERSISTENT_CUSTOM_FULLSCREEN_PREFLIGHT=PASS')
+PY
+}
+
+create_backup() {
+  /bin/mkdir -p "$BACKUP/state"
+  "$PYTHON" - "$AGENT_ROOT" "$BACKUP" "${BACKUP_RELS[@]}" <<'PY'
+import hashlib,json,os,shutil,stat,sys
+from pathlib import Path
+root=Path(sys.argv[1]); backup=Path(sys.argv[2]); rels=sys.argv[3:]; state=backup/'state'; missing=[]
+for rel in rels:
+    src=root/rel; dst=state/rel
+    if not src.exists() and not src.is_symlink(): missing.append(rel); continue
+    dst.parent.mkdir(parents=True,exist_ok=True)
+    if src.is_dir(): shutil.copytree(src,dst,symlinks=True)
+    else: shutil.copy2(src,dst,follow_symlinks=False)
+def snapshot(path):
+    out=[]
+    for p in sorted(path.rglob('*')):
+        rel=p.relative_to(path).as_posix(); mode=stat.S_IMODE(p.lstat().st_mode)
+        if p.is_symlink(): out.append({'path':rel,'kind':'symlink','mode':mode,'target':os.readlink(p)})
+        elif p.is_dir(): out.append({'path':rel,'kind':'dir','mode':mode})
+        elif p.is_file(): out.append({'path':rel,'kind':'file','mode':mode,'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+    return out
+(backup/'BACKUP-INVENTORY.json').write_text(json.dumps({'schema_version':1,'agent_root':str(root),'rels':rels,'missing':missing,'entries':snapshot(state)},sort_keys=True,indent=2)+'\n')
+print(f'PERSISTENT_CUSTOM_FULLSCREEN_BACKUP={backup}')
+PY
+  /bin/cp -p "$SCRIPT_DIR/install-shortcuts.sh" "$BACKUP/install-shortcuts.sh"
+  /bin/chmod 700 "$BACKUP/install-shortcuts.sh"
+  /usr/bin/printf '%s\n' '#!/bin/bash' 'HERE="$(cd "$(/usr/bin/dirname "$0")" && pwd -P)"' 'exec /bin/bash "$HERE/install-shortcuts.sh" rollback "$HERE"' > "$BACKUP/RESTORE_THIS_BACKUP.command"
+  /bin/chmod 700 "$BACKUP/RESTORE_THIS_BACKUP.command"
+}
+
+restore_backup() {
+  local selected="$1"
+  RESTORING=1
+  if ! "$PYTHON" - "$AGENT_ROOT" "$selected" <<'PY'
+import hashlib,json,os,shutil,stat,sys
+from pathlib import Path
+root=Path(sys.argv[1]); backup=Path(sys.argv[2]); state=backup/'state'
+inv=json.loads((backup/'BACKUP-INVENTORY.json').read_text())
+if inv.get('schema_version')!=1: raise SystemExit('PERSISTENT_FULLSCREEN_BACKUP_SCHEMA_INVALID')
+expected=['web/src/App.tsx','web/src/lib/three-gold-shortcuts.ts','web/src/lib/three-gold-shortcuts.test.ts','web/src/lib/briefs.ts','web/src/lib/briefs.test.ts','web/src/pages/BriefsPage.tsx','web/src/lib/persistent-fullscreen.ts','web/src/lib/persistent-fullscreen.test.ts','hermes_cli/web_dist']
+if inv.get('rels')!=expected: raise SystemExit('PERSISTENT_FULLSCREEN_BACKUP_RELS_INVALID')
+def snapshot(path):
+    out=[]
+    for p in sorted(path.rglob('*')):
+        rel=p.relative_to(path).as_posix(); mode=stat.S_IMODE(p.lstat().st_mode)
+        if p.is_symlink(): out.append({'path':rel,'kind':'symlink','mode':mode,'target':os.readlink(p)})
+        elif p.is_dir(): out.append({'path':rel,'kind':'dir','mode':mode})
+        elif p.is_file(): out.append({'path':rel,'kind':'file','mode':mode,'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+    return out
+if snapshot(state)!=inv.get('entries'): raise SystemExit('PERSISTENT_FULLSCREEN_BACKUP_INVENTORY_INVALID')
+missing=set(inv.get('missing',[]))
+if not missing.issubset(set(expected)): raise SystemExit('PERSISTENT_FULLSCREEN_BACKUP_MISSING_SET_INVALID')
+for rel in inv.get('rels',[]):
+    dst=root/rel; src=state/rel
+    if dst.is_dir() and not dst.is_symlink(): shutil.rmtree(dst)
+    elif dst.exists() or dst.is_symlink(): dst.unlink()
+    if rel in missing: continue
+    dst.parent.mkdir(parents=True,exist_ok=True)
+    if src.is_dir(): shutil.copytree(src,dst,symlinks=True)
+    else: shutil.copy2(src,dst,follow_symlinks=False)
+print('PERSISTENT_CUSTOM_FULLSCREEN_ROLLBACK=PASS')
+PY
+  then
+    RESTORING=0
+    return 1
+  fi
+  RESTORING=0
+}
+
+apply_sources() {
+  "$PYTHON" - "$PKG" "$AGENT_ROOT" "${SOURCE_RELS[@]}" <<'PY'
+import os,stat,sys,tempfile
+from pathlib import Path
+pkg=Path(sys.argv[1]); root=Path(sys.argv[2]); rels=sys.argv[3:]
+for rel in rels:
+    src=pkg/'payload'/rel; dst=root/rel; dst.parent.mkdir(parents=True,exist_ok=True)
+    mode=stat.S_IMODE(dst.stat().st_mode) if dst.exists() else 0o644
+    fd,tmp=tempfile.mkstemp(prefix='.'+dst.name+'.',dir=dst.parent)
+    try:
+        with os.fdopen(fd,'wb') as f: f.write(src.read_bytes()); f.flush(); os.fsync(f.fileno())
+        os.chmod(tmp,mode); os.replace(tmp,dst)
+    finally:
+        if os.path.exists(tmp): os.unlink(tmp)
+print('PERSISTENT_CUSTOM_FULLSCREEN_SOURCES=INSTALLED')
+PY
+}
+
+verify_installed() {
+  "$PYTHON" - "$AGENT_ROOT" <<'PY'
+import hashlib,re,sys
+from pathlib import Path
+root=Path(sys.argv[1]); expected={
+ 'web/src/App.tsx':'880c7de7b1304c8b6a4527f6717aceb4f9ad9f80ff66590252bfc55beeef964a',
+ 'web/src/lib/three-gold-shortcuts.ts':'85f9b2f9446327c42a43d383c2f667d6b49e8f4e541de290b5c2f0fb303085e7',
+ 'web/src/lib/three-gold-shortcuts.test.ts':'a17ca242d7e414a584ca9bbf27f75b988077a1aa01d3197b286aabfba944f916',
+ 'web/src/lib/briefs.ts':'3ff34af34f186a7a1052c5d6bf52180ae23fb0a954ea3a67bfca49ec412d5281',
+ 'web/src/lib/briefs.test.ts':'f56c565336117cab5838b6b915cf4fe9244086e8063f7bbe0bce4f5a3c076dfe',
+ 'web/src/pages/BriefsPage.tsx':'23a01c959d66972c5b64d22598ed227f130534a76b3f61824769e83b25e3aa8c',
+ 'web/src/lib/persistent-fullscreen.ts':'fc536fb1115332a19c4ac22ac5f3931a66cb7b593dfc1c5e967df43e5e835b56',
+ 'web/src/lib/persistent-fullscreen.test.ts':'9534e015c8db54f0eda623cc20809f120ad764fddf9d3e37301a352b3c208eb9',
+}
+for rel,want in expected.items():
+    got=hashlib.sha256((root/rel).read_bytes()).hexdigest()
+    if got!=want: raise SystemExit(f'PERSISTENT_FULLSCREEN_INSTALLED_HASH_MISMATCH={rel}')
+app=(root/'web/src/App.tsx').read_text(); helper=(root/'web/src/lib/three-gold-shortcuts.ts').read_text(); briefs=(root/'web/src/lib/briefs.ts').read_text(); page=(root/'web/src/pages/BriefsPage.tsx').read_text(); fullscreen=(root/'web/src/lib/persistent-fullscreen.ts').read_text()
+for required in ('customShortcutPaths','PERSISTENT_FULLSCREEN_SHELL_ID','PersistentFullscreenContext.Provider','h-dvh overflow-hidden bg-background-base p-0','data-hermes-persistent-fullscreen-control','isBriefFullscreenToggleMessage(event.data?.type)','event.key === "Enter" && customShortcutPaths.includes(normalizedPath)'):
+    if required not in app: raise SystemExit(f'PERSISTENT_FULLSCREEN_APP_CONTRACT_MISSING={required}')
+if 'h-dvh overflow-auto bg-background-base p-3 sm:p-6' in app: raise SystemExit('REGRESSED_FULLSCREEN_SHELL_PADDING_PRESENT')
+for required in ('usePersistentFullscreen()','data-hermes-brief-route-chrome','data-hermes-brief-archive-rail','data-hermes-brief-preview-card','data-hermes-brief-preview-toolbar','data-hermes-ai-export-overlay','h-dvh gap-0 overflow-hidden','h-full min-h-0 rounded-none border-0 shadow-none'):
+    if required not in page: raise SystemExit(f'BRIEF_FULLSCREEN_VISUAL_PARITY_CONTRACT_MISSING={required}')
+for forbidden in ('iframe.requestFullscreen()','document.fullscreenElement === iframe','handlePreviewFullscreenShortcut','handleBriefFullscreen'):
+    if forbidden in page: raise SystemExit(f'IFRAME_FULLSCREEN_OWNER_PRESENT={forbidden}')
+for required in ('PersistentFullscreenContext','usePersistentFullscreen','hermes-persistent-route-shell','hermes-ai-fullscreen-toggle','hermes-stock-fullscreen-toggle'):
+    if required not in fullscreen: raise SystemExit(f'PERSISTENT_FULLSCREEN_HELPER_CONTRACT_MISSING={required}')
+if briefs.count('type: "hermes-custom-tab-shortcut", key: event.key') != 2: raise SystemExit('BRIEF_IFRAME_FORWARDER_COUNT_INVALID')
+index=root/'hermes_cli/web_dist/index.html';match=re.search(r'src="([^"]+\.js)"',index.read_text()) if index.is_file() else None
+if not match: raise SystemExit('PERSISTENT_FULLSCREEN_BUILT_JS_MISSING')
+bundle=root/'hermes_cli/web_dist'/match.group(1).lstrip('/');text=bundle.read_text(errors='replace')
+for required in ('/briefs-ai','/brief-stock','/git-comments-v27-review','hermes-persistent-route-shell','data-hermes-brief-route-chrome','data-hermes-brief-preview-card'):
+    if required not in text: raise SystemExit(f'PERSISTENT_FULLSCREEN_BUILT_CONTRACT_MISSING={required}')
+print('PERSISTENT_CUSTOM_FULLSCREEN_INSTALLED_VERIFICATION=PASS')
+PY
+}
+
+automatic_rollback() {
+  local rc="${1:-1}"
+  local restore_rc=0
+  trap - ERR INT TERM
+  set +e
+  if [[ "$TOUCHED" == 1 && "$RESTORING" == 0 ]]; then
+    echo "PERSISTENT_FULLSCREEN_INSTALL_FAILED_RESTORING=$BACKUP"
+    restore_backup "$BACKUP"
+    restore_rc=$?
+    if [[ "$restore_rc" != 0 ]]; then
+      echo "PERSISTENT_FULLSCREEN_AUTOMATIC_ROLLBACK_FAILED=$BACKUP RC=$restore_rc"
+    elif /bin/launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+      /bin/launchctl kickstart -k "$DOMAIN/$LABEL" >/dev/null 2>&1 || true
+    fi
+  fi
+  exit "$rc"
+}
+
+restart_dashboard() {
+  if [[ "${HERMES_PERSISTENT_FULLSCREEN_TEST_MODE:-0}" == 1 && "${PERSISTENT_FULLSCREEN_SKIP_LIVE_RESTART:-0}" == 1 ]]; then
+    echo 'PERSISTENT_CUSTOM_FULLSCREEN_DASHBOARD_RESTART=SKIPPED_TEST_MODE'
+    return 0
+  fi
+  if ! /bin/launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then echo "PERSISTENT_FULLSCREEN_LAUNCH_AGENT_NOT_LOADED=$LABEL"; return 1; fi
+  /bin/launchctl kickstart -k "$DOMAIN/$LABEL"
+  local ready=0
+  for _ in {1..120}; do
+    if /usr/bin/curl -fsS http://127.0.0.1:9120/ >/dev/null 2>&1; then ready=1; break; fi
+    /bin/sleep 0.5
+  done
+  [[ "$ready" == 1 ]] || { echo 'PERSISTENT_FULLSCREEN_DASHBOARD_RESTART_TIMEOUT'; return 1; }
+  echo 'PERSISTENT_CUSTOM_FULLSCREEN_DASHBOARD_RESTART=PASS'
+}
+
+case "$MODE" in
+  verify) verify_package ;;
+  audit) preflight ;;
+  verify-installed) verify_installed ;;
+  rollback)
+    selected="${2:-}"
+    [[ -n "$selected" ]] || { echo 'ROLLBACK_BACKUP_REQUIRED'; exit 2; }
+    restore_backup "$selected"
+    ;;
+  install)
+    preflight
+    create_backup
+    trap 'automatic_rollback $?' ERR
+    trap 'automatic_rollback 130' INT
+    trap 'automatic_rollback 143' TERM
+    TOUCHED=1
+    apply_sources
+    if [[ "${HERMES_PERSISTENT_FULLSCREEN_TEST_MODE:-0}" == 1 && "${PERSISTENT_FULLSCREEN_TEST_WAIT_AFTER_SOURCES:-0}" == 1 ]]; then
+      echo "PERSISTENT_CUSTOM_FULLSCREEN_SIGNAL_READY_PID=$$"
+      while [[ ! -e "${PERSISTENT_FULLSCREEN_TEST_RELEASE_FILE:-/tmp/hermes-shortcut-test-release}" ]]; do
+        /bin/sleep 0.2
+      done
+    fi
+    if [[ "${HERMES_PERSISTENT_FULLSCREEN_TEST_MODE:-0}" == 1 && "${PERSISTENT_FULLSCREEN_INJECT_FAILURE_AFTER_SOURCES:-0}" == 1 ]]; then
+      echo 'PERSISTENT_CUSTOM_FULLSCREEN_INJECTED_FAILURE=YES'
+      false
+    fi
+    (
+      trap - ERR
+      set +E
+      cd "$AGENT_ROOT"
+      "$NPM" run typecheck --workspace web
+      "$NPM" run test --workspace web -- --run src/lib/persistent-fullscreen.test.ts src/lib/three-gold-shortcuts.test.ts src/lib/briefs.test.ts --testTimeout=15000
+      "$NPM" run test --workspace web -- --testTimeout=15000
+      "$NPM" run build --workspace web
+    )
+    verify_installed
+    restart_dashboard
+    TOUCHED=0
+    trap - ERR INT TERM
+    echo 'PERSISTENT_CUSTOM_FULLSCREEN_INSTALL=PASS'
+    echo "ROLLBACK=$BACKUP/RESTORE_THIS_BACKUP.command"
+    ;;
+  *) echo "UNKNOWN_MODE=$MODE"; exit 2 ;;
+esac
