@@ -21,6 +21,9 @@ URL="http://127.0.0.1:9120/brief-stock?profile=$PROFILE"
 
 [[ -x "$PYTHON" ]] || { echo "PYTHON_MISSING=$PYTHON"; exit 1; }
 [[ -x "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" ]] || { echo "BRAVE_MISSING=YES"; exit 1; }
+NPM_PATH="$(command -v npm || true)"
+[[ -n "$NPM_PATH" && -x "$NPM_PATH" ]] || { echo "NPM_MISSING_IN_INTERACTIVE_PATH=YES"; exit 1; }
+NPM_DIR="$(dirname "$NPM_PATH")"
 mkdir -p "$BIN_DIR" "$LOG_DIR" "$HOME_DIR/Library/LaunchAgents" "$HOME_DIR/Applications" "$BACKUP"
 
 for path in "$PLIST" "$SERVICE" "$OPENER"; do
@@ -28,9 +31,9 @@ for path in "$PLIST" "$SERVICE" "$OPENER"; do
 done
 if [[ -d "$APP" ]]; then /usr/bin/ditto "$APP" "$BACKUP/$(basename "$APP")"; fi
 
-"$PYTHON" - "$PLIST" "$SERVICE" "$OPENER" <<'PY'
+"$PYTHON" - "$PLIST" "$SERVICE" "$OPENER" "$NPM_DIR" <<'PY'
 import os, plistlib, sys
-plist_path, service_path, opener_path = sys.argv[1:]
+plist_path, service_path, opener_path, npm_dir = sys.argv[1:]
 home = "/Users/jb3"
 profile = "local-ai-assist1"
 profile_home = f"{home}/.hermes/profiles/{profile}"
@@ -80,7 +83,12 @@ plist = {
     "Label": "com.aileo.hermes-local-ai-assist1-dashboard",
     "ProgramArguments": ["/bin/zsh", service_path],
     "WorkingDirectory": agent_root,
-    "EnvironmentVariables": {"HOME": home, "HERMES_HOME": f"{home}/.hermes", "HERMES_PROFILE": profile},
+    "EnvironmentVariables": {
+        "HOME": home,
+        "HERMES_HOME": f"{home}/.hermes",
+        "HERMES_PROFILE": profile,
+        "PATH": f"{npm_dir}:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+    },
     "RunAtLoad": True,
     "KeepAlive": True,
     "ThrottleInterval": 10,
