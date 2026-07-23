@@ -200,6 +200,20 @@ class ProductionLifecycleTests(unittest.TestCase):
         self.assertIn("CHECKSUM_UNLEDGERED_FILE=UNLEDGERED", result.stdout + result.stderr)
         self.assertNotIn("THREE_GOLD_PACKAGE_VERIFICATION=PASS", result.stdout)
 
+    def test_package_verification_accepts_canonicalized_ledger_path(self):
+        self.refresh_package_ledger()
+        private_root = self.base / "private-var"
+        private_root.mkdir()
+        physical_package = private_root / "package"
+        shutil.move(str(self.package), physical_package)
+        alias_root = self.base / "var"
+        alias_root.symlink_to(private_root, target_is_directory=True)
+        self.package = alias_root / "package"
+        self.manager = self.package / "scripts/three-gold-production-manager.sh"
+        result = self.run_manager("package-verify")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("THREE_GOLD_PACKAGE_VERIFICATION=PASS", result.stdout)
+
     def test_package_verification_is_repeatable_and_read_only(self):
         self.refresh_package_ledger()
         before = digest_tree(self.package)

@@ -124,7 +124,7 @@ PY
 verify_checksum_ledger() { "$PYTHON" - "$1" "$2" <<'PY'
 import hashlib,sys
 from pathlib import Path
-ledger=Path(sys.argv[1]); root=Path(sys.argv[2]).resolve(); listed=set()
+ledger=Path(sys.argv[1]).resolve(); root=Path(sys.argv[2]).resolve(); listed=set()
 for number,line in enumerate(ledger.read_text(encoding='utf-8').splitlines(),1):
     if not line.strip(): continue
     try: want,rel=line.split('  ',1)
