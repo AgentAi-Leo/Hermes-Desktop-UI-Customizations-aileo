@@ -28,7 +28,7 @@ for path in "$PLIST" "$SERVICE" "$OPENER"; do
 done
 if [[ -d "$APP" ]]; then /usr/bin/ditto "$APP" "$BACKUP/$(basename "$APP")"; fi
 
-/usr/bin/python3 - "$PLIST" "$SERVICE" "$OPENER" <<'PY'
+"$PYTHON" - "$PLIST" "$SERVICE" "$OPENER" <<'PY'
 import os, plistlib, sys
 plist_path, service_path, opener_path = sys.argv[1:]
 home = "/Users/jb3"
