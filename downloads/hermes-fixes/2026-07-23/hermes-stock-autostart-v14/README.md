@@ -1,6 +1,6 @@
-# Hermes BRIEF-STOCK Autostart v14
+# Hermes Dash-CUSTOM Autostart v14
 
-Installs a profile-scoped macOS LaunchAgent for the isolated `local-ai-assist1` dashboard on port 9120. At service start, Brave opens directly to `/brief-stock?profile=local-ai-assist1`. Also installs `~/Applications/Hermes BRIEF-STOCK.app` for later one-click opening.
+Installs a profile-scoped macOS LaunchAgent for the isolated `local-ai-assist1` dashboard on port 9120. At service start, Brave opens directly to `/brief-stock?profile=local-ai-assist1`. Also installs `~/Applications/Hermes Dash-CUSTOM.app` for later one-click opening.
 
 - Existing managed launcher files are backed up under the profile backup directory.
 - An unexpected process on port 9120 is never killed; installation fails closed.
