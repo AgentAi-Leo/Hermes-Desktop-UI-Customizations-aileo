@@ -100,7 +100,7 @@ APP_TMP="$APP.installing"
 /bin/rm -rf "$APP"
 /bin/mv "$APP_TMP" "$APP"
 
-/usr/bin/launchctl bootout "$DOMAIN/$LABEL" >/dev/null 2>&1 || true
+/bin/launchctl bootout "$DOMAIN/$LABEL" >/dev/null 2>&1 || true
 
 PIDS="$(/usr/sbin/lsof -tiTCP:9120 -sTCP:LISTEN 2>/dev/null || true)"
 for pid in $PIDS; do
@@ -118,9 +118,9 @@ for _ in {1..40}; do
 done
 [[ -z "$(/usr/sbin/lsof -tiTCP:9120 -sTCP:LISTEN 2>/dev/null || true)" ]] || { echo "PORT_9120_DID_NOT_STOP"; exit 1; }
 
-/usr/bin/launchctl bootstrap "$DOMAIN" "$PLIST"
-/usr/bin/launchctl enable "$DOMAIN/$LABEL"
-/usr/bin/launchctl kickstart -k "$DOMAIN/$LABEL"
+/bin/launchctl bootstrap "$DOMAIN" "$PLIST"
+/bin/launchctl enable "$DOMAIN/$LABEL"
+/bin/launchctl kickstart -k "$DOMAIN/$LABEL"
 
 ready=0
 for _ in {1..120}; do
@@ -128,7 +128,7 @@ for _ in {1..120}; do
   /bin/sleep 0.5
 done
 [[ "$ready" == "1" ]] || { echo "LAUNCH_AGENT_DASHBOARD_TIMEOUT"; exit 1; }
-/usr/bin/launchctl print "$DOMAIN/$LABEL" >/dev/null
+/bin/launchctl print "$DOMAIN/$LABEL" >/dev/null
 /bin/sleep 1
 
 printf 'HERMES_STOCK_LAUNCH_AGENT=PASS\n'
