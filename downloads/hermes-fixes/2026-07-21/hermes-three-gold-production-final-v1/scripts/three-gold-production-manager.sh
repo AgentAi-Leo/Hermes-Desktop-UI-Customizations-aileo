@@ -86,6 +86,7 @@ BACKUP="${BACKUP_OVERRIDE:-$BACKUP_ROOT/$STAMP-$MODE}"
 TOUCHED=0
 RESTORING=0
 INJECT_FAILURE_AFTER_RUNTIME="${THREE_GOLD_INJECT_FAILURE_AFTER_RUNTIME:-0}"
+INJECT_CORRUPT_BACKUP_LABEL="${THREE_GOLD_INJECT_CORRUPT_BACKUP_LABEL:-}"
 SKIP_BUILD="${THREE_GOLD_SKIP_BUILD:-0}"
 SKIP_SOURCE_REQUIREMENTS="${THREE_GOLD_SKIP_SOURCE_REQUIREMENTS:-0}"
 ALLOW_ARCHIVE_SYMLINKS="${THREE_GOLD_ALLOW_ARCHIVE_SYMLINKS:-0}"
@@ -112,20 +113,38 @@ with open(sys.argv[1], 'rb') as f:
 print(h.hexdigest())
 PY
 }
+verify_python_syntax() { "$PYTHON" - "$@" <<'PY'
+import sys
+from pathlib import Path
+for value in sys.argv[1:]:
+    path=Path(value)
+    compile(path.read_bytes(),str(path),'exec')
+PY
+}
 verify_checksum_ledger() { "$PYTHON" - "$1" "$2" <<'PY'
 import hashlib,sys
 from pathlib import Path
-ledger=Path(sys.argv[1]); root=Path(sys.argv[2]).resolve()
+ledger=Path(sys.argv[1]); root=Path(sys.argv[2]).resolve(); listed=set()
 for number,line in enumerate(ledger.read_text(encoding='utf-8').splitlines(),1):
     if not line.strip(): continue
     try: want,rel=line.split('  ',1)
     except ValueError: raise SystemExit(f'INVALID_CHECKSUM_LINE={number}')
-    candidate=(root/rel).resolve()
-    try: candidate.relative_to(root)
+    if rel in listed: raise SystemExit(f'DUPLICATE_CHECKSUM_PATH={rel}')
+    listed.add(rel)
+    candidate=root/rel
+    if candidate.is_symlink(): raise SystemExit(f'CHECKSUM_UNEXPECTED_SYMLINK={rel}')
+    resolved=candidate.resolve()
+    try: resolved.relative_to(root)
     except ValueError: raise SystemExit(f'CHECKSUM_PATH_ESCAPES_ROOT={rel}')
-    if not candidate.is_file(): raise SystemExit(f'CHECKSUM_FILE_MISSING={rel}')
-    got=hashlib.sha256(candidate.read_bytes()).hexdigest()
+    if not resolved.is_file(): raise SystemExit(f'CHECKSUM_FILE_MISSING={rel}')
+    got=hashlib.sha256(resolved.read_bytes()).hexdigest()
     if got != want: raise SystemExit(f'CHECKSUM_MISMATCH={rel}')
+for path in root.rglob('*'):
+    if path == ledger: continue
+    rel=path.relative_to(root).as_posix()
+    if path.is_symlink(): raise SystemExit(f'CHECKSUM_UNEXPECTED_SYMLINK={rel}')
+    if path.is_file() and rel not in listed:
+        raise SystemExit(f'CHECKSUM_UNLEDGERED_FILE={rel}')
 PY
 }
 exists_even_symlink() { [[ -e "$1" || -L "$1" ]]; }
@@ -144,6 +163,7 @@ verify_package() {
     "$PACKAGE_DIR/CHECKSUMS.sha256" \
     "$NEW_SOURCE" "$NEW_TEST_SOURCE" "$NEW_PAGE_SOURCE" "$BRIEFS_NAV_PATCHER" "$THREE_GOLD_SIDEBAR_PATCHER" \
     "$BRIEFS_API_PATCHER" "$BRIEFS_API_FRAGMENT" \
+    "$BRIEFS_PAYLOAD/dashboard/dashboard_api.production-f15.ts" \
     "$BRIEFS_PAYLOAD/server/legacy_briefs_api_block.pyfrag" \
     "$GIT_PAYLOAD/dashboard/dist/index.js" \
     "$GIT_PAYLOAD/dashboard/plugin_api.py" \
@@ -160,7 +180,7 @@ verify_package() {
   (cd "$GOLD_PAYLOAD/briefs-stocks-v34" && bash VERIFY_BRIEFS_STOCKS_V34.command </dev/null >/dev/null)
   (cd "$GOLD_PAYLOAD/git-watch-r52" && bash 4_VERIFY_GIT_WATCH_PACKAGE.command </dev/null >/dev/null)
   node --check "$GIT_PAYLOAD/dashboard/dist/index.js" >/dev/null
-  "$PYTHON" -m py_compile "$GIT_PAYLOAD/dashboard/plugin_api.py" "$BRIEFS_API_PATCHER" "$BRIEFS_NAV_PATCHER" "$THREE_GOLD_SIDEBAR_PATCHER"
+  verify_python_syntax "$GIT_PAYLOAD/dashboard/plugin_api.py" "$BRIEFS_API_PATCHER" "$BRIEFS_NAV_PATCHER" "$THREE_GOLD_SIDEBAR_PATCHER"
   bash -n "$GIT_PAYLOAD/scripts/github-comments-checker-v27-review.sh"
   "$PYTHON" - "$PACKAGE_DIR/PRODUCTION-MANIFEST.json" "$PACKAGE_DIR" <<'PY'
 import hashlib,json,sys
@@ -203,18 +223,39 @@ read_only_audit() {
   local archive_rc=0
   archive_status AI "$AI_ARCHIVE" || archive_rc=$?
   archive_status STOCKS "$STOCK_ARCHIVE" || archive_rc=$?
-  for path in "$SOURCE" "$TEST_SOURCE" "$PAGE_SOURCE" "$APP_SOURCE" "$DASHBOARD_API_SOURCE" "$WEB_SERVER" "$DIST/index.html"; do
-    if [[ -e "$path" ]]; then echo "EXISTS=$path SHA256=$(sha256_file "$path")"; else echo "MISSING=$path"; fi
+  local required_source_rc=0
+  for path in "$SOURCE" "$TEST_SOURCE" "$PAGE_SOURCE" "$APP_SOURCE" "$DASHBOARD_API_SOURCE" "$WEB_SERVER" "$WEB/package.json" "$DIST/index.html"; do
+    if [[ -f "$path" ]]; then
+      echo "AUDIT_REQUIRED_SOURCE_EXISTS=$path SHA256=$(sha256_file "$path")"
+    else
+      echo "AUDIT_REQUIRED_SOURCE_MISSING=$path"
+      required_source_rc=1
+    fi
   done
+  if [[ $required_source_rc -eq 0 ]]; then
+    echo "AUDIT_REQUIRED_SOURCE_PREREQUISITES=PASS"
+  else
+    echo "AUDIT_REQUIRED_SOURCE_PREREQUISITES=FAILED"
+  fi
   for path in "$PROFILE_PLUGIN/dist/index.js" "$PROFILE_PLUGIN/plugin_api.py" "$PROFILE_PLUGIN/manifest.json" "$PROFILE_CHECKER"; do
-    if [[ -e "$path" ]]; then echo "EXISTS=$path SHA256=$(sha256_file "$path")"; else echo "MISSING=$path"; fi
+    if [[ -f "$path" ]]; then echo "AUDIT_INFORMATIONAL_INSTALLED_EXISTS=$path SHA256=$(sha256_file "$path")"; else echo "AUDIT_INFORMATIONAL_INSTALLED_MISSING=$path"; fi
   done
+  for rel in "${RUNTIME_FILES[@]}"; do
+    path="$SCRIPTS/$rel"
+    if [[ -f "$path" ]]; then echo "AUDIT_INFORMATIONAL_RUNTIME_EXISTS=$path SHA256=$(sha256_file "$path")"; else echo "AUDIT_INFORMATIONAL_RUNTIME_MISSING=$path"; fi
+  done
+  if [[ -f "$PROFILE_CONFIG" ]]; then echo "AUDIT_INFORMATIONAL_CONFIG_EXISTS=$PROFILE_CONFIG SHA256=$(sha256_file "$PROFILE_CONFIG")"; else echo "AUDIT_INFORMATIONAL_CONFIG_MISSING=$PROFILE_CONFIG"; fi
+  if [[ -d "$SYSTEM_ROOT" ]]; then echo "AUDIT_INFORMATIONAL_SYSTEM_ROOT_PRESENT=$SYSTEM_ROOT"; else echo "AUDIT_INFORMATIONAL_SYSTEM_ROOT_MISSING=$SYSTEM_ROOT"; fi
   if [[ $archive_rc -eq 3 ]]; then
     echo "AUDIT_REQUIRES_ARCHIVE_SYMLINK_DECISION=YES"
+    return 3
   elif [[ $archive_rc -ne 0 ]]; then
     echo "AUDIT_ARCHIVE_PREREQUISITES=FAILED"
-  else
-    echo "AUDIT_ARCHIVE_PREREQUISITES=PASS"
+    return "$archive_rc"
+  fi
+  echo "AUDIT_ARCHIVE_PREREQUISITES=PASS"
+  if [[ $required_source_rc -ne 0 ]]; then
+    return 1
   fi
   echo "THREE_GOLD_READ_ONLY_AUDIT=PASS"
 }
@@ -229,37 +270,143 @@ backup_one() {
     printf '%s\n' "$label" >> "$BACKUP/missing.txt"
   fi
 }
+
+create_backup_inventory() {
+  "$PYTHON" - "$BACKUP" <<'PY'
+import hashlib,json,os,stat,sys
+from pathlib import Path
+root=Path(sys.argv[1]); state=root/'state'; out=root/'BACKUP-INVENTORY.json'
+def labels(name):
+    values=[line for line in (root/name).read_text().splitlines() if line]
+    if len(values)!=len(set(values)): raise SystemExit(f'DUPLICATE_BACKUP_LABEL={name}')
+    return sorted(values)
+def snapshot(path):
+    entries=[]
+    def add(item,rel):
+        mode=stat.S_IMODE(item.lstat().st_mode)
+        if item.is_symlink(): entries.append({'path':rel,'kind':'symlink','mode':mode,'target':os.readlink(item)})
+        elif item.is_file(): entries.append({'path':rel,'kind':'file','mode':mode,'sha256':hashlib.sha256(item.read_bytes()).hexdigest()})
+        elif item.is_dir():
+            entries.append({'path':rel,'kind':'directory','mode':mode})
+            for child in sorted(item.iterdir(),key=lambda value:value.name): add(child,child.name if rel=='.' else f'{rel}/{child.name}')
+        else: raise SystemExit(f'UNSUPPORTED_BACKUP_OBJECT={item}')
+    add(path,'.'); return entries
+present=labels('present.txt'); missing=labels('missing.txt')
+if set(present)&set(missing): raise SystemExit('BACKUP_LABEL_PRESENT_AND_MISSING')
+objects={}
+for label in present:
+    path=state/label
+    if not path.exists() and not path.is_symlink(): raise SystemExit(f'BACKUP_OBJECT_MISSING={label}')
+    objects[label]=snapshot(path)
+actual=sorted(path.name for path in state.iterdir()) if state.exists() else []
+if actual!=present: raise SystemExit(f'BACKUP_STATE_SET_MISMATCH={actual!r}')
+payload={'schema_version':1,'present':present,'missing':missing,'objects':objects}
+out.write_text(json.dumps(payload,sort_keys=True,separators=(',',':'))+'\n')
+PY
+}
+
+verify_backup_inventory() {
+  "$PYTHON" - "$BACKUP" <<'PY'
+import hashlib,json,os,stat,sys
+from pathlib import Path
+root=Path(sys.argv[1]); state=root/'state'; inventory_path=root/'BACKUP-INVENTORY.json'; metadata_path=root/'BACKUP-METADATA.json'
+metadata=json.loads(metadata_path.read_text()); raw=inventory_path.read_bytes()
+if hashlib.sha256(raw).hexdigest()!=metadata.get('inventory_sha256'): raise SystemExit('BACKUP_INVENTORY_HASH_MISMATCH')
+data=json.loads(raw)
+def labels(name): return sorted(line for line in (root/name).read_text().splitlines() if line)
+if labels('present.txt')!=data['present'] or labels('missing.txt')!=data['missing']: raise SystemExit('BACKUP_LABEL_INVENTORY_MISMATCH')
+def snapshot(path):
+    entries=[]
+    def add(item,rel):
+        mode=stat.S_IMODE(item.lstat().st_mode)
+        if item.is_symlink(): entries.append({'path':rel,'kind':'symlink','mode':mode,'target':os.readlink(item)})
+        elif item.is_file(): entries.append({'path':rel,'kind':'file','mode':mode,'sha256':hashlib.sha256(item.read_bytes()).hexdigest()})
+        elif item.is_dir():
+            entries.append({'path':rel,'kind':'directory','mode':mode})
+            for child in sorted(item.iterdir(),key=lambda value:value.name): add(child,child.name if rel=='.' else f'{rel}/{child.name}')
+        else: raise SystemExit(f'UNSUPPORTED_BACKUP_OBJECT={item}')
+    add(path,'.'); return entries
+actual=sorted(path.name for path in state.iterdir()) if state.exists() else []
+if actual!=data['present']: raise SystemExit('BACKUP_STATE_SET_MISMATCH')
+for label in data['present']:
+    path=state/label
+    if (not path.exists() and not path.is_symlink()) or snapshot(path)!=data['objects'][label]: raise SystemExit(f'BACKUP_OBJECT_INTEGRITY_MISMATCH={label}')
+print('THREE_GOLD_BACKUP_INVENTORY=PASS')
+PY
+}
+
 was_present() { grep -Fqx "$1" "$BACKUP/present.txt" 2>/dev/null; }
+verify_inventory_object() {
+  local label="$1" path="$2"
+  "$PYTHON" - "$BACKUP/BACKUP-INVENTORY.json" "$label" "$path" <<'PY'
+import hashlib,json,os,stat,sys
+from pathlib import Path
+data=json.loads(Path(sys.argv[1]).read_text()); label=sys.argv[2]; path=Path(sys.argv[3])
+def snapshot(root):
+    entries=[]
+    def add(item,rel):
+        mode=stat.S_IMODE(item.lstat().st_mode)
+        if item.is_symlink(): entries.append({'path':rel,'kind':'symlink','mode':mode,'target':os.readlink(item)})
+        elif item.is_file(): entries.append({'path':rel,'kind':'file','mode':mode,'sha256':hashlib.sha256(item.read_bytes()).hexdigest()})
+        elif item.is_dir():
+            entries.append({'path':rel,'kind':'directory','mode':mode})
+            for child in sorted(item.iterdir(),key=lambda value:value.name): add(child,child.name if rel=='.' else f'{rel}/{child.name}')
+        else: raise SystemExit(f'UNSUPPORTED_RESTORE_OBJECT={item}')
+    add(root,'.'); return entries
+if (not path.exists() and not path.is_symlink()) or snapshot(path)!=data['objects'].get(label): raise SystemExit(f'RESTORED_OBJECT_INTEGRITY_MISMATCH={label}')
+PY
+}
+
 restore_one() {
   local destination="$1" label="$2"
-  rm -rf "$destination"
+  local staged="${destination}.three-gold-restore.$$" previous="${destination}.three-gold-previous.$$"
+  rm -rf "$staged" "$previous"
   if was_present "$label"; then
     mkdir -p "$(dirname "$destination")"
-    cp -a "$BACKUP/state/$label" "$destination"
+    cp -a "$BACKUP/state/$label" "$staged"
+    verify_inventory_object "$label" "$staged"
+    if exists_even_symlink "$destination"; then mv "$destination" "$previous"; fi
+    if ! mv "$staged" "$destination"; then
+      if exists_even_symlink "$previous"; then mv "$previous" "$destination"; fi
+      return 1
+    fi
+    if ! verify_inventory_object "$label" "$destination"; then
+      rm -rf "$destination"
+      if exists_even_symlink "$previous"; then mv "$previous" "$destination"; fi
+      return 1
+    fi
+    rm -rf "$previous"
+  else
+    if exists_even_symlink "$destination"; then
+      mv "$destination" "$previous"
+      [[ ! -e "$destination" && ! -L "$destination" ]] || { mv "$previous" "$destination"; return 1; }
+      rm -rf "$previous"
+    fi
   fi
 }
 
 restore_from_backup() {
   RESTORING=1
-  restore_one "$SOURCE" dashboard-briefs-source
-  restore_one "$TEST_SOURCE" dashboard-briefs-test
-  restore_one "$PAGE_SOURCE" dashboard-briefs-page
-  restore_one "$APP_SOURCE" dashboard-app-source
-  restore_one "$DASHBOARD_API_SOURCE" dashboard-api-source
-  restore_one "$WEB_SERVER" dashboard-web-server
-  restore_one "$DIST" dashboard-web-dist
-  restore_one "$PROFILE_PLUGIN_ROOT" profile-git-watch-plugin
-  restore_one "$PROFILE_CHECKER" profile-git-watch-checker
-  restore_one "$PROFILE_CONFIG" profile-config
-  restore_one "$SYSTEM_ROOT" production-system-root
+  if ! verify_backup_metadata || ! verify_backup_inventory; then RESTORING=0; return 1; fi
+  restore_one "$SOURCE" dashboard-briefs-source || { RESTORING=0; return 1; }
+  restore_one "$TEST_SOURCE" dashboard-briefs-test || { RESTORING=0; return 1; }
+  restore_one "$PAGE_SOURCE" dashboard-briefs-page || { RESTORING=0; return 1; }
+  restore_one "$APP_SOURCE" dashboard-app-source || { RESTORING=0; return 1; }
+  restore_one "$DASHBOARD_API_SOURCE" dashboard-api-source || { RESTORING=0; return 1; }
+  restore_one "$WEB_SERVER" dashboard-web-server || { RESTORING=0; return 1; }
+  restore_one "$DIST" dashboard-web-dist || { RESTORING=0; return 1; }
+  restore_one "$PROFILE_PLUGIN_ROOT" profile-git-watch-plugin || { RESTORING=0; return 1; }
+  restore_one "$PROFILE_CHECKER" profile-git-watch-checker || { RESTORING=0; return 1; }
+  restore_one "$PROFILE_CONFIG" profile-config || { RESTORING=0; return 1; }
+  restore_one "$SYSTEM_ROOT" production-system-root || { RESTORING=0; return 1; }
   if [[ "$SAME_PROFILE" == 0 && "$MANAGE_LAUNCH_ROOT" == 1 ]]; then
-    restore_one "$LAUNCH_PLUGIN_ROOT" launch-git-watch-plugin
-    restore_one "$LAUNCH_CHECKER" launch-git-watch-checker
+    restore_one "$LAUNCH_PLUGIN_ROOT" launch-git-watch-plugin || { RESTORING=0; return 1; }
+    restore_one "$LAUNCH_CHECKER" launch-git-watch-checker || { RESTORING=0; return 1; }
   fi
   local rel label
   for rel in "${RUNTIME_FILES[@]}"; do
     label="runtime-$(printf '%s' "$rel" | tr '/' '_')"
-    restore_one "$SCRIPTS/$rel" "$label"
+    restore_one "$SCRIPTS/$rel" "$label" || { RESTORING=0; return 1; }
   done
   RESTORING=0
 }
@@ -268,8 +415,12 @@ on_exit() {
   local status=$?
   if [[ $status -ne 0 && "$TOUCHED" == 1 && "$RESTORING" == 0 ]]; then
     echo "INSTALL_VERIFICATION_FAILED_RESTORING=$BACKUP" >&2
-    restore_from_backup || true
-    echo "THREE_GOLD_AUTOMATIC_ROLLBACK=PASS" >&2
+    if restore_from_backup; then
+      echo "THREE_GOLD_AUTOMATIC_ROLLBACK=PASS" >&2
+    else
+      echo "THREE_GOLD_AUTOMATIC_ROLLBACK=FAIL" >&2
+      status=98
+    fi
   fi
   exit "$status"
 }
@@ -309,7 +460,7 @@ install_briefs_server() {
 }
 verify_briefs_server() {
   "$PYTHON" "$BRIEFS_API_PATCHER" verify "$WEB_SERVER" "$BRIEFS_API_FRAGMENT"
-  "$PYTHON" -m py_compile "$WEB_SERVER"
+  verify_python_syntax "$WEB_SERVER"
 }
 verify_briefs_navigation() {
   "$PYTHON" "$THREE_GOLD_SIDEBAR_PATCHER" "$APP_SOURCE" verify
@@ -525,7 +676,7 @@ verify_installed() {
   (cd "$SEALED_GOLD/briefs-stocks-v34" && bash VERIFY_BRIEFS_STOCKS_V34.command </dev/null >/dev/null)
   (cd "$SEALED_GOLD/git-watch-r52" && bash 4_VERIFY_GIT_WATCH_PACKAGE.command </dev/null >/dev/null)
   node --check "$PROFILE_PLUGIN/dist/index.js" >/dev/null
-  "$PYTHON" -m py_compile "$PROFILE_PLUGIN/plugin_api.py" "$SCRIPTS/brief_materializer.py" "$SCRIPTS/brief_renderer.py" "$SCRIPTS/materialize-briefs-ai.py" "$SCRIPTS/materialize-briefs-stock.py" "$SCRIPTS/stock_quote_collector.py"
+  verify_python_syntax "$PROFILE_PLUGIN/plugin_api.py" "$SCRIPTS/brief_materializer.py" "$SCRIPTS/brief_renderer.py" "$SCRIPTS/materialize-briefs-ai.py" "$SCRIPTS/materialize-briefs-stock.py" "$SCRIPTS/stock_quote_collector.py"
   bash -n "$PROFILE_CHECKER"
   "$PYTHON" - "$PROFILE_PLUGIN/data/watchlist.json" "$RECEIPT" <<'PY'
 import json,sys
@@ -604,11 +755,13 @@ fi
 for rel in "${RUNTIME_FILES[@]}"; do
   backup_one "$SCRIPTS/$rel" "runtime-$(printf '%s' "$rel" | tr '/' '_')"
 done
-"$PYTHON" - "$BACKUP/BACKUP-METADATA.json" "$PROFILE" "$HERMES_HOME" "$AGENT_ROOT" <<'PY'
-import json,sys
+create_backup_inventory
+"$PYTHON" - "$BACKUP/BACKUP-METADATA.json" "$PROFILE" "$HERMES_HOME" "$AGENT_ROOT" "$BACKUP/BACKUP-INVENTORY.json" <<'PY'
+import hashlib,json,sys
 from pathlib import Path
-out,profile,home,agent=sys.argv[1:]
-Path(out).write_text(json.dumps({'schema_version':1,'release':'HERMES-THREE-GOLD-PRODUCTION-FINAL-V1','profile':profile,'hermes_home':home,'agent_root':agent},indent=2)+'\n')
+out,profile,home,agent,inventory=sys.argv[1:]
+payload={'schema_version':2,'release':'HERMES-THREE-GOLD-PRODUCTION-FINAL-V1','profile':profile,'hermes_home':home,'agent_root':agent,'inventory_sha256':hashlib.sha256(Path(inventory).read_bytes()).hexdigest()}
+Path(out).write_text(json.dumps(payload,indent=2)+'\n')
 PY
 cp "$0" "$BACKUP/three-gold-production-manager.sh"
 chmod 755 "$BACKUP/three-gold-production-manager.sh"
@@ -642,6 +795,11 @@ ensure_plugin_enabled
 install_gold_masters
 
 if [[ "$INJECT_FAILURE_AFTER_RUNTIME" == 1 ]]; then
+  if [[ -n "$INJECT_CORRUPT_BACKUP_LABEL" ]]; then
+    [[ "$MODE" == "candidate-install" && "$INJECT_CORRUPT_BACKUP_LABEL" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "INVALID_BACKUP_CORRUPTION_PROBE" >&2; exit 96; }
+    rm -rf "$BACKUP/state/$INJECT_CORRUPT_BACKUP_LABEL"
+    echo "INJECTED_BACKUP_CORRUPTION=$INJECT_CORRUPT_BACKUP_LABEL" >&2
+  fi
   echo "INJECTED_FAILURE_AFTER_RUNTIME" >&2
   exit 97
 fi

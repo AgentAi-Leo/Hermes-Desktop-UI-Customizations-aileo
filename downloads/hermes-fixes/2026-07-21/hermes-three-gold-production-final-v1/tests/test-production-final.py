@@ -35,6 +35,7 @@ class ProductionFinalContractTests(unittest.TestCase):
             "payload/briefs/dashboard/patch_three_gold_sidebar.py",
             "payload/briefs/dashboard/patch_briefs_dashboard_api.py",
             "payload/briefs/dashboard/dashboard_api.production-b987.ts",
+            "payload/briefs/dashboard/dashboard_api.production-f15.ts",
             "payload/briefs/dashboard/dashboard_api.hardened-generated-at.ts",
             "tests/fixtures/App.data-driven-upstream.tsx",
             "tests/fixtures/App.customized-production-b50dd.tsx",
@@ -62,10 +63,10 @@ class ProductionFinalContractTests(unittest.TestCase):
         for rel, expected in entries.items():
             self.assertEqual(sha(ROOT / rel), expected, rel)
 
-    def test_source_union_is_exact_twenty_five_file_byte_ledger(self):
+    def test_source_union_is_exact_twenty_six_file_byte_ledger(self):
         ledger = MANIFEST["briefs_source_union"]["files"]
-        self.assertEqual(MANIFEST["briefs_source_union"]["file_count"], 25)
-        self.assertEqual(len(ledger), 25)
+        self.assertEqual(MANIFEST["briefs_source_union"]["file_count"], 26)
+        self.assertEqual(len(ledger), 26)
         for rel, expected in ledger.items():
             self.assertEqual(sha(ROOT / rel), expected, rel)
 

@@ -11,6 +11,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[1]
 PATCHER = ROOT / "payload/briefs/dashboard/patch_briefs_dashboard_api.py"
 PRED = ROOT / "payload/briefs/dashboard/dashboard_api.production-b987.ts"
+CURRENT = ROOT / "payload/briefs/dashboard/dashboard_api.production-f15.ts"
 HARD = ROOT / "payload/briefs/dashboard/dashboard_api.hardened-generated-at.ts"
 
 class DashboardApiPatcherTests(unittest.TestCase):
@@ -23,6 +24,32 @@ class DashboardApiPatcherTests(unittest.TestCase):
             result=self.run_patcher(target,"apply")
             self.assertEqual(result.returncode,0,result.stdout+result.stderr)
             self.assertEqual(target.read_bytes(),HARD.read_bytes())
+            text = target.read_text(encoding="utf-8")
+            for required in ("export interface BriefEntry", "briefs:", "export interface SessionImportResponse", "importSessions:"):
+                self.assertIn(required, text)
+            self.assertEqual(self.run_patcher(target,"verify").returncode,0)
+
+    def test_exact_current_predecessor_preserves_newer_contracts(self):
+        with tempfile.TemporaryDirectory(dir="/root") as d:
+            target=Path(d)/"api.ts"; target.write_bytes(CURRENT.read_bytes())
+            result=self.run_patcher(target,"apply")
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+            self.assertIn("MIGRATED_FROM_PINNED_CURRENT_PRODUCTION", result.stdout)
+            self.assertEqual(target.read_bytes(),HARD.read_bytes())
+            text = target.read_text(encoding="utf-8")
+            for required in (
+                "importSessions:",
+                "export interface SessionImportResponse",
+                "authMcpServer:",
+                "auth_flows?:",
+                "platform_label:",
+                "reasoning_effort?:",
+                "reference_max_tokens?:",
+                "fanout?:",
+                "listBriefs:",
+                "export interface BriefEntry",
+            ):
+                self.assertIn(required, text)
             self.assertEqual(self.run_patcher(target,"verify").returncode,0)
 
     def test_hardened_apply_is_idempotent(self):

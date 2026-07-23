@@ -39,6 +39,15 @@ class ThreeGoldSidebarPatcherTests(unittest.TestCase):
             )
             installed = target.read_text(encoding="utf-8")
             self.assertIn("THREE_GOLD_CUSTOM_BUILTIN_PATHS", installed)
+            self.assertIn('import BriefsPage from "@/pages/BriefsPage";', installed)
+            self.assertIn('"/briefs-ai": AiBriefsPage,', installed)
+            self.assertIn('"/brief-stock": StockBriefsPage,', installed)
+            self.assertIn('{ path: "/briefs-ai", label: "BRIEFS-AI", icon: FileText },', installed)
+            self.assertIn('{ path: "/brief-stock", label: "BRIEF-STOCK", icon: TrendingUp },', installed)
+            self.assertLess(
+                installed.index('{ path: "/briefs-ai", label: "BRIEFS-AI"'),
+                installed.index('{ path: "/brief-stock", label: "BRIEF-STOCK"'),
+            )
             self.assertIn("customItems", installed)
             self.assertIn("HERMES\n                </span>", installed)
             self.assertLess(
@@ -70,6 +79,11 @@ class ThreeGoldSidebarPatcherTests(unittest.TestCase):
         corrected, state = patcher.patch_text(first_stage)
         self.assertEqual(state, "MIGRATED_THREE_GOLD_SIDEBAR")
         self.assertIn("THREE_GOLD_RETIRED_PLUGIN_NAMES", corrected)
+        self.assertIn('import BriefsPage from "@/pages/BriefsPage";', corrected)
+        self.assertIn('"/briefs-ai": AiBriefsPage,', corrected)
+        self.assertIn('"/brief-stock": StockBriefsPage,', corrected)
+        self.assertIn('{ path: "/briefs-ai", label: "BRIEFS-AI", icon: FileText },', corrected)
+        self.assertIn('{ path: "/brief-stock", label: "BRIEF-STOCK", icon: BarChart3 },', corrected)
 
     def test_custom_section_is_constrained_to_exact_three_gold_entries(self):
         patcher = load_patcher()

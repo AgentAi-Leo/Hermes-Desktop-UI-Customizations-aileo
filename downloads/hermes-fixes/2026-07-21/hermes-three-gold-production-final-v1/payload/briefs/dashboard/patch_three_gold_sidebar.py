@@ -16,6 +16,36 @@ CURRENT_PRODUCTION_SHA256 = {
     "5fa15a6af9a5a47c9d75b030395e0f474fdd9d223a56add852eb9b5d32961836",
 }
 
+BRIEFS_IMPORT_ANCHOR = 'import CronPage from "@/pages/CronPage";'
+BRIEFS_IMPORT = BRIEFS_IMPORT_ANCHOR + '\nimport BriefsPage from "@/pages/BriefsPage";'
+ROOT_REDIRECT = '''function RootRedirect() {
+  return <Navigate to="/sessions" replace />;
+}'''
+BRIEFS_PAGE_WRAPPERS = '''function AiBriefsPage() {
+  return (
+    <BriefsPage
+      kind="ai"
+      title="BRIEFS-AI"
+      emptyMessage="No AI morning briefs were found yet."
+    />
+  );
+}
+
+function StockBriefsPage() {
+  return (
+    <BriefsPage
+      kind="stock"
+      title="BRIEF-STOCK"
+      emptyMessage="No stock briefs were found yet."
+    />
+  );
+}'''
+BRIEFS_WRAPPER_INSERTION = ROOT_REDIRECT + "\n\n" + BRIEFS_PAGE_WRAPPERS
+ROUTE_ANCHOR = '  "/cron": CronPage,'
+BRIEFS_ROUTE_INSERTION = ROUTE_ANCHOR + '\n  "/briefs-ai": AiBriefsPage,\n  "/brief-stock": StockBriefsPage,'
+NAV_ANCHOR = '  { path: "/cron", labelKey: "cron", label: "Cron", icon: Clock },'
+BRIEFS_NAV_INSERTION = NAV_ANCHOR + '\n  { path: "/briefs-ai", label: "BRIEFS-AI", icon: FileText },\n  { path: "/brief-stock", label: "BRIEF-STOCK", icon: BarChart3 },'
+
 OLD_PARTITION = '''/** Split merged nav into built-in sidebar entries vs plugin tabs, preserving plugin order hints. */
 function partitionSidebarNav(
   builtIn: NavItem[],
@@ -343,15 +373,73 @@ def digest_bytes(content: bytes) -> str:
     return hashlib.sha256(content).hexdigest()
 
 
+def has_complete_first_class_briefs(text: str) -> bool:
+    required = (
+        'import BriefsPage from "@/pages/BriefsPage";',
+        BRIEFS_PAGE_WRAPPERS,
+        '  "/briefs-ai": AiBriefsPage,\n  "/brief-stock": StockBriefsPage,',
+        '{ path: "/briefs-ai", label: "BRIEFS-AI",',
+        '{ path: "/brief-stock", label: "BRIEF-STOCK",',
+    )
+    return all(text.count(part) == 1 for part in required)
+
+
+def ensure_first_class_briefs(text: str) -> str:
+    if has_complete_first_class_briefs(text):
+        return text
+    forbidden = (
+        'import BriefsPage from "@/pages/BriefsPage";',
+        "function AiBriefsPage()",
+        "function StockBriefsPage()",
+        '"/briefs-ai": AiBriefsPage',
+        '"/brief-stock": StockBriefsPage',
+        'path: "/briefs-ai"',
+        'path: "/brief-stock"',
+    )
+    if any(part in text for part in forbidden):
+        raise ValueError("PARTIAL_FIRST_CLASS_BRIEFS_CONTRACT")
+    anchors = (BRIEFS_IMPORT_ANCHOR, ROOT_REDIRECT, ROUTE_ANCHOR, NAV_ANCHOR)
+    if any(text.count(anchor) != 1 for anchor in anchors):
+        raise ValueError("PINNED_FIRST_CLASS_BRIEFS_STRUCTURE_MISMATCH")
+    migrated = (
+        text.replace(BRIEFS_IMPORT_ANCHOR, BRIEFS_IMPORT, 1)
+        .replace(ROOT_REDIRECT, BRIEFS_WRAPPER_INSERTION, 1)
+        .replace(ROUTE_ANCHOR, BRIEFS_ROUTE_INSERTION, 1)
+        .replace(NAV_ANCHOR, BRIEFS_NAV_INSERTION, 1)
+    )
+    if not has_complete_first_class_briefs(migrated):
+        raise ValueError("FIRST_CLASS_BRIEFS_POSTCONDITION_FAILED")
+    return migrated
+
+
+def remove_inserted_first_class_briefs(text: str) -> str | None:
+    inserted = (
+        BRIEFS_IMPORT,
+        BRIEFS_WRAPPER_INSERTION,
+        BRIEFS_ROUTE_INSERTION,
+        BRIEFS_NAV_INSERTION,
+    )
+    if any(text.count(part) != 1 for part in inserted):
+        return None
+    stripped = (
+        text.replace(BRIEFS_IMPORT, BRIEFS_IMPORT_ANCHOR, 1)
+        .replace(BRIEFS_WRAPPER_INSERTION, ROOT_REDIRECT, 1)
+        .replace(BRIEFS_ROUTE_INSERTION, ROUTE_ANCHOR, 1)
+        .replace(BRIEFS_NAV_INSERTION, NAV_ANCHOR, 1)
+    )
+    return stripped
+
+
 def migrate_predecessor(text: str) -> str:
+    source = ensure_first_class_briefs(text)
     if (
-        text.count(OLD_PARTITION) != 1
-        or text.count(OLD_RENDER) != 1
-        or text.count(OLD_MANIFEST_USAGE) != 1
+        source.count(OLD_PARTITION) != 1
+        or source.count(OLD_RENDER) != 1
+        or source.count(OLD_MANIFEST_USAGE) != 1
     ):
         raise ValueError("PINNED_THREE_GOLD_SIDEBAR_STRUCTURE_MISMATCH")
     migrated = (
-        text.replace(OLD_PARTITION, NEW_PARTITION, 1)
+        source.replace(OLD_PARTITION, NEW_PARTITION, 1)
         .replace(OLD_RENDER, NEW_RENDER, 1)
         .replace(OLD_MANIFEST_USAGE, NEW_MANIFEST_USAGE, 1)
     )
@@ -362,6 +450,7 @@ def migrate_predecessor(text: str) -> str:
         or OLD_PARTITION in migrated
         or OLD_RENDER in migrated
         or OLD_MANIFEST_USAGE in migrated
+        or not has_complete_first_class_briefs(migrated)
     ):
         raise ValueError("THREE_GOLD_SIDEBAR_POSTCONDITION_FAILED")
     return migrated
@@ -377,15 +466,20 @@ def reconstruct_predecessor(text: str) -> str | None:
         or OLD_MANIFEST_USAGE in text
     ):
         return None
-    predecessor = (
+    sidebar_predecessor = (
         text.replace(NEW_PARTITION, OLD_PARTITION, 1)
         .replace(NEW_RENDER, OLD_RENDER, 1)
         .replace(NEW_MANIFEST_USAGE, OLD_MANIFEST_USAGE, 1)
     )
-    try:
-        return predecessor if migrate_predecessor(predecessor) == text else None
-    except ValueError:
-        return None
+    stripped = remove_inserted_first_class_briefs(sidebar_predecessor)
+    candidates = [stripped, sidebar_predecessor] if stripped is not None else [sidebar_predecessor]
+    for predecessor in candidates:
+        try:
+            if migrate_predecessor(predecessor) == text:
+                return predecessor
+        except ValueError:
+            continue
+    return None
 
 
 def patch_text(

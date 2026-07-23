@@ -182,6 +182,54 @@ class ProductionLifecycleTests(unittest.TestCase):
         self.assertTrue(backups)
         return backups[-1]
 
+    def refresh_package_ledger(self):
+        ledger = self.package / "CHECKSUMS.sha256"
+        files = sorted(path for path in self.package.rglob("*") if path.is_file() and path != ledger)
+        ledger.write_text(
+            "".join(
+                f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.relative_to(self.package).as_posix()}\n"
+                for path in files
+            )
+        )
+
+    def test_package_verification_rejects_unledgered_file(self):
+        self.refresh_package_ledger()
+        (self.package / "UNLEDGERED").write_text("unexpected\n")
+        result = self.run_manager("package-verify")
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("CHECKSUM_UNLEDGERED_FILE=UNLEDGERED", result.stdout + result.stderr)
+        self.assertNotIn("THREE_GOLD_PACKAGE_VERIFICATION=PASS", result.stdout)
+
+    def test_package_verification_is_repeatable_and_read_only(self):
+        self.refresh_package_ledger()
+        before = digest_tree(self.package)
+        first = self.run_manager("package-verify")
+        second = self.run_manager("package-verify")
+        self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+        self.assertEqual(second.returncode, 0, second.stdout + second.stderr)
+        self.assertEqual(digest_tree(self.package), before)
+
+    def test_read_only_audit_fails_when_required_source_is_missing(self):
+        self.refresh_package_ledger()
+        (self.web / "src/lib/briefs.ts").unlink()
+        result = self.run_manager("audit")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("AUDIT_REQUIRED_SOURCE_PREREQUISITES=FAILED", result.stdout)
+        self.assertNotIn("THREE_GOLD_READ_ONLY_AUDIT=PASS", result.stdout)
+
+    def test_read_only_audit_fails_when_archives_are_missing(self):
+        self.refresh_package_ledger()
+        result = self.run_manager(
+            "audit",
+            env=self.env(
+                THREE_GOLD_HERMES_HOME=str(self.base / "missing-hermes-home"),
+                THREE_GOLD_AGENT_ROOT=str(self.base / "missing-agent"),
+            ),
+        )
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("AUDIT_ARCHIVE_PREREQUISITES=FAILED", result.stdout)
+        self.assertNotIn("THREE_GOLD_READ_ONLY_AUDIT=PASS", result.stdout)
+
     def test_built_dashboard_is_promoted_and_rollback_restores_previous_dist(self):
         self.install(THREE_GOLD_SKIP_BUILD="0", THREE_GOLD_NPM=self.fake_npm(), THREE_GOLD_BUILD_DIST=str(self.web / "dist"))
         deployed = self.agent / "hermes_cli/web_dist"
@@ -270,6 +318,11 @@ class ProductionLifecycleTests(unittest.TestCase):
         self.assertEqual(self.server.read_bytes(), legacy_bytes)
         self.assert_original_restored()
 
+    def test_install_verification_is_read_only_for_python_sources(self):
+        self.refresh_package_ledger()
+        self.install()
+        self.assertFalse((self.agent / "hermes_cli" / "__pycache__").exists())
+
     def test_repeat_install_is_idempotent_and_preserves_watchlist(self):
         self.install()
         watch = self.profile_plugin / "dashboard/data/watchlist.json"
@@ -277,7 +330,25 @@ class ProductionLifecycleTests(unittest.TestCase):
         self.install()
         self.assertEqual(watch.read_bytes(), before)
 
+    def test_corrupt_backup_fails_automatic_rollback_without_deleting_destination(self):
+        self.refresh_package_ledger()
+        result = self.run_manager(
+            "candidate-install", "--profile", PROFILE, "--yes",
+            env=self.env(
+                THREE_GOLD_INJECT_FAILURE_AFTER_RUNTIME="1",
+                THREE_GOLD_INJECT_CORRUPT_BACKUP_LABEL="dashboard-briefs-source",
+            ),
+        )
+        self.assertEqual(result.returncode, 98, result.stdout + result.stderr)
+        self.assertIn("THREE_GOLD_AUTOMATIC_ROLLBACK=FAIL", result.stderr)
+        self.assertNotIn("THREE_GOLD_AUTOMATIC_ROLLBACK=PASS", result.stderr)
+        self.assertEqual(
+            (self.web / "src/lib/briefs.ts").read_bytes(),
+            (self.package / "payload/briefs/dashboard/src/lib/briefs.ts").read_bytes(),
+        )
+
     def test_injected_failure_restores_every_original(self):
+        self.refresh_package_ledger()
         result = self.run_manager(
             "candidate-install", "--profile", PROFILE, "--yes",
             env=self.env(THREE_GOLD_INJECT_FAILURE_AFTER_RUNTIME="1"),
@@ -285,6 +356,7 @@ class ProductionLifecycleTests(unittest.TestCase):
         self.assertEqual(result.returncode, 97, result.stdout + result.stderr)
         self.assertIn("THREE_GOLD_AUTOMATIC_ROLLBACK=PASS", result.stderr)
         self.assert_original_restored()
+        self.assertFalse((self.agent / "hermes_cli" / "__pycache__").exists())
 
     def test_unknown_app_source_fails_closed_and_restores_every_original(self):
         (self.web / "src/App.tsx").write_text(

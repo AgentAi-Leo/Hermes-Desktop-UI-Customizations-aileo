@@ -5,7 +5,7 @@ Pinned authorities: Briefs-AI V34, Briefs-Stocks V34, and Git Watch Revision 52.
 ## Safety order
 
 1. Run `2_VERIFY_PACKAGE.command`.
-2. Run `3_READ_ONLY_AUDIT.command`.
+2. Run `3_READ_ONLY_AUDIT.command`. This fails unless all eight install-required source/build files and both archives are present. Missing profile plugin, runtime-script, configuration, or production-system paths are labeled `AUDIT_INFORMATIONAL_*` because they may legitimately be absent before first installation.
 3. Use `4_CANDIDATE_INSTALL.command` only with explicit disposable root variables.
 4. Complete browser, restart, persistence, isolation, and rollback gates.
 5. Only then run `5_INSTALL_PRODUCTION.command`.

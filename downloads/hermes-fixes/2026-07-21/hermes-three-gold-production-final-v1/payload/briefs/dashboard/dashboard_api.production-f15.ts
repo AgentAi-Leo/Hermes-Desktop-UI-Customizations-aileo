@@ -422,24 +422,6 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ older_than_days, source, profile: profile || undefined }),
     }),
-  listBriefs: (kind: BriefKind) =>
-    fetchJSON<BriefListResponse>(`/api/briefs/${encodeURIComponent(kind)}`),
-  fetchBriefHtml: async (route: string) => {
-    const response = await authedFetch(route);
-    if (!response.ok) {
-      const detail = await response.text().catch(() => response.statusText);
-      throw new Error(`${response.status}: ${detail}`);
-    }
-    return response.blob();
-  },
-  downloadBriefMarkdown: async (route: string) => {
-    const response = await authedFetch(route);
-    if (!response.ok) {
-      const detail = await response.text().catch(() => response.statusText);
-      throw new Error(`${response.status}: ${detail}`);
-    }
-    return response.blob();
-  },
   listFiles: (path?: string) => {
     const query = path ? `?path=${encodeURIComponent(path)}` : "";
     return fetchJSON<ManagedFilesResponse>(`/api/files${query}`);
@@ -1973,25 +1955,6 @@ export interface SessionMessagesResponse {
 export interface LogsResponse {
   file: string;
   lines: string[];
-}
-
-export type BriefKind = "ai" | "stock";
-
-export interface BriefEntry {
-  date: string;
-  generated_at: number;
-  html_exists: boolean;
-  markdown_exists: boolean;
-  html_route: string | null;
-  markdown_route: string | null;
-}
-
-export interface BriefListResponse {
-  kind: BriefKind;
-  label: string;
-  root: string;
-  count: number;
-  briefs: BriefEntry[];
 }
 
 export interface ManagedFileEntry {
