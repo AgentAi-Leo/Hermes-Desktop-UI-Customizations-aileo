@@ -14,22 +14,22 @@ LOG_DIR="$PROFILE_HOME/logs"
 SERVICE="$BIN_DIR/hermes-stock-dashboard-service"
 OPENER="$BIN_DIR/open-hermes-brief-stock"
 APP="$HOME_DIR/Applications/Hermes Dash-CUSTOM.app"
-STAMP="$(date +%Y%m%d-%H%M%S)"
+STAMP="$(/bin/date +%Y%m%d-%H%M%S)"
 BACKUP="$PROFILE_HOME/backups/hermes-stock-launchagent/$STAMP"
-DOMAIN="gui/$(id -u)"
+DOMAIN="gui/$(/usr/bin/id -u)"
 URL="http://127.0.0.1:9120/brief-stock?profile=$PROFILE"
 
 [[ -x "$PYTHON" ]] || { echo "PYTHON_MISSING=$PYTHON"; exit 1; }
 [[ -x "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" ]] || { echo "BRAVE_MISSING=YES"; exit 1; }
 NPM_PATH="$(command -v npm || true)"
 [[ -n "$NPM_PATH" && -x "$NPM_PATH" ]] || { echo "NPM_MISSING_IN_INTERACTIVE_PATH=YES"; exit 1; }
-NPM_DIR="$(dirname "$NPM_PATH")"
-mkdir -p "$BIN_DIR" "$LOG_DIR" "$HOME_DIR/Library/LaunchAgents" "$HOME_DIR/Applications" "$BACKUP"
+NPM_DIR="$(/usr/bin/dirname "$NPM_PATH")"
+/bin/mkdir -p "$BIN_DIR" "$LOG_DIR" "$HOME_DIR/Library/LaunchAgents" "$HOME_DIR/Applications" "$BACKUP"
 
 for path in "$PLIST" "$SERVICE" "$OPENER"; do
-  if [[ -e "$path" ]]; then /bin/cp -p "$path" "$BACKUP/$(basename "$path")"; fi
+  if [[ -e "$path" ]]; then /bin/cp -p "$path" "$BACKUP/$(/usr/bin/basename "$path")"; fi
 done
-if [[ -d "$APP" ]]; then /usr/bin/ditto "$APP" "$BACKUP/$(basename "$APP")"; fi
+if [[ -d "$APP" ]]; then /usr/bin/ditto "$APP" "$BACKUP/$(/usr/bin/basename "$APP")"; fi
 
 "$PYTHON" - "$PLIST" "$SERVICE" "$OPENER" "$NPM_DIR" <<'PY'
 import os, plistlib, sys
@@ -142,7 +142,15 @@ APP_TMP="$APP.installing"
 /bin/rm -rf "$APP"
 /bin/mv "$APP_TMP" "$APP"
 
-/bin/launchctl bootout "$DOMAIN/$LABEL" >/dev/null 2>&1 || true
+if /bin/launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+  /bin/launchctl bootout "$DOMAIN/$LABEL"
+  removed=0
+  for _ in {1..80}; do
+    if ! /bin/launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then removed=1; break; fi
+    /bin/sleep 0.25
+  done
+  [[ "$removed" == "1" ]] || { echo "LAUNCH_AGENT_BOOTOUT_TIMEOUT"; exit 1; }
+fi
 
 PIDS="$(/usr/sbin/lsof -tiTCP:9120 -sTCP:LISTEN 2>/dev/null || true)"
 for pid in $PIDS; do
@@ -160,9 +168,8 @@ for _ in {1..40}; do
 done
 [[ -z "$(/usr/sbin/lsof -tiTCP:9120 -sTCP:LISTEN 2>/dev/null || true)" ]] || { echo "PORT_9120_DID_NOT_STOP"; exit 1; }
 
-/bin/launchctl bootstrap "$DOMAIN" "$PLIST"
 /bin/launchctl enable "$DOMAIN/$LABEL"
-/bin/launchctl kickstart -k "$DOMAIN/$LABEL"
+/bin/launchctl bootstrap "$DOMAIN" "$PLIST"
 
 ready=0
 for _ in {1..120}; do
