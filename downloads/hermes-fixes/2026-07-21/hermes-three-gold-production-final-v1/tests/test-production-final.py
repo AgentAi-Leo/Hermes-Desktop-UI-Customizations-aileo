@@ -63,10 +63,10 @@ class ProductionFinalContractTests(unittest.TestCase):
         for rel, expected in entries.items():
             self.assertEqual(sha(ROOT / rel), expected, rel)
 
-    def test_source_union_is_exact_twenty_six_file_byte_ledger(self):
+    def test_source_union_is_exact_twenty_seven_file_byte_ledger(self):
         ledger = MANIFEST["briefs_source_union"]["files"]
-        self.assertEqual(MANIFEST["briefs_source_union"]["file_count"], 26)
-        self.assertEqual(len(ledger), 26)
+        self.assertEqual(MANIFEST["briefs_source_union"]["file_count"], 27)
+        self.assertEqual(len(ledger), 27)
         for rel, expected in ledger.items():
             self.assertEqual(sha(ROOT / rel), expected, rel)
 

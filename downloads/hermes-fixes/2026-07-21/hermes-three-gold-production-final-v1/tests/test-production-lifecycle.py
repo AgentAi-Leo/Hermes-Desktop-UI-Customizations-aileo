@@ -309,6 +309,28 @@ class ProductionLifecycleTests(unittest.TestCase):
         self.assertEqual(self.config.read_text(), original_config)
         self.assert_original_restored()
 
+    def test_exact_host_api_migrates_and_rollback_restores_host_bytes(self):
+        self.refresh_package_ledger()
+        host = self.package / "payload/briefs/dashboard/dashboard_api.production-b5ed.ts"
+        host_bytes = host.read_bytes()
+        (self.web / "src/lib/api.ts").write_bytes(host_bytes)
+        self.original = self.capture_original()
+        result = self.install()
+        self.assertIn("BRIEFS_DASHBOARD_API=MIGRATED_FROM_PINNED_HOST_PRODUCTION", result.stdout)
+        self.assertEqual(
+            (self.web / "src/lib/api.ts").read_bytes(),
+            (self.package / "payload/briefs/dashboard/dashboard_api.hardened-generated-at.ts").read_bytes(),
+        )
+        backup = self.latest_backup()
+        rollback = subprocess.run(
+            ["bash", str(backup / "RESTORE_THIS_BACKUP.command")],
+            text=True,
+            capture_output=True,
+        )
+        self.assertEqual(rollback.returncode, 0, rollback.stdout + rollback.stderr)
+        self.assertEqual((self.web / "src/lib/api.ts").read_bytes(), host_bytes)
+        self.assert_original_restored()
+
     def test_exact_host_legacy_api_migrates_and_rollback_restores_legacy_bytes(self):
         legacy = (self.package / "payload/briefs/server/legacy_briefs_api_block.pyfrag").read_text()
         anchor = '@app.get("/api/files")'

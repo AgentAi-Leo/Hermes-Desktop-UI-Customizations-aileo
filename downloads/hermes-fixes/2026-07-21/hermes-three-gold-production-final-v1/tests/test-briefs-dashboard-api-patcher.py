@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PATCHER = ROOT / "payload/briefs/dashboard/patch_briefs_dashboard_api.py"
 PRED = ROOT / "payload/briefs/dashboard/dashboard_api.production-b987.ts"
 CURRENT = ROOT / "payload/briefs/dashboard/dashboard_api.production-f15.ts"
+HOST = ROOT / "payload/briefs/dashboard/dashboard_api.production-b5ed.ts"
 HARD = ROOT / "payload/briefs/dashboard/dashboard_api.hardened-generated-at.ts"
 
 class DashboardApiPatcherTests(unittest.TestCase):
@@ -50,6 +51,23 @@ class DashboardApiPatcherTests(unittest.TestCase):
                 "export interface BriefEntry",
             ):
                 self.assertIn(required, text)
+            self.assertEqual(self.run_patcher(target,"verify").returncode,0)
+
+    def test_exact_host_predecessor_migrates_to_union_without_broad_matching(self):
+        with tempfile.TemporaryDirectory(dir="/root") as d:
+            target=Path(d)/"api.ts"; target.write_bytes(HOST.read_bytes())
+            result=self.run_patcher(target,"apply")
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+            self.assertIn("MIGRATED_FROM_PINNED_HOST_PRODUCTION", result.stdout)
+            self.assertEqual(target.read_bytes(),HARD.read_bytes())
+            text=target.read_text(encoding="utf-8")
+            for required in (
+                "listBriefs:", "export interface BriefEntry", "generated_at: number",
+                "importSessions:", "authMcpServer:", "auth_flows?:",
+                "platform_label:", "reasoning_effort?:", "reference_max_tokens?:",
+                "fanout?:",
+            ):
+                self.assertIn(required,text)
             self.assertEqual(self.run_patcher(target,"verify").returncode,0)
 
     def test_hardened_apply_is_idempotent(self):
