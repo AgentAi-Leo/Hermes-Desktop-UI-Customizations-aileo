@@ -99,7 +99,7 @@ required_renderer=[
 missing=[marker for marker in required_renderer if marker not in renderer]
 assert not missing, missing
 assert 'window.confirm(' not in renderer
-for retired in ['className: "git-comments-archived-actions"', '.git-comments-archived-actions{', 'const unarchive = async (id)', 'const deleteArchived = (id, event)', 'kind: "delete-archived"', 'Export format 55 · Visual baseline 55']:
+for retired in ['className: "git-comments-archived-actions"', '.git-comments-archived-actions{', 'git-comments-button.unarchive', 'const unarchive = async (id)', 'const deleteArchived = (id, event)', 'kind: "delete-archived"', 'Export format 55 · Visual baseline 55']:
     assert retired not in renderer, retired
 assert '@router.post("/watchlist/bulk-archived")' in api
 assert 'def bulk_archived_watch_urls' in api

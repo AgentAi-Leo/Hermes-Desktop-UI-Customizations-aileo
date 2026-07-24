@@ -34,6 +34,7 @@ compile(path.read_text(encoding='utf-8'), str(path), 'exec')
 print('GIT_WATCH_R56_API_SYNTAX=PASS')
 PY
 GIT_WATCH_API_PATH="$PACKAGE_DIR/payload/dashboard/plugin_api.py" python -m unittest discover -s tests -p 'test_bulk_api.py' -v
+bash tests/test_installer_r56.sh
 bash -n INSTALL.command
 bash -n tests/github-comments-checker-v27-review.sh
 echo "GIT_WATCH_R56_PACKAGE_VERIFICATION=PASS"

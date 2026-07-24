@@ -20,6 +20,7 @@ This is a successor to published Revision 55 and does **not** rewrite that histo
 - Manifests, checker scripts, configuration, and watchlist/history data are not replaced.
 - Both runtime copies are backed up before mutation.
 - Installation fails closed and restores both copies after an injected or real failure.
+- `VERIFY.command` executes disposable install, data-preservation, injected-rollback, and checksum-valid retired-selector rejection tests through `tests/test_installer_r56.sh`.
 - Every successful install creates a backup-specific `RESTORE_THIS_BACKUP.command`.
 
 ## Verify
