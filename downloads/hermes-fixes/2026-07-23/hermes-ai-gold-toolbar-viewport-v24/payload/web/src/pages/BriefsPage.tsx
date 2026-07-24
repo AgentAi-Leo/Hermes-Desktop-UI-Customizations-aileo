@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CalendarDays, Download, FileText, RefreshCw, Search } from "lucide-react";
 import { Badge } from "@nous-research/ui/ui/components/badge";
 import { Button } from "@nous-research/ui/ui/components/button";
@@ -6,7 +7,7 @@ import { Card, CardContent } from "@nous-research/ui/ui/components/card";
 import { Input } from "@nous-research/ui/ui/components/input";
 import { Spinner } from "@nous-research/ui/ui/components/spinner";
 import { usePageHeader } from "@/contexts/usePageHeader";
-import { usePersistentFullscreen } from "@/lib/persistent-fullscreen";
+import { PERSISTENT_FULLSCREEN_SHELL_ID, usePersistentFullscreen } from "@/lib/persistent-fullscreen";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 import type { BriefEntry, BriefKind, BriefListResponse } from "@/lib/api";
@@ -511,13 +512,110 @@ export default function BriefsPage({ kind, title, emptyMessage }: BriefsPageProp
     </div>
   );
 
+  const aiPersistentToolbar = kind === "ai" ? (
+              <div
+                data-hermes-ai-persistent-toolbar
+                className={cn(
+                  "grid min-h-[76px] shrink-0 grid-cols-[minmax(28rem,1fr)_auto_minmax(30rem,1fr)] items-center gap-4 border-b border-[#24304a] bg-[#0b1020] px-3 py-2 text-[#67e8f9]",
+                  isPersistentFullscreen && "fixed inset-x-0 top-0 z-[80]",
+                )}
+                role="toolbar"
+                aria-label="Persistent AI gold toolbar"
+              >
+                <div className="flex min-w-0 items-center gap-2 justify-self-start">
+                  <button
+                    type="button"
+                    onClick={() => sendAiPlayerCommand("previous")}
+                    className="grid h-[55px] w-[55px] place-items-center border border-[#7d7d7d] bg-[#737373] text-2xl text-white hover:bg-[#858585]"
+                    aria-label="Previous AI topic"
+                    title="Previous AI topic"
+                  >
+                    ←
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => sendAiPlayerCommand("toggle")}
+                    className="grid h-[55px] w-[55px] place-items-center border border-[#8ec5ff] bg-[#737373] text-2xl text-white hover:bg-[#858585]"
+                    aria-label={aiPlaying ? "Pause AI narration" : "Play AI narration"}
+                    aria-pressed={aiPlaying}
+                    title={aiPlaying ? "Pause AI narration" : "Play AI narration"}
+                  >
+                    {aiPlaying ? "⏸" : "▶"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => sendAiPlayerCommand("next")}
+                    className="grid h-[55px] w-[55px] place-items-center border border-[#7d7d7d] bg-[#737373] text-2xl text-white hover:bg-[#858585]"
+                    aria-label="Next AI topic"
+                    title="Next AI topic"
+                  >
+                    →
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={aiVolume}
+                    onChange={(event) => updateAiVolume(Number(event.target.value))}
+                    className="ml-2 w-[200px] accent-[#8ec5ff]"
+                    aria-label="AI narration volume"
+                    title={`Volume ${Math.round(aiVolume * 100)}%`}
+                  />
+                  <button
+                    type="button"
+                    onClick={cycleAiPlaybackRate}
+                    className="ml-2 h-[55px] min-w-[88px] rounded-full border border-[#303646] bg-[#07090f] px-4 text-xl font-bold text-white"
+                    aria-label="AI playback speed"
+                    title="AI playback speed"
+                  >
+                    {aiPlaybackRate}x
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-center gap-[18px] justify-self-center" role="group" aria-label="AI brief date navigation">
+                  <button
+                    type="button"
+                    onClick={() => selectAiAdjacentDate("newer")}
+                    disabled={!aiNewerDate}
+                    className="grid h-[58px] w-[58px] place-items-center rounded-full border border-[#67e8f9] bg-[#67e8f9]/10 text-[34px] leading-none text-[#67e8f9] hover:bg-[#67e8f9] hover:text-[#07111f] disabled:opacity-30"
+                    aria-label="Load newer AI brief date"
+                    title="Newer AI brief date"
+                  >
+                    ‹
+                  </button>
+                  <span className="inline-flex min-h-[58px] min-w-[220px] items-center justify-center whitespace-nowrap rounded-full bg-[#67e8f9] px-7 text-[25px] font-extrabold text-[#07111f]">
+                    {formatArchiveDate(selected?.date ?? "")}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => selectAiAdjacentDate("older")}
+                    disabled={!aiOlderDate}
+                    className="grid h-[58px] w-[58px] place-items-center rounded-full border border-[#67e8f9] bg-[#67e8f9]/10 text-[34px] leading-none text-[#67e8f9] hover:bg-[#67e8f9] hover:text-[#07111f] disabled:opacity-30"
+                    aria-label="Load older AI brief date"
+                    title="Older AI brief date"
+                  >
+                    ›
+                  </button>
+                </div>
+
+                <div className="min-w-0 justify-self-end">
+                  {renderExportButtons("ai-persistent-toolbar")}
+                </div>
+              </div>
+  ) : null;
+  const aiPersistentToolbarPortalTarget =
+    typeof document !== "undefined"
+      ? document.getElementById(PERSISTENT_FULLSCREEN_SHELL_ID)
+      : null;
+
   return (
     <div
       className={cn(
         "flex min-h-0 min-w-0 flex-1 flex-col",
         isPersistentFullscreen
           ? kind === "ai"
-            ? "h-[138.889dvh] w-[138.889%] flex-none origin-top-left scale-[0.72] gap-0 overflow-hidden"
+            ? "h-[138.889dvh] w-[138.889%] flex-none origin-top-left scale-[0.72] gap-0 overflow-hidden pt-[105.556px]"
             : "h-[113.636dvh] w-[113.636%] flex-none origin-top-left scale-[0.88] gap-0 overflow-hidden"
           : "gap-4",
       )}
@@ -679,95 +777,9 @@ export default function BriefsPage({ kind, title, emptyMessage }: BriefsPageProp
               )}
             </div>
 
-            {isPersistentFullscreen && kind === "ai" && (
-              <div
-                data-hermes-ai-persistent-toolbar
-                className="grid min-h-[76px] shrink-0 grid-cols-[minmax(28rem,1fr)_auto_minmax(30rem,1fr)] items-center gap-4 border-b border-[#24304a] bg-[#0b1020] px-3 py-2 text-[#67e8f9]"
-                role="toolbar"
-                aria-label="Persistent AI gold toolbar"
-              >
-                <div className="flex min-w-0 items-center gap-2 justify-self-start">
-                  <button
-                    type="button"
-                    onClick={() => sendAiPlayerCommand("previous")}
-                    className="grid h-[55px] w-[55px] place-items-center border border-[#7d7d7d] bg-[#737373] text-2xl text-white hover:bg-[#858585]"
-                    aria-label="Previous AI topic"
-                    title="Previous AI topic"
-                  >
-                    ←
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => sendAiPlayerCommand("toggle")}
-                    className="grid h-[55px] w-[55px] place-items-center border border-[#8ec5ff] bg-[#737373] text-2xl text-white hover:bg-[#858585]"
-                    aria-label={aiPlaying ? "Pause AI narration" : "Play AI narration"}
-                    aria-pressed={aiPlaying}
-                    title={aiPlaying ? "Pause AI narration" : "Play AI narration"}
-                  >
-                    {aiPlaying ? "⏸" : "▶"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => sendAiPlayerCommand("next")}
-                    className="grid h-[55px] w-[55px] place-items-center border border-[#7d7d7d] bg-[#737373] text-2xl text-white hover:bg-[#858585]"
-                    aria-label="Next AI topic"
-                    title="Next AI topic"
-                  >
-                    →
-                  </button>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.05"
-                    value={aiVolume}
-                    onChange={(event) => updateAiVolume(Number(event.target.value))}
-                    className="ml-2 w-[200px] accent-[#8ec5ff]"
-                    aria-label="AI narration volume"
-                    title={`Volume ${Math.round(aiVolume * 100)}%`}
-                  />
-                  <button
-                    type="button"
-                    onClick={cycleAiPlaybackRate}
-                    className="ml-2 h-[55px] min-w-[88px] rounded-full border border-[#303646] bg-[#07090f] px-4 text-xl font-bold text-white"
-                    aria-label="AI playback speed"
-                    title="AI playback speed"
-                  >
-                    {aiPlaybackRate}x
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-center gap-[18px] justify-self-center" role="group" aria-label="AI brief date navigation">
-                  <button
-                    type="button"
-                    onClick={() => selectAiAdjacentDate("newer")}
-                    disabled={!aiNewerDate}
-                    className="grid h-[58px] w-[58px] place-items-center rounded-full border border-[#67e8f9] bg-[#67e8f9]/10 text-[34px] leading-none text-[#67e8f9] hover:bg-[#67e8f9] hover:text-[#07111f] disabled:opacity-30"
-                    aria-label="Load newer AI brief date"
-                    title="Newer AI brief date"
-                  >
-                    ‹
-                  </button>
-                  <span className="inline-flex min-h-[58px] min-w-[220px] items-center justify-center whitespace-nowrap rounded-full bg-[#67e8f9] px-7 text-[25px] font-extrabold text-[#07111f]">
-                    {formatArchiveDate(selected?.date ?? "")}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => selectAiAdjacentDate("older")}
-                    disabled={!aiOlderDate}
-                    className="grid h-[58px] w-[58px] place-items-center rounded-full border border-[#67e8f9] bg-[#67e8f9]/10 text-[34px] leading-none text-[#67e8f9] hover:bg-[#67e8f9] hover:text-[#07111f] disabled:opacity-30"
-                    aria-label="Load older AI brief date"
-                    title="Older AI brief date"
-                  >
-                    ›
-                  </button>
-                </div>
-
-                <div className="min-w-0 justify-self-end">
-                  {renderExportButtons("ai-persistent-toolbar")}
-                </div>
-              </div>
-            )}
+            {isPersistentFullscreen && aiPersistentToolbarPortalTarget
+              ? createPortal(aiPersistentToolbar, aiPersistentToolbarPortalTarget)
+              : aiPersistentToolbar}
 
             <div className="relative min-h-0 flex-1" style={{ backgroundColor: previewCanvasColor }}>
               {previewUrl && (
@@ -832,18 +844,6 @@ export default function BriefsPage({ kind, title, emptyMessage }: BriefsPageProp
                     : "Select a brief to preview it."}
                 </div>
               )}
-              {kind === "ai" && !previewLoading && previewUrl && selected && (
-                <div
-                  data-hermes-ai-export-overlay
-                  className={cn(
-                    "absolute inset-x-2 top-2 z-20 max-w-[calc(100%-1rem)] rounded-md bg-[#0b1020]/95 p-1.5 shadow-xl sm:left-auto sm:right-4 sm:top-3",
-                    isPersistentFullscreen && "hidden",
-                  )}
-                >
-                  {renderExportButtons("preview")}
-                </div>
-              )}
-
             </div>
           </CardContent>
         </Card>

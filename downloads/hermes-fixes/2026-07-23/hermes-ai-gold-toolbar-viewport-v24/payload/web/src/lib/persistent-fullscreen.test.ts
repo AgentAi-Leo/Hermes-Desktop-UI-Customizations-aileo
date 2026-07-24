@@ -91,11 +91,13 @@ describe("persistent route fullscreen", () => {
     expect(briefsPage).toContain("data-hermes-brief-archive-rail");
     expect(briefsPage).toContain("data-hermes-brief-preview-card");
     expect(briefsPage).toContain("data-hermes-brief-preview-toolbar");
-    expect(briefsPage).toContain("data-hermes-ai-export-overlay");
-    expect(briefsPage.match(/isPersistentFullscreen && \"hidden\"/g)).toHaveLength(4);
+    expect(briefsPage).not.toContain("data-hermes-ai-export-overlay");
+    expect(briefsPage).toContain("data-hermes-ai-persistent-toolbar");
+    expect(briefsPage).toContain("createPortal(aiPersistentToolbar, aiPersistentToolbarPortalTarget)");
+    expect(briefsPage.match(/isPersistentFullscreen && \"hidden\"/g)).toHaveLength(3);
     expect(briefsPage).toContain('kind === "ai"');
     expect(briefsPage).toContain(
-      '"h-[138.889dvh] w-[138.889%] flex-none origin-top-left scale-[0.72] gap-0 overflow-hidden"',
+      '"h-[138.889dvh] w-[138.889%] flex-none origin-top-left scale-[0.72] gap-0 overflow-hidden pt-[105.556px]"',
     );
     expect(briefsPage).toContain(
       '"h-[113.636dvh] w-[113.636%] flex-none origin-top-left scale-[0.88] gap-0 overflow-hidden"',

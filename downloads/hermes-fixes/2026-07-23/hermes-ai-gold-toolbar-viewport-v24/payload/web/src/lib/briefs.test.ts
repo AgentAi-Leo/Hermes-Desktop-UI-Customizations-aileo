@@ -70,14 +70,15 @@ describe("brief helpers", () => {
     expect(BRIEF_EXPORT_BUTTON_CLASS).toContain("[&_svg]:h-6");
   });
 
-  it("keeps the accepted AI export overlay while moving Stock exports and adjacent-date navigation into the selected-date toolbar", () => {
+  it("uses one complete AI rail in every mode while keeping Stock exports in its selected-date toolbar", () => {
     const briefsPage = readFileSync(new URL("../pages/BriefsPage.tsx", import.meta.url), "utf8");
     const briefsSource = readFileSync(new URL("./briefs.ts", import.meta.url), "utf8");
     const app = readFileSync(new URL("../App.tsx", import.meta.url), "utf8");
-    expect(briefsPage.match(/renderExportButtons\(\"preview\"\)/g)).toHaveLength(1);
+    expect(briefsPage.match(/renderExportButtons\(\"preview\"\)/g) ?? []).toHaveLength(0);
+    expect(briefsPage.match(/renderExportButtons\(\"ai-persistent-toolbar\"\)/g)).toHaveLength(1);
+    expect(briefsPage).not.toContain('data-hermes-ai-export-overlay');
     expect(briefsPage.match(/renderExportButtons\(\"stock-toolbar\"\)/g)).toHaveLength(1);
     expect(briefsPage).toContain('data-hermes-stock-date-navigation');
-    expect(briefsPage).toContain('kind === "ai" && !previewLoading && previewUrl && selected');
     expect(briefsPage).not.toContain('kind === "stock" && !previewLoading && previewUrl && selected');
     const inlineBriefDestination = app.includes(
       'to={{ pathname: "/briefs-ai", search: location.search, hash: location.hash }}',
@@ -138,6 +139,18 @@ describe("brief helpers", () => {
     );
     expect(parentOwned).toContain('#hermes-brief-player,.hermes-brief-player-placeholder{display:none!important}');
     expect(parentOwned).toContain('id="hermes-brief-player-controller"');
+  });
+
+  it("keeps one AI toolbar mounted when fullscreen state and date-loaded content change", () => {
+    const briefsPage = readFileSync(new URL("../pages/BriefsPage.tsx", import.meta.url), "utf8");
+
+    expect(briefsPage).not.toContain('{isPersistentFullscreen && kind === "ai" && (');
+    expect(briefsPage).toContain('const aiPersistentToolbar = kind === "ai" ? (');
+    expect(briefsPage).toContain('document.getElementById(PERSISTENT_FULLSCREEN_SHELL_ID)');
+    expect(briefsPage).toContain('createPortal(aiPersistentToolbar, aiPersistentToolbarPortalTarget)');
+    expect(briefsPage).toContain(': aiPersistentToolbar}');
+    expect(briefsPage).toContain('isPersistentFullscreen && "fixed inset-x-0 top-0 z-[80]"');
+    expect(briefsPage).toContain('? "h-[138.889dvh] w-[138.889%] flex-none origin-top-left scale-[0.72] gap-0 overflow-hidden pt-[105.556px]"');
   });
 
   it("maps Stock arrows and brackets to the visible previous and next date controls", () => {
