@@ -1,0 +1,58 @@
+[
+  {
+    "family": "archive",
+    "panelBaselineWidth": 672.89,
+    "panelProposedWidth": 672.89,
+    "panelBaselineHeight": 305.8,
+    "panelProposedHeight": 305.8,
+    "buttonLabelFont": "45px",
+    "buttonHeight": 76,
+    "horizontalPadding": "50px",
+    "cancelWidth": 209.81,
+    "confirmWidth": 227.61,
+    "buttonGap": 24,
+    "actionMessageEdgeDelta": 0
+  },
+  {
+    "family": "delete-watched",
+    "panelBaselineWidth": 771.53,
+    "panelProposedWidth": 771.53,
+    "panelBaselineHeight": 291.39,
+    "panelProposedHeight": 291.39,
+    "buttonLabelFont": "45px",
+    "buttonHeight": 76,
+    "horizontalPadding": "50px",
+    "cancelWidth": 209.81,
+    "confirmWidth": 200.81,
+    "buttonGap": 24,
+    "actionMessageEdgeDelta": 0
+  },
+  {
+    "family": "unarchive-selected",
+    "panelBaselineWidth": 807.2,
+    "panelProposedWidth": 807.2,
+    "panelBaselineHeight": 305.8,
+    "panelProposedHeight": 305.8,
+    "buttonLabelFont": "45px",
+    "buttonHeight": 76,
+    "horizontalPadding": "50px",
+    "cancelWidth": 209.81,
+    "confirmWidth": 413.41,
+    "buttonGap": 24,
+    "actionMessageEdgeDelta": 0
+  },
+  {
+    "family": "delete-selected",
+    "panelBaselineWidth": 844.48,
+    "panelProposedWidth": 844.48,
+    "panelBaselineHeight": 291.39,
+    "panelProposedHeight": 291.39,
+    "buttonLabelFont": "45px",
+    "buttonHeight": 76,
+    "horizontalPadding": "50px",
+    "cancelWidth": 209.81,
+    "confirmWidth": 347,
+    "buttonGap": 24,
+    "actionMessageEdgeDelta": 0
+  }
+]
